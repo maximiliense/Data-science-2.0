@@ -7,7 +7,7 @@ from projects.max_env.configs.inception import training_params, validation_param
 
 # loading/creating model
 model_params = {
-    'dropout': 0.75,
+    'dropout': 0.8,
     'n_labels': 34382,
     'n_input': 35
 }
@@ -23,7 +23,8 @@ train, val, test = occurrence_loader(
     label_name='glc19SpId'
 )
 
-training_params['batch_size'] = 600  # specific for 4 V100 GPUs
+training_params['batch_size'] = 1200  # specific for 4 V100 GPUs
+training_params['lr'] = 0.5
 
 # training model
 fit(
