@@ -105,7 +105,6 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
                 sgd.zero_grad()
                 outputs = model_z(inputs)
                 loss_value = loss(outputs, labels)
-
                 loss_value.backward()
 
                 sgd.step()
