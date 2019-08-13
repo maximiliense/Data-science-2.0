@@ -1,0 +1,7 @@
+{
+    "file": true,
+    "mail": 2,
+    "to_mail": "benjamin.deneu@inria.fr",
+    "to_name": "Benjamin",
+    "machine": "gpu4"
+}

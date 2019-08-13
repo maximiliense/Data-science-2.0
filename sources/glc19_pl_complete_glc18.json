@@ -1,0 +1,6 @@
+{
+  "nef": {
+    "occurrences":"/data/zenith/share/GeoLifeCLEF/occurrences_GLC19/PL_complete_glc18.csv",
+    "rasters": "/data/zenith/share/GeoLifeCLEF/rasters_GLC19/"
+  }
+}

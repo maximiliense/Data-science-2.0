@@ -1,0 +1,6 @@
+{
+  "gpu4": {
+    "occurrences": "/home/data/mat/train.csv",
+    "rasters": "/home/data/rasters_GLC19/"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "gpu4": {
+    "rasters": "/home/data/rasters_GLC19/"
+  },
+  "nef": {
+    "rasters": "/data/zenith/share/GeoLifeCLEF/rasters_GLC19/"
+  }
+}

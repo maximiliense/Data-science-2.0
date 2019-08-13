@@ -1,0 +1,10 @@
+{
+  "gpu4": {
+    "occurrences": "/home/data/occurrences_GLC19/PL_complete.csv",
+    "rasters": "/home/data/rasters_GLC19/"
+  },
+  "nef": {
+    "occurrences":"/data/zenith/share/GeoLifeCLEF/occurrences_GLC19/PL_complete.csv",
+    "rasters": "/data/zenith/share/GeoLifeCLEF/rasters_GLC19/"
+  }
+}

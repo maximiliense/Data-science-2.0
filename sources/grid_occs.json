@@ -1,0 +1,6 @@
+{
+  "gpu4": {
+    "occurrences": "/home/data/grid_points_2.csv",
+    "rasters": "/home/data/rasters_GLC19/"
+  }
+}

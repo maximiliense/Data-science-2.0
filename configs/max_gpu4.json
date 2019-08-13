@@ -1,0 +1,8 @@
+{
+    "file": true,
+    "mail": 0,
+    "to_mail": "servajean@lirmm.fr",
+    "to_name": "Maximilien",
+    "machine": "gpu4",
+    "tensorboard": false
+}

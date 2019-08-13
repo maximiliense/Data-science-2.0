@@ -1,0 +1,12 @@
+{
+  "gpu4": {
+    "occurrences": "/home/data/occurrences_GLC19/full_ign_correct2.csv",
+    "rasters": "/home/data/rasters_4_ign/",
+    "patches": "/home/data/ign_5m/"
+  },
+  "jean-zay": {
+    "occurrences": "/gpfswork/rech/fqg/uid61lx/data/occurrences/full_ign.csv",
+    "rasters": "/gpfswork/rech/fqg/uid61lx/data/rasters/rasters_ign/",
+    "patches": "/gpfsssd/scratch/rech/fqg/uid61lx/data/ign_5m_patches/"
+  }
+}
