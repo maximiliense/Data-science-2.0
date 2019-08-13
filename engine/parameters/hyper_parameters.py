@@ -19,7 +19,12 @@ parameters = {
 }
 
 # this object is use to override modules keywords parameters
-overriding_parameters = {}
+_overriding_parameters = {}
+
+
+def overriding_parameters():
+    global _overriding_parameters
+    return _overriding_parameters
 
 
 def check_aliases(args):
@@ -93,8 +98,8 @@ def check_parameters(args):
         traceback.print_exc()
         print_errors(e)
         print_errors('Error in the parameters: ' + params, do_exit=True)
-    global overriding_parameters
-    overriding_parameters = new_params
+    global _overriding_parameters
+    _overriding_parameters = new_params
 
 
 def _check_config(config, params):
@@ -106,7 +111,7 @@ def _check_config(config, params):
 
 
 def check_config(args):
-    global overriding_parameters
+    global _overriding_parameters
     if args.config is not None:
         config = None
         for config in args.config:
@@ -114,7 +119,7 @@ def check_config(args):
             if os.path.isfile(path + '.py'):
                 imported_file = __import__(path.replace('/', '.'), globals(), locals(), ['config'])
                 if hasattr(imported_file, 'config'):
-                    _check_config(imported_file.config, overriding_parameters)
+                    _check_config(imported_file.config, _overriding_parameters)
             else:
                 print_errors(config + ' does not exist', do_exit=True)
 

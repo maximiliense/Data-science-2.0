@@ -16,11 +16,11 @@ def module(func):
         print_logs('[Executing ' + func.__name__ + ']')
 
         # check changeable parameters (command line and more)
-        if func.__name__ in overriding_parameters:
+        if func.__name__ in overriding_parameters():
             for arg, name in zip(args, func.__code__.co_varnames):
                 kwargs[name] = arg
             args = tuple()
-            merge(kwargs, overriding_parameters[func.__name__])
+            merge(kwargs, overriding_parameters()[func.__name__])
         if len(args) > 0 or len(kwargs) > 0:
             add_config_elements('[' + func.__name__ + ']')
         if len(args) > 0:

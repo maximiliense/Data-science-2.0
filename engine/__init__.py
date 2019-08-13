@@ -18,7 +18,7 @@ def configure_engine():
 
     import os
 
-    from engine.parameters.hyper_parameters import check_parameters, check_config, overriding_parameters
+    from engine.parameters.hyper_parameters import check_parameters, check_config, _overriding_parameters
 
     args = get_argparse()
 
