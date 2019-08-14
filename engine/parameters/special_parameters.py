@@ -7,6 +7,7 @@ import json
 import re
 import sys
 
+from engine.util.console.flags import deprecated
 from engine.util.console.logs import print_logs
 
 root_path = None
@@ -77,6 +78,7 @@ def subexperiment_name(name):
     xp_name = name
 
 
+@deprecated(comment='Should use engine.parameters.path.output_path')
 def output_path(ext):
     create_xp_dir()
     iter_id = '' if xp_name == '' else '_' + xp_name
@@ -85,18 +87,21 @@ def output_path(ext):
     )
 
 
+@deprecated(comment='Should use engine.parameters.path.output_path_without_validation')
 def output_path_without_validation(ext):
     path = output_path(ext)
     path = path if os.path.isfile(path) else re.sub(r"_[0-9]+" + ext, ext, path)
     return path
 
 
+@deprecated(comment='Should not use anymore')
 def create_xp_dir():
     dir_path = os.path.join(homex, experiment_name)
     if not os.path.exists(dir_path):
         os.mkdir(dir_path)
 
 
+@deprecated(comment='Should not use anymore')
 def create_dir(directory):
     create_xp_dir()
     dir_path = os.path.join(homex, experiment_name, directory)
@@ -105,6 +110,7 @@ def create_dir(directory):
     return dir_path
 
 
+@deprecated(comment='Should use engine.parameters.path.output_path')
 def output_path_with_subdir(directory, ext):
     path = create_dir(directory)
     iter_id = '' if xp_name == '' else '_' + xp_name
