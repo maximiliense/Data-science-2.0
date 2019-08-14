@@ -132,7 +132,7 @@ fi
 echo "$oar_p" >> "${script_dir}/${setup_name}${name}.sh"
 
 
-echo "#OAR --name ${setup_name}_$name" >> "${script_dir}/${setup_name}${name}.sh";
+echo "#OAR --name ${setup_name}$name" >> "${script_dir}/${setup_name}${name}.sh";
 print_oar="echo \"Launching job \$OAR_JOBID on \`oarprint gpunb\` gpus on host \`oarprint host\`\"";
 echo "${print_oar}" >> "${script_dir}/${setup_name}${name}.sh";
 echo "module load conda/4.4.0-python3.6">> "${script_dir}/${setup_name}${name}.sh";
