@@ -8,7 +8,8 @@ from engine.parameters import special_parameters
 
 class Net(nn.Module):
 
-    def __init__(self, n_labels=3336, n_input=80, dropout=0.5, last_layer=True, logit=False, exp=False):
+    def __init__(self, n_labels=3336, n_input=80, dropout=0.5, last_layer=True, logit=False, exp=False,
+                 normalize_weight=1.):
         super(Net, self).__init__()
         if n_input >= 15:
             self.Conv2d_1a_3x3 = BasicConv2d(n_input, 80, kernel_size=3, stride=1, padding=1)
@@ -53,6 +54,11 @@ class Net(nn.Module):
             elif isinstance(m, nn.BatchNorm2d):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
+
+        # if poisson loss, for instance...
+        if normalize_weight != 1.:
+            for p in self.parameters():
+                p.data.div_(normalize_weight)
 
     def forward(self, x):
         # (80, 3) x 64 x 64
