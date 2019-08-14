@@ -1,7 +1,7 @@
 import numpy as np
 
 from datascience.data.util.index import reverse_indexing, get_index
-from engine.parameters.special_parameters import output_path
+from engine.path import output_path
 
 
 class Filter(object):
@@ -21,7 +21,7 @@ class FilterLabelsList(Filter):
 
     def _config(self, input_data):
         self.filter = np.zeros((input_data.shape[1],))
-        index_path = output_path('_index.json')
+        index_path = output_path('index.json')
         indexed_labels = reverse_indexing(get_index(index_path))
 
         with open(self.filter_file_path) as f:

@@ -1,6 +1,6 @@
 import matplotlib
 matplotlib.use('Agg')
-from engine.logging.logs import print_logs
+from engine.logging import print_logs
 from engine.parameters.special_parameters import plt_style
 from engine.path import output_path
 import matplotlib.pyplot

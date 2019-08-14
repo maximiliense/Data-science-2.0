@@ -3,8 +3,8 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib
 import random
 import numpy as np
-from engine.util.logs import print_logs
-from engine.plots.util import plt, get_figure, save_fig
+from engine.logging import print_logs
+from datascience.visu.util import plt, get_figure, save_fig
 
 
 def plot_on_map(activations, map_ids, n_cols, n_rows, figsize, log_scale, random_selection, mean_size, selected=tuple(),

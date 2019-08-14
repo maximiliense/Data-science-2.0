@@ -9,7 +9,7 @@ def configure_engine():
     import getpass
     import time
 
-    from engine.gpu import set_devices
+    from engine.hardware import set_devices
     from engine.parameters import special_parameters
     from engine.parameters.special_parameters import last_experiment, configure_homex
     from engine.tensorboard import initialize_tensorboard

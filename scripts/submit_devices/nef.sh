@@ -112,8 +112,8 @@ echo "#!/usr/bin/sh" > "${script_dir}/${setup_name}${name}.sh"
 if [[ "$nb_gpus" -gt "0" ]];
 then
     echo "#OAR -l /nodes=1/gpunum=$nb_gpus,walltime=$walltime" >> "${script_dir}/${setup_name}${name}.sh"
-    oar_p="#OAR -p gpu='YES' and gpucapability>='6.1' and gpucapability<'7.5' and mem>'$min_memory'"
-    options="$options --gpu $gpu_command";
+    oar_p="#OAR -p hardware='YES' and gpucapability>='6.1' and gpucapability<'7.5' and mem>'$min_memory'"
+    options="$options --hardware $gpu_command";
 else
     echo "#OAR -l /nodes=1/core=$nb_cores,walltime=$walltime" >> "${script_dir}/${setup_name}${name}.sh"
     oar_p="#OAR -p mem>'$min_memory'";

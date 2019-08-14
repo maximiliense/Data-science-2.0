@@ -7,7 +7,7 @@ import torch.nn as nn
 from abc import ABC, abstractmethod
 
 from datascience.visu.util.util import plt, save_fig_direct_call
-from engine.gpu import use_gpu
+from engine.hardware import use_gpu
 from engine.logging import print_logs
 from engine.path import output_path
 

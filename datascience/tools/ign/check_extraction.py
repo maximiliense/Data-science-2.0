@@ -4,7 +4,8 @@ import pandas as pd
 import progressbar
 import os
 
-from engine import print_errors, output_path, print_logs
+from engine.logging import print_errors, print_logs
+from engine.path import output_path
 from engine.core import module
 
 

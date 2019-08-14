@@ -8,6 +8,7 @@ import warnings
 import pandas as pd
 
 from datascience.data.util.index import get_index
+from engine.path import output_path
 from engine.parameters import special_parameters
 from engine.core import module
 
@@ -20,10 +21,10 @@ def export_results(dataset, predictions, size=50, header=False):
     order = np.argsort(-predictions, axis=1)
     results = []
 
-    export_path = special_parameters.output_path('_predictions.csv')
+    export_path = output_path('predictions.csv')
 
     # check if labels have been indexed
-    index_path = special_parameters.output_path('_index.json')
+    index_path = output_path('index.json')
 
     indexed_labels = get_index(index_path)
 
@@ -92,9 +93,9 @@ def export_bigdata(model, test, batch_size, buffer_size, size):
     results = []
 
     model.eval()
-    export_path = special_parameters.output_path('_predictions.csv')
+    export_path = output_path('predictions.csv')
     # check if labels have been indexed
-    index_path = special_parameters.output_path('_index.json')
+    index_path = output_path('index.json')
 
     indexed_labels = get_index(index_path)
 

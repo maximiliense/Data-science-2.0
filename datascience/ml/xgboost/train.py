@@ -4,11 +4,14 @@ import ast
 
 from datascience.ml.evaluation import validate, export_results
 from engine.parameters import special_parameters
-from engine.flags.flags import incorrect_structure
-from engine.logging.logs import print_logs, print_h1, print_notif
+from engine.flags import incorrect_structure
+from engine.logging import print_logs, print_h1, print_notif
 from engine.core import module
 
 # TODO separate load/save from fit... like for pytorch and sklearn
+from engine.path import output_path
+
+
 @module
 @incorrect_structure(details='There should be a load and save functions, a load model module. This code should'
                              ' refer to the existing load function.')
@@ -49,16 +52,16 @@ def fit(train, test, validation_only=False, export=False, training_params=None, 
 
         print_logs("Save model...")
         complement = {'best_iteration': bst.best_ntree_limit}
-        with open(special_parameters.output_path("_model_complement.txt"), "w") as file:
+        with open(output_path("model_complement.txt"), "w") as file:
             file.write(str(complement))
-        bst.save_model(special_parameters.output_path("_model"))
-        bst.dump_model(special_parameters.output_path("_model_dump"))
+        bst.save_model(output_path("model"))
+        bst.dump_model(output_path("model_dump"))
 
     else:
         print_logs("load model " + special_parameters.output_path("_model"))
         bst = xgb.Booster()
-        bst.load_model(special_parameters.output_path("_model"))
-        with open(special_parameters.output_path("_model_complement.txt"), "r") as file:
+        bst.load_model(output_path("model"))
+        with open(output_path("model_complement.txt"), "r") as file:
             st = file.read()
             complement = ast.literal_eval(st)
         if 'best_iteration' in complement:

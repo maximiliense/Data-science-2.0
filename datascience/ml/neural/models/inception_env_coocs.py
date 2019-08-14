@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from engine.parameters import special_parameters
+from engine.logging import is_debug, is_verbose
 
 
 class Net(nn.Module):
@@ -164,7 +164,7 @@ class Net(nn.Module):
         return x
 
     def __repr__(self):
-        if special_parameters.verbose and special_parameters.debug:
+        if is_verbose() and is_debug():
             return super(Net, self).__repr__()
         return '(Environmental and co-occurrences Inception)'
 

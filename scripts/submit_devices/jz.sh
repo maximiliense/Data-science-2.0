@@ -102,7 +102,7 @@ done
 
 if [[ "$nb_gpus" -gt "0" ]];
 then
-    options="$options --gpu $gpu_command";
+    options="$options --hardware $gpu_command";
 fi
 
 # constructing script
@@ -119,14 +119,14 @@ fi
 
 echo "#SBATCH  --mem=160G">> ${script_dir}/${setup_name}${name}.slurm
 echo "#SBATCH  --cpus-per-task=4">> ${script_dir}/${setup_name}${name}.slurm
-echo "#SBATCH --gres=gpu:$nb_gpus  # nombre de GPU à réserver">> ${script_dir}/${setup_name}${name}.slurm
+echo "#SBATCH --gres=hardware:$nb_gpus  # nombre de GPU à réserver">> ${script_dir}/${setup_name}${name}.slurm
 echo "#SBATCH --time=$walltime             # (HH:MM:SS)">> ${script_dir}/${setup_name}${name}.slurm
 echo "#SBATCH --output=${out}/${setup_name}${name}_%j.out" >> ${script_dir}/${setup_name}${name}.slurm
 echo "#SBATCH --error=${out}/${setup_name}${name}_%j.err" >> ${script_dir}/${setup_name}${name}.slurm
 
 echo >> ${script_dir}/${setup_name}${name}.slurm
 
-echo "module load pytorch-gpu/py3/1.1" >> ${script_dir}/${setup_name}${name}.slurm
+echo "module load pytorch-hardware/py3/1.1" >> ${script_dir}/${setup_name}${name}.slurm
 echo "module load p7zip/16.02/gcc-9.1.0" >> ${script_dir}/${setup_name}${name}.slurm
 
 
@@ -150,10 +150,10 @@ sbatch ${script_dir}/${setup_name}${name}.slurm
 
 # chargement des modules
 
-# salloc --ntasks=1 --threads-per-core=1 --gres=gpu:1 --partition=gpu_dev --time=00:05:00
+# salloc --ntasks=1 --threads-per-core=1 --gres=hardware:1 --partition=gpu_dev --time=00:05:00
 # module load ...
-# srun --ntasks=1 --gres=gpu:1 python mon_script.py
-# srun --ntasks=1 --gres=gpu:1 python -c "import torch; val=torch.cuda.is_available(); print('val = ', val);"
+# srun --ntasks=1 --gres=hardware:1 python mon_script.py
+# srun --ntasks=1 --gres=hardware:1 python -c "import torch; val=torch.cuda.is_available(); print('val = ', val);"
 
 
 

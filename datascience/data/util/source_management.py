@@ -2,7 +2,7 @@ from engine.parameters import special_parameters
 import os
 import json
 
-from engine.logging.logs import print_errors
+from engine.logging import print_errors
 
 
 def check_source(source_name):

@@ -1,11 +1,10 @@
 from datascience.visu.deep_test_plots import DeriveNeuronOutput
-from datascience.ml.neural.loss.loss import CELoss
+from datascience.ml.neural.loss import CELoss
 from engine.parameters import special_parameters
 from engine.core import module
 
 import torch
-from torch.autograd import Variable
-from torch.autograd import grad
+from torch.autograd import Variable, grad
 
 
 @module

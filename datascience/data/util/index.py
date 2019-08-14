@@ -1,7 +1,7 @@
 import os
 import json
 
-from engine.logging.logs import print_errors, print_debug
+from engine.logging import print_errors, print_debug
 
 
 def get_index(index_path):

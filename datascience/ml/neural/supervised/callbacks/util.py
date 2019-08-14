@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from engine.logging.logs import print_logs
+from engine.logging import print_logs
 
 
 def init_callbacks(cbs, val_modulo, max_cb, dataset, model_z):

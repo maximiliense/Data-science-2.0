@@ -1,7 +1,7 @@
 from datascience.ml.neural.models.util import one_input, one_label, load_or_create
 from engine.core import module
 from engine.parameters import special_parameters
-from engine.logging.logs import print_info
+from engine.logging import print_info
 
 
 @module

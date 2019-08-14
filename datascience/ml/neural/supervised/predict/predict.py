@@ -2,7 +2,7 @@ import numpy as np
 import torch
 
 from engine.tensorboard import add_scalar
-from engine.logging.logs import print_debug
+from engine.logging import print_debug
 
 
 def predict(model, loader, loss, export=False, filters=tuple(), validation_size=10000, compute_loss=False):

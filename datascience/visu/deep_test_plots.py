@@ -3,8 +3,8 @@ import torch
 from torch.nn import Linear, BatchNorm1d
 
 from datascience.ml.neural.models import fully_connected
-from datascience.visu.util.util import plt
-from engine.logging.logs import print_info, print_errors, print_logs
+from datascience.visu.util import plt
+from engine.logging import print_info, print_errors, print_logs
 from engine.core import module
 
 

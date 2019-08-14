@@ -5,7 +5,7 @@ from datascience.data.util.filters import filter_test, index_labels, online_filt
 from datascience.data.util.index import save_reversed_index, get_to_save, get_to_load, get_index, reverse_indexing
 from datascience.data.model_selection.util import perform_split
 from engine.path import output_path
-from engine.logging.logs import print_dataset_statistics
+from engine.logging import print_dataset_statistics
 
 
 def labels_indexed_str(indexer):

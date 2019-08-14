@@ -5,7 +5,7 @@ import numpy as np
 from datascience.ml.neural.supervised.callbacks.util import Callback
 from datascience.visu.deep_test_plots import plot_dataset, plot_activation_rate, plot_decision_boundary, \
     plot_gradient_field, compute_neural_directions
-from datascience.visu.util.util import plt, get_figure
+from datascience.visu.util import plt, get_figure
 from sklearn.decomposition import PCA
 
 

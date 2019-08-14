@@ -5,7 +5,7 @@ import torch.nn.functional as F
 
 from datascience.ml.neural.models.inception import BasicConv2d, InceptionA, InceptionB, InceptionC
 from datascience.ml.neural.models.inception import InceptionD, InceptionE
-from engine.parameters import special_parameters
+from engine.logging import is_verbose, is_debug
 
 
 class Net(nn.Module):
@@ -135,6 +135,6 @@ class Net(nn.Module):
         return x
     
     def __repr__(self):
-        if special_parameters.verbose and special_parameters.debug:
+        if is_verbose() and is_debug():
             return super(Net, self).__repr__()
         return '(Environmental Inception)'
