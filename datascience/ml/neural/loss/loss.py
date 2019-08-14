@@ -141,7 +141,7 @@ def save_loss(losses, ylabel='Loss'):
         )
 
         _json = json.dumps(losses[k][0])
-        path = output_path('_' + k + '_loss.logs')
+        path = output_path('loss_{}.logs'.format(k))
         f = open(path, "w")
         f.write(_json)
         f.close()
@@ -150,7 +150,7 @@ def save_loss(losses, ylabel='Loss'):
 
 
 def load_loss(name):
-    path = output_path('_' + name + '.logs')
+    path = output_path(name + '.logs')
     print_logs('Loading loss at ' + path)
     if os.path.exists(path):
         with open(path) as f:

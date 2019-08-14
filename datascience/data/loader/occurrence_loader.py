@@ -4,7 +4,7 @@ import pandas as pd
 from datascience.data.util.filters import filter_test, index_labels, online_filters_processing
 from datascience.data.util.index import save_reversed_index, get_to_save, get_to_load, get_index, reverse_indexing
 from datascience.data.model_selection.util import perform_split
-from engine.parameters import output_path_without_validation, output_path
+from engine.parameters import output_path
 from engine.util.console.logs import print_dataset_statistics
 
 
@@ -54,7 +54,7 @@ def _occurrence_loader(dataset_class, occurrences, validation_size=0.1, test_siz
 
     # load an existing index
     if get_to_load(save_index):
-        path = output_path_without_validation('_index.json')
+        path = output_path('index.json')
         labels_indexed_bis = reverse_indexing(get_index(path))  # loading index and reversing it
 
     # or create index if failed or did not have to load one
@@ -83,7 +83,7 @@ def _occurrence_loader(dataset_class, occurrences, validation_size=0.1, test_siz
 
     # if need to save index, save it
     if get_to_save(save_index):
-        path = output_path('_index.json')
+        path = output_path('index.json')
         save_reversed_index(path, labels_indexed_bis)  # saving index after reversing it...
 
     columns = (labels, dataset, ids)

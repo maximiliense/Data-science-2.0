@@ -9,6 +9,7 @@ import sys
 
 from engine.util.console.flags import deprecated
 from engine.util.console.logs import print_logs
+from engine.parameters import path as p
 
 root_path = None
 project_path = None
@@ -17,6 +18,8 @@ source_path = 'sources/'
 setup_name = ''
 output_name = ''
 experiment_name = None
+
+validation_id = None
 
 validation_only = False
 export = False
@@ -130,14 +133,14 @@ def configure(args):
 
 
 def export_config():
-    path = output_path('_config.txt')
+    path = p.output_path('config.txt')
     print_logs('Writing config at: ' + path)
     with open(path, 'a') as f:
         f.write(' '.join(sys.argv) + '\n')
 
 
 def add_config_elements(element):
-    path = output_path('_config.txt')
+    path = p.output_path('config.txt')
     with open(path, 'a') as f:
         f.write(element + '\n')
 

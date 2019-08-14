@@ -1,5 +1,4 @@
-from torch.nn import DataParallel
-
+from datascience.ml.metrics import ValidationAccuracy
 from datascience.ml.neural.loss import CategoricalPoissonLoss
 from projects.max_env.configs.inception import training_params, validation_params
 from datascience.ml.neural.models import InceptionEnv, load_create_nn
@@ -22,14 +21,15 @@ train, val, test = occurrence_loader(
     EnvironmentalDataset,
     source='glc18',
     id_name='patch_id',
-    label_name='species_glc_id'
+    label_name='species_glc_id',
+    limit=1000
 )
 
 training_params['loss'] = CategoricalPoissonLoss()
-training_params['log_modulo'] = 100
+training_params['log_modulo'] = 1
 training_params['iterations'] = [10]
 training_params['lr'] = 0.01
 
-validation_params['metrics'] = tuple()  # let us just analyse convergence first
+validation_params['metrics'] = (ValidationAccuracy(1),)  # let us just analyse convergence first
 
 fit(model, train=train, val=val, test=test, training_params=training_params, validation_params=validation_params)

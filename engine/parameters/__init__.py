@@ -1,3 +1,3 @@
-from .special_parameters import get_parameters, subexperiment_name, output_path_without_validation
-from .special_parameters import output_path_with_subdir, output_path
+from .special_parameters import get_parameters, subexperiment_name
+from .path import output_path
 from .hyper_parameters import overriding_parameters

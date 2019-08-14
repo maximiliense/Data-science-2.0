@@ -2,7 +2,7 @@ import torch
 
 from torch.autograd import Variable
 from engine.gpu import use_gpu, first_device, all_devices, device_description
-from engine.parameters import output_path_with_subdir
+from engine.parameters import output_path
 from engine.util.console.logs import print_debug, print_logs
 
 
@@ -64,7 +64,7 @@ def load_or_create(model_class, from_scratch=True, model_params={}, p_input=one_
     if from_scratch:
         model = model_class(**model_params)
     else:  # recover from breakpoint
-        path = output_path_with_subdir('models', '_model.torch')
+        path = output_path('models/model.torch', have_validation=True)
 
         print_logs('Loading model: ' + path)
         model = load_model(path, model_class, model_params=model_params)

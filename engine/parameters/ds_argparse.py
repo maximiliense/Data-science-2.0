@@ -19,6 +19,7 @@ def get_argparse():
     group = parser.add_argument_group('Experiment')
     group.add_argument('--epoch', dest='epoch', type=int, default=1)
     group.add_argument('--from-scratch', dest='from_scratch', type=bool, default=None)
+    group.add_argument('--validation-id', dest='validation_id', type=int, default=None)
     # export
     group.add_argument('--export', dest='export', action='store_true', default=False)
     group.add_argument('--validation', dest='validation_only', action='store_true', default=False)

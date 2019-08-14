@@ -13,25 +13,22 @@ def clean(path, name, disp_only=True):
     else:
         name += '.*'
 
-    model_re = re.compile(r'{}_model\.torch$'.format(name))
-    model_tmp_re = re.compile(r'{}_[0-9]*_model\.torch$'.format(name))
-    csv_re = re.compile(r'{}\.csv$'.format(name))
-    loss_re = re.compile(r'{}\.[jpegpnif]*$'.format(name))
-    lossl_re = re.compile(r'{}_loss\.logs$'.format(name))
-    val_re = re.compile(r'{}_validation\.txt$'.format(name))
-    index_re = re.compile(r'{}_index\.json$'.format(name))
-    config_re = re.compile(r'{}config\.txt$'.format(name))
-    pyc_re = re.compile(r'{}\.pyc$'.format(name))
+    torch_re = re.compile(r'{}.*\.torch$'.format(name))
+    csv_re = re.compile(r'{}.*\.csv$'.format(name))
+    image_re = re.compile(r'{}.*\.[jpegpnif]*$'.format(name))
+    logs_re = re.compile(r'{}.*\.logs$'.format(name))
+    txt_re = re.compile(r'{}.*\.txt$'.format(name))
+    json_re = re.compile(r'{}.*\.json$'.format(name))
+    pyc_re = re.compile(r'{}.*\.pyc$'.format(name))
 
-    recursive_clean(path, (model_re, model_tmp_re, csv_re, loss_re, lossl_re, val_re, index_re, config_re,
-                           pyc_re), disp_only)
+    recursive_clean(path, (torch_re, csv_re, image_re, logs_re, txt_re, json_re, pyc_re), disp_only)
 
 
 def recursive_clean(path, regex, disp_only=True):
 
     for file in os.listdir(path):
         path_file = os.path.join(path, file)
-        if 'final' in file:
+        if 'final' in path_file or 'keep' in path_file:
             continue
         elif os.path.isdir(path_file):
             recursive_clean(path_file, regex, disp_only)

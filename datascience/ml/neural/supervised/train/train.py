@@ -7,7 +7,7 @@ from datascience.ml.neural.supervised.callbacks import init_callbacks, run_callb
 from datascience.ml.neural.loss.loss import CELoss, load_loss, save_loss
 from datascience.ml.neural.supervised.predict import predict
 from datascience.ml.evaluation import validate, export_results
-from engine.parameters import output_path, output_path_with_subdir, special_parameters
+from engine.parameters import output_path, special_parameters
 from engine.util.log_email import send_email
 from engine.util.log_file import save_file
 from engine.util.console.logs import print_errors, print_h1, print_info, print_h2, print_notif
@@ -38,7 +38,7 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
 
     train_loader, test_loader, val_loader = dataset_setup(train, test, val, **training_params)
 
-    validation_path = output_path('_validation.txt')
+    validation_path = output_path('validation.txt')
 
     # training parameters
     optim = optim_params.pop('optimizer')
@@ -67,11 +67,11 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
 
         print_h1('Training: ' + special_parameters.setup_name)
 
-        model_path = output_path_with_subdir('models', '_model.torch')
+        model_path = output_path('models/model.torch')
 
         loss_logs = [] if first_epoch < 1 else load_loss('train_loss')
 
-        loss_val_logs = [] if first_epoch < 1 else load_loss(name='validation_loss')
+        loss_val_logs = [] if first_epoch < 1 else load_loss('validation_loss')
 
         sgd = optim(model_z.parameters(), lr=lr, **optim_params)
         scheduler = MultiStepLR(sgd, milestones=list(iterations), gamma=gamma)
@@ -148,7 +148,7 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
                               ' (epoch: ' + str(epoch + 1) + ')', res)
 
                 # save model used for validation
-                mvp = output_path_with_subdir('models', '_' + validation_id + '_model.torch')
+                mvp = output_path('models/model.torch', validation_id=validation_id)
                 save_model(model_z, mvp)
 
                 # callback

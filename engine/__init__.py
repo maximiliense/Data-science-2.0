@@ -56,6 +56,8 @@ def configure_engine():
     special_parameters.nb_nodes = args.nb_nodes
 
     special_parameters.first_epoch = args.epoch
+    special_parameters.validation_id = args.validation_id
+
     load_model = (args.epoch != 1 or args.validation_only or args.export)
     special_parameters.from_scratch = args.from_scratch if args.from_scratch is not None else not load_model
 

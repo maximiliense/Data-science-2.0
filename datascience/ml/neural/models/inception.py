@@ -195,7 +195,7 @@ class InceptionC(nn.Module):
         branch7x7dbl = self.branch7x7dbl_5(branch7x7dbl)
 
         branch_pool = F.avg_pool2d(x, kernel_size=3, stride=1, padding=1)
-        branch_pool = self.v(branch_pool)
+        branch_pool = self.branch_pool(branch_pool)
 
         outputs = [branch1x1, branch7x7, branch7x7dbl, branch_pool]
         return torch.cat(outputs, 1)

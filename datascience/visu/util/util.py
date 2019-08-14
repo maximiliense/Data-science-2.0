@@ -1,7 +1,8 @@
 import matplotlib
 matplotlib.use('Agg')
 from engine.util.console.logs import print_logs
-from engine.parameters.special_parameters import output_path, plt_style
+from engine.parameters.special_parameters import plt_style
+from engine.parameters import output_path
 import matplotlib.pyplot
 from engine.core import module
 
@@ -60,13 +61,13 @@ def save_fig_direct_call(path=None, figure_name=None, extension='jpeg'):
     global figures
     if figure_name is None:
         for k in figures.keys():
-            path_name = output_path('_' + k + extension)
+            path_name = output_path(k + extension)
             figure = figures[k][1]
             _save_fig(path_name, figure)
             matplotlib.pyplot.close(figure)
         figures = {}
     else:
-        path_name = output_path('_' + figure_name + extension) if path is None else path
+        path_name = output_path(figure_name + extension) if path is None else path
         figure = figures[figure_name][1]
         _save_fig(path_name, figure)
         fig = figures.pop(figure_name)

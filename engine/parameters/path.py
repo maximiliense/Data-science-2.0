@@ -3,25 +3,19 @@ import re
 from engine.parameters import special_parameters
 
 
-def output_path_without_validation(filename):
-    """
-    return the path to an existing file and remove the validation ID if necessary
-    :param filename:
-    :return:
-    """
-    path = output_path(filename)
-    if not os.path.isfile(path):
-        filename = re.sub(r'_[0-9]+.', '.', filename)
-        path = output_path(filename)
-    return path
-
-
-def output_path(filename):
+def output_path(filename, validation_id=None, have_validation=False):
     """
     return the path given the requested file name. Construct the hierarchy if necessary.
+    :param have_validation: True if the file type can have a validation ID
+    :param validation_id: if not None, validation_id will be added to the file
     :param filename: the filename, eventually with some directories e.g. models/model_1.torch
     :return: the path
     """
+
+    if (have_validation and special_parameters.validation_id is not None) or validation_id is not None:
+        sp = os.path.splitext(filename)
+        validation_id = validation_id if validation_id is not None else special_parameters.validation_id
+        filename = '{}_{}{}'.format(sp[0], validation_id, sp[1])
 
     filename = filename if special_parameters.xp_name == '' else special_parameters.xp_name + '_' + filename
 
