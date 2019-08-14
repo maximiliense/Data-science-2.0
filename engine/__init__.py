@@ -1,3 +1,8 @@
+from engine.machines import detect_machine, check_interactive_cluster
+from engine.parameters.ds_argparse import ask_general_config_default
+from engine.parameters.path import export_config
+
+
 def configure_engine():
 
     import getpass
@@ -5,7 +10,7 @@ def configure_engine():
 
     from engine.gpu import set_devices
     from engine.parameters import special_parameters
-    from engine.parameters.special_parameters import output_path, export_config, last_experiment, configure_homex
+    from engine.parameters.special_parameters import last_experiment, configure_homex
     from engine.tensorboard import initialize_tensorboard
     from engine.util.clean import clean
     from engine.util.console.logs import print_h1, print_logs, print_durations, print_debug, print_errors
@@ -39,8 +44,17 @@ def configure_engine():
     special_parameters.setup_name = os.path.split(os.path.split(sys.argv[0])[0])[1]
     special_parameters.project_path = os.path.split(os.path.split(sys.argv[0])[0])[0]
 
-    check_general_config(args)
+    ask_default = check_general_config(args)
+
     special_parameters.configure(args)
+
+    if special_parameters.machine == 'auto':
+        detect_machine()
+
+    special_parameters.interactive_cluster = check_interactive_cluster(special_parameters.machine)
+
+    if ask_default:
+        ask_general_config_default(args)
 
     special_parameters.root_path = os.path.abspath(os.curdir)
 

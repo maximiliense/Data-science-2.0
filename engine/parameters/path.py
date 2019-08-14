@@ -1,6 +1,8 @@
 import os
-import re
+import sys
+
 from engine.parameters import special_parameters
+from engine.util.console import print_logs
 
 
 def output_path(filename, validation_id=None, have_validation=False):
@@ -51,3 +53,16 @@ def _sub_folders_from_path(path):
             path = None
     folders.reverse()
     return folders
+
+
+def export_config():
+    path = output_path('config.txt')
+    print_logs('Writing config at: ' + path)
+    with open(path, 'a') as f:
+        f.write(' '.join(sys.argv) + '\n')
+
+
+def add_config_elements(element):
+    path = output_path('config.txt')
+    with open(path, 'a') as f:
+        f.write(element + '\n')

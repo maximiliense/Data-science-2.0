@@ -3,9 +3,9 @@ import os
 import numpy as np
 import math
 
-from engine.parameters.special_parameters import output_path
+from engine.parameters import output_path
 from engine.tensorboard import add_scalar
-from engine.util.console.flags import incorrect_io
+from engine.flags import incorrect_io
 
 
 class ValidationMetric(ABC):
@@ -22,7 +22,7 @@ class JustExportPredictions(ValidationMetric):
         super().__init__(final_validation)
 
     def __call__(self, predictions, labels):
-        np.save(output_path('_predictions_array.npy'), predictions)
+        np.save(output_path('predictions_array.npy'), predictions)
         return self.__str__()
 
     def __str__(self):

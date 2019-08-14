@@ -3,7 +3,7 @@ from math import ceil
 import numpy as np
 from sklearn.utils import indexable, shuffle
 
-from engine.util.console.flags import deprecated
+from engine.flags.flags import deprecated
 
 
 def train_test_split_stratified(*columns, test_size, random_state=42):

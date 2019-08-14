@@ -4,7 +4,7 @@ import ast
 
 from datascience.ml.evaluation import validate, export_results
 from engine.parameters import special_parameters
-from engine.util.console.flags import incorrect_structure
+from engine.flags.flags import incorrect_structure
 from engine.util.console.logs import print_logs, print_h1, print_notif
 from engine.core import module
 

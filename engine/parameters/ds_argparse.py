@@ -51,7 +51,7 @@ def check_general_config(param_list):
     """
     check default config or save current as default
     :param param_list:
-    :return:
+    :return: False if config was not set True otherwise
     """
     import os
     if param_list.general_config is None:
@@ -62,25 +62,21 @@ def check_general_config(param_list):
 
                 print_logs('[Using config: ' + c_name + ']')
                 param_list.general_config = c_name
+        return False
     else:
-        import socket
-        from engine.parameters.special_nodes import clusters
+        return True
 
-        special_machine = False
-        hostname = socket.gethostname()
-        for c in clusters:
-            if c in hostname:
-                special_machine = True
-                break
-        if not special_machine:
-            a = None
-            while a not in ('', 'y', 'Y', 'n', 'N'):
-                print_notif('Make config ' + param_list.general_config + ' as default: [Y/n]? ', end='')
-                a = input()
-            if a in ('', 'y', 'Y'):
-                config_name = param_list.general_config.replace('.json', '').replace('configs/', '')
-                Path(config_name).touch()
-                print_logs('[Config ' + config_name + ' now default]')
+
+def ask_general_config_default(param_list):
+    if special_parameters.interactive_cluster:
+        a = None
+        while a not in ('', 'y', 'Y', 'n', 'N'):
+            print_notif('Make config ' + param_list.general_config + ' as default: [Y/n]? ', end='')
+            a = input()
+        if a in ('', 'y', 'Y'):
+            config_name = param_list.general_config.replace('.json', '').replace('configs/', '')
+            Path(config_name).touch()
+            print_logs('[Config ' + config_name + ' now default]')
 
 
 def process_other_options(args):

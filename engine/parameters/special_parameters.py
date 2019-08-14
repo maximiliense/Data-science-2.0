@@ -7,9 +7,7 @@ import json
 import re
 import sys
 
-from engine.util.console.flags import deprecated
-from engine.util.console.logs import print_logs
-from engine.parameters import path as p
+from engine.flags import deprecated
 
 root_path = None
 project_path = None
@@ -24,7 +22,9 @@ validation_id = None
 validation_only = False
 export = False
 
-machine = 'gpu4'
+machine = 'auto'
+
+interactive_cluster = True
 
 tensorboard_path = '/home/data/runs'  # tensorboard data will be saved here
 tensorboard_writer = None
@@ -130,19 +130,6 @@ def configure(args):
 
         for k, v in d.items():
             globals()[k] = v
-
-
-def export_config():
-    path = p.output_path('config.txt')
-    print_logs('Writing config at: ' + path)
-    with open(path, 'a') as f:
-        f.write(' '.join(sys.argv) + '\n')
-
-
-def add_config_elements(element):
-    path = p.output_path('config.txt')
-    with open(path, 'a') as f:
-        f.write(element + '\n')
 
 
 def last_experiment(name):
