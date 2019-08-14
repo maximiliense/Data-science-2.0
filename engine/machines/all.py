@@ -13,5 +13,7 @@ def detect_machine():
                 special_parameters.machine = k
                 found_machine = True
                 break
+            if found_machine:
+                break
     if not found_machine:
         special_parameters.machine = 'unknown'
