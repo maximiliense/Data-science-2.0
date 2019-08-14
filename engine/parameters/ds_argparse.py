@@ -2,7 +2,7 @@ import argparse
 from argparse import RawTextHelpFormatter
 from pathlib import Path
 
-from engine.logging.logs import print_notif, print_logs
+from engine.logging.logs import print_notif, print_debug
 
 from engine.parameters import special_parameters
 
@@ -60,7 +60,7 @@ def check_general_config(param_list):
             c_name = c.replace('.json', '')
             if c_name in list_rood_dir:
 
-                print_logs('[Using config: ' + c_name + ']')
+                print_debug('[Using config: ' + c_name + ']')
                 param_list.general_config = c_name
         return False
     else:
@@ -76,7 +76,7 @@ def ask_general_config_default(param_list):
         if a in ('', 'y', 'Y'):
             config_name = param_list.general_config.replace('.json', '').replace('configs/', '')
             Path(config_name).touch()
-            print_logs('[Config ' + config_name + ' now default]')
+            print_debug('[Config ' + config_name + ' now default]')
 
 
 def process_other_options(args):
