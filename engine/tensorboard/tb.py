@@ -1,7 +1,7 @@
 from torch.utils.tensorboard import SummaryWriter
 from engine.parameters import special_parameters
 
-from engine.util.console.logs import print_logs
+from engine.logging.logs import print_logs
 
 import torch
 import torchvision

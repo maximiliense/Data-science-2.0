@@ -2,7 +2,7 @@ from engine.core import module
 
 import os
 
-from engine.util.console import print_info
+from engine.logging import print_info
 
 
 @module

@@ -4,7 +4,7 @@ import sys
 import traceback
 
 from engine.parameters import special_parameters
-from engine.util.console.logs import print_errors
+from engine.logging.logs import print_errors
 
 parameters = {
     'dropout': 'load_create_nn.model_params.dropout',

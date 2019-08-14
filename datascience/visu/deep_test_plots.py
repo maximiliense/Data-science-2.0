@@ -4,7 +4,7 @@ from torch.nn import Linear, BatchNorm1d
 
 from datascience.ml.neural.models import fully_connected
 from datascience.visu.util.util import plt
-from engine.util.console.logs import print_info, print_errors, print_logs
+from engine.logging.logs import print_info, print_errors, print_logs
 from engine.core import module
 
 

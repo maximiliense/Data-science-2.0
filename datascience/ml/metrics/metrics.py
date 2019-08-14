@@ -3,7 +3,7 @@ import os
 import numpy as np
 import math
 
-from engine.parameters import output_path
+from engine.path import output_path
 from engine.tensorboard import add_scalar
 from engine.flags import incorrect_io
 

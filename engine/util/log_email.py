@@ -2,7 +2,7 @@ import smtplib
 from email.message import EmailMessage
 
 from engine.parameters import special_parameters
-from engine.util.console.logs import print_errors
+from engine.logging.logs import print_errors
 
 
 def send_email(subject, content):

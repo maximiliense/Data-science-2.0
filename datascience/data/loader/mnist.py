@@ -5,7 +5,7 @@ import torchvision.transforms as transforms
 
 from engine.parameters.special_parameters import homex
 from engine.core import module
-from engine.util.console.logs import print_dataset_statistics
+from engine.logging.logs import print_dataset_statistics
 
 
 @module

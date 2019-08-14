@@ -9,14 +9,13 @@
 """
 import numpy as np
 import rasterio
-from natsort import natsorted
 import re
 import os
 import warnings
 import pandas as pd
 
 from datascience.visu.util.util import plt, get_figure
-from engine.util.console.logs import print_debug
+from engine.logging.logs import print_debug
 
 MIN_ALLOWED_VALUE = -10000
 EPS = 1

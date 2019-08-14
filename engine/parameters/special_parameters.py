@@ -35,9 +35,6 @@ nb_nodes = 1
 
 check_known_parameters = True
 
-verbose = False
-debug = True
-
 file = False
 mail = 0
 to_mail = ''

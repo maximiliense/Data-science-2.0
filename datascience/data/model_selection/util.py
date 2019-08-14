@@ -1,4 +1,4 @@
-from engine.util.console.logs import print_errors
+from engine.logging.logs import print_errors
 
 
 def perform_split(dataset, test_size, splitter, random_state=42):

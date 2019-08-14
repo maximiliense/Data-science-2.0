@@ -15,4 +15,3 @@ def detect_machine():
                 break
     if not found_machine:
         special_parameters.machine = 'unknown'
-    print('DETECTED: ' + special_parameters.machine)

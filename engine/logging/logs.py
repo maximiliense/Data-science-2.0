@@ -1,7 +1,7 @@
 # from engine.util import special_parameters
 import sys
 
-from engine.parameters import special_parameters
+from engine.logging.verbosity import is_debug, is_verbose
 from engine.util.console.print_colors import color
 
 
@@ -61,7 +61,7 @@ def print_logs(log, end='\n'):
     :param log:
     :return:
     """
-    if special_parameters.verbose or special_parameters.debug:
+    if is_debug() or is_verbose():
         print(color.RED + log + color.END, end=end)
         sys.stdout.flush()
 
@@ -83,7 +83,7 @@ def print_debug(log, end='\n'):
     :param log:
     :return:
     """
-    if special_parameters.debug:
+    if is_debug():
         print(color.RED + log + color.END, end=end)
         sys.stdout.flush()
 
@@ -95,7 +95,7 @@ def print_debug_verbose(log, end='\n'):
     :param log:
     :return:
     """
-    if special_parameters.debug and special_parameters.verbose:
+    if is_verbose() and is_debug():
         print(color.RED + log + color.END, end=end)
         sys.stdout.flush()
 

@@ -1,6 +1,7 @@
 from engine.machines import detect_machine, check_interactive_cluster
 from engine.parameters.ds_argparse import ask_general_config_default
-from engine.parameters.path import export_config
+from engine.path.path import export_config
+from engine.logging.verbosity import set_verbose, set_debug
 
 
 def configure_engine():
@@ -13,7 +14,7 @@ def configure_engine():
     from engine.parameters.special_parameters import last_experiment, configure_homex
     from engine.tensorboard import initialize_tensorboard
     from engine.util.clean import clean
-    from engine.util.console.logs import print_h1, print_logs, print_durations, print_debug, print_errors
+    from engine.logging.logs import print_h1, print_logs, print_durations, print_debug, print_errors
     from engine.util.console.time import get_start_datetime
     from engine.util.console.welcome import print_welcome_message, print_goodbye
     from engine.parameters.ds_argparse import get_argparse, check_general_config, process_other_options
@@ -36,8 +37,8 @@ def configure_engine():
     process_other_options(args.more)
 
     # general setup
-    special_parameters.verbose = args.verbose
-    special_parameters.debug = args.debug
+    set_verbose(args.verbose)
+    set_debug(args.debug)
     special_parameters.plt_style = args.style
     special_parameters.homex = args.homex
 

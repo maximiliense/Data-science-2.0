@@ -2,7 +2,7 @@ import os
 import sys
 
 from engine.parameters import special_parameters
-from engine.util.console import print_logs
+from engine.logging import print_logs
 
 
 def output_path(filename, validation_id=None, have_validation=False):

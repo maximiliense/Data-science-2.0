@@ -2,8 +2,8 @@ import torch
 
 from torch.autograd import Variable
 from engine.gpu import use_gpu, first_device, all_devices, device_description
-from engine.parameters import output_path
-from engine.util.console.logs import print_debug, print_logs
+from engine.path import output_path
+from engine.logging import print_debug, print_logs
 
 
 def one_input(x):

@@ -1,7 +1,7 @@
 import time
 
-from engine.parameters.path import add_config_elements
-from engine.util.console import print_logs, print_durations, format_dict
+from engine.path.path import add_config_elements
+from engine.logging import print_logs, print_durations, format_dict
 from engine.parameters import overriding_parameters
 from engine.util.merge_dict import merge
 

@@ -7,10 +7,11 @@ from datascience.ml.neural.supervised.callbacks import init_callbacks, run_callb
 from datascience.ml.neural.loss.loss import CELoss, load_loss, save_loss
 from datascience.ml.neural.supervised.predict import predict
 from datascience.ml.evaluation import validate, export_results
-from engine.parameters import output_path, special_parameters
+from engine.parameters import special_parameters
+from engine.path import output_path
 from engine.util.log_email import send_email
 from engine.util.log_file import save_file
-from engine.util.console.logs import print_errors, print_h1, print_info, print_h2, print_notif
+from engine.logging.logs import print_errors, print_h1, print_info, print_h2, print_notif
 from engine.util.merge_dict import merge_smooth
 from engine.tensorboard import add_scalar
 from engine.core import module

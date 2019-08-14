@@ -1,4 +1,4 @@
-from engine.util.console.logs import print_statistics
+from engine.logging.logs import print_statistics
 
 import torch
 
@@ -13,7 +13,7 @@ from engine.core import module
 
 import numpy as np
 
-from engine.util.console.logs import print_logs
+from engine.logging.logs import print_logs
 
 
 def export_results(dataset, predictions, size=50, header=False):

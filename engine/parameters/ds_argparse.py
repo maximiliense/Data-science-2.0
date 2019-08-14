@@ -2,7 +2,7 @@ import argparse
 from argparse import RawTextHelpFormatter
 from pathlib import Path
 
-from engine.util.console.logs import print_notif, print_logs
+from engine.logging.logs import print_notif, print_logs
 
 from engine.parameters import special_parameters
 
