@@ -3,6 +3,17 @@ import random
 from engine.util.console.print_colors import color
 
 
+rick_hair = color.OVER_TURQUOISE + color.TURQUOISE + '█' + color.END
+rick_skin = color.OVER_GRAY + color.GRAY + '█' + color.END
+rick_eyebrow = color.OVER_DARKCYAN + color.DARKCYAN + '█' + color.END
+rick_eye = color.OVER_LIGHTGRAY + color.LIGHTGRAY + '█' + color.END
+rick_c = color.OVER_BLACK + color.BLACK + '█' + color.END
+rick_mouth = color.OVER_R_BROWN + color.R_BROWN + '█' + color.END
+
+morty_hair = color.OVER_BROWN + color.BROWN + '█' + color.END
+morty_skin = color.OVER_PALE_PINK + color.PALE_PINK + '█' + color.END
+
+
 welcome = ["""
  _______________________________________
 ( Let's run some experiments, shall we? )
@@ -271,18 +282,30 @@ CgggbU8OU qOp qOdoUOdcb
          |||\/
          |||||
    .....//||||\\....
+""",
+"""
+_________________________________________
+( You would if you could but you can't so.)
+( you won't...                            )
+ -----------------------------------------
+     o 
+      o       """ + rick_hair * 2 + """    """ + rick_hair * 2 + """            
+       o    """ + rick_hair * 6 + """  """ + rick_hair * 4 + """
+            """ + rick_hair * 12 + """
+      """ + rick_hair * 8 + rick_skin * 8 + rick_hair * 6 + """
+        """ + rick_hair * 4 + rick_skin * 12 + rick_hair * 2 + """
+          """ + rick_hair * 2 + rick_skin * 2 + rick_eyebrow * 10 + """
+        """ + rick_hair * 4 + rick_skin * 2 + rick_eye * 4 + rick_skin * 2 + rick_eye * 4 + rick_hair * 2 + """
+      """ + rick_hair * 6 + rick_skin * 2 + rick_eye * 2 + rick_c * 2 + rick_skin * 2 + rick_eye * 2 + rick_c * 2 \
+          + rick_hair * 4 + """
+        """ + rick_hair * 2 + rick_skin * 14 + rick_hair * 2 + """
+          """ + rick_hair * 2 + rick_skin * 12 + """
+        """ + rick_hair * 4 + rick_skin * 4 + rick_mouth * 6 + rick_skin * 2 + """
+              """ + rick_skin * 8 +  """
+                """ + rick_skin * 4 + """
 """
 ]
 
-rick_hair = color.OVER_TURQUOISE + color.TURQUOISE + '█' + color.END
-rick_skin = color.OVER_GRAY + color.GRAY + '█' + color.END
-rick_eyebrow = color.OVER_DARKCYAN + color.DARKCYAN + '█' + color.END
-rick_eye = color.OVER_LIGHTGRAY + color.LIGHTGRAY + '█' + color.END
-rick_c = color.OVER_BLACK + color.BLACK + '█' + color.END
-rick_mouth = color.OVER_R_BROWN + color.R_BROWN + '█' + color.END
-
-morty_hair = color.OVER_BROWN + color.BROWN + '█' + color.END
-morty_skin = color.OVER_PALE_PINK + color.PALE_PINK + '█' + color.END
 goodbye = ["""
 _________________________________________
 ( What is my purpose? You pass butter..   )
