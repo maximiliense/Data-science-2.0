@@ -25,6 +25,7 @@ def output_path(filename):
 
     filename = filename if special_parameters.xp_name == '' else special_parameters.xp_name + '_' + filename
 
+    # construct the hierarchy
     folder_list = _sub_folders_from_path(
         os.path.join(special_parameters.homex, special_parameters.experiment_name, filename)
     )
@@ -32,8 +33,10 @@ def output_path(filename):
     for i in range(len(folder_list) - 1):
         current_path = os.path.join(current_path, folder_list[i])
 
+        # add directory in the hierarchy if it does not exist yet
         if not os.path.isdir(current_path):
             os.mkdir(current_path)
+    # return the file name added to the hierarchy
     return os.path.join(current_path, folder_list[-1])
 
 
