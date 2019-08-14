@@ -16,25 +16,53 @@ def deprecated(comment=''):
             )
             return func(*args, **kwargs)
 
-        new_func.__name__ = func.__name__
-        new_func.__doc__ = func.__doc__
-        new_func.__dict__.update(func.__dict__)
+        set_func_attributes(new_func, func)
         return new_func
 
     return _deprecated
 
 
 def incorrect_structure(details):
-    details = '' if details == '' else ' (' + details + ')'
-
     def _incorrect_structure(func):
         def new_func(*args, **kwargs):
             warnings.warn('Incorrect code structure for %s: %s.' % (func.__name__, details), category=Warning)
             return func(*args, **kwargs)
 
-        new_func.__name__ = func.__name__
-        new_func.__doc__ = func.__doc__
-        new_func.__dict__.update(func.__dict__)
+        set_func_attributes(new_func, func)
         return new_func
 
     return _incorrect_structure
+
+
+def gpu_cpu(details=''):
+    details = '' if details == '' else ' (' + details + ')'
+
+    def _gpu_cpu(func):
+        def new_func(*args, **kwargs):
+            warnings.warn('Incorrect GPU/CPU support for %s%s.' % (func.__name__, details), category=Warning)
+            return func(*args, **kwargs)
+
+        set_func_attributes(new_func, func)
+        return new_func
+
+    return _gpu_cpu
+
+
+def incorrect_io(explanation=''):
+    explanation = '' if explanation == '' else ' (' + explanation + ')'
+
+    def _incorrect_io(func):
+        def new_func(*args, **kwargs):
+            warnings.warn('Incorrect IO support for %s%s.' % (func.__name__, explanation), category=Warning)
+            return func(*args, **kwargs)
+
+        set_func_attributes(new_func, func)
+        return new_func
+
+    return _incorrect_io
+
+
+def set_func_attributes(new_func, old_func):
+    new_func.__name__ = old_func.__name__
+    new_func.__doc__ = old_func.__doc__
+    new_func.__dict__.update(old_func.__dict__)

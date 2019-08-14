@@ -5,6 +5,7 @@ import math
 
 from engine.parameters.special_parameters import output_path
 from engine.tensorboard import add_scalar
+from engine.util.console.flags import incorrect_io
 
 
 class ValidationMetric(ABC):
@@ -67,7 +68,9 @@ class ValidationAccuracyMultiple(ValidationMetric):
     def __str__(self):
         list_out = []
         for i in range(len(self.list_top_k)):
-            list_out.append('Top-'+str(self.list_top_k[i]) + ' accuracy of the model on the test set: %.4f' % self.result[i])
+            list_out.append(
+                'Top-'+str(self.list_top_k[i]) + ' accuracy of the model on the test set: %.4f' % self.result[i]
+            )
         return '\n'.join(list_out)
 
 
@@ -101,10 +104,13 @@ class ValidationAccuracyMultipleBySpecies(ValidationMetric):
         list_out = []
         for i in range(len(self.list_top_k)):
             list_out.append(
-                'Top-' + str(self.list_top_k[i]) + ' accuracy of the model on the test set by species: %.4f' % self.result[i])
+                'Top-' + str(
+                    self.list_top_k[i]) + ' accuracy of the model on the test set by species: %.4f' % self.result[i]
+            )
         return '\n'.join(list_out)
 
 
+@incorrect_io(explanation='Path should be managed by the output_path style functions from the engine...')
 class ValidationAccuracyRange(ValidationMetric):
     def __init__(self, root_dir, xp_name, max_top_k=100, final_validation=False):
         super().__init__(final_validation, True)
@@ -193,6 +199,7 @@ class ValidationAccuracyForAllSpecies(ValidationMetric):
         return "Results of accuracy top"+str(self.top_k)+" for all species saved in file \'"+self.file_name+"\'"
 
 
+@incorrect_io(explanation='Path should be managed by the output_path style functions from the engine...')
 class ValidationAccuracyRangeBySpeciesByFrequency(ValidationMetric):
     def __init__(self, root_dir, xp_name, prior, max_top_k=100, cat=(5, 20, 50, 100), final_validation=False):
         super().__init__(final_validation, True)
