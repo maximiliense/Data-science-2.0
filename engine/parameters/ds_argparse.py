@@ -31,7 +31,7 @@ def get_argparse():
     group.add_argument('--show', dest='show', action='store_true', default=False, help='Show tmp files.')
 
     group = parser.add_argument_group('Hardware')
-    group.add_argument('-g', '--hardware', dest='hardware', type=str, default=None)
+    group.add_argument('-g', '--gpu', dest='gpu', type=str, default=None)
     group.add_argument('--workers', dest='nb_workers', type=int, default=16)
     group.add_argument('--nodes', dest='nb_nodes', type=int, default=1)
 
