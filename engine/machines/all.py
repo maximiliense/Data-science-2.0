@@ -9,7 +9,7 @@ def detect_machine():
     found_machine = False
     for k, v in clusters.items():
         for h in v:
-            if h in hostname:
+            if hostname.startswith(h):
                 special_parameters.machine = k
                 found_machine = True
                 break
