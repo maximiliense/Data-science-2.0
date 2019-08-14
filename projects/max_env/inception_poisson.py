@@ -8,17 +8,14 @@ from datascience.data.datasets import EnvironmentalDataset
 from datascience.ml.neural.supervised import fit
 
 model_params = {
-    'dropout': 0.5,
     'n_labels': 6823,
     'n_input': 77,
-    'exp': True  # poisson loss
+    'exp': True,  # poisson loss,
+    'normalize_weight': 2.  # poisson loss
 }
 
 model = load_create_nn(model_class=InceptionEnv, model_params=model_params)
 
-# reduces weight amplitude
-for p in model.parameters():
-    p.data.div_(2.)
 
 # loading dataset
 train, val, test = occurrence_loader(
