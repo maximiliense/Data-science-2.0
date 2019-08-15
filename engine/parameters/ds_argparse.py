@@ -6,42 +6,80 @@ from engine.logging.logs import print_notif, print_debug
 
 from engine.parameters import special_parameters
 
+"""
+If you want to add an option in argparse, please submit an issue: 
+https://github.com/maximiliense/Data-science-2.0/issues and attach it to the **engine** project.
+"""
+
 
 def get_argparse():
     """
     Construct the argparse for command line use
-    :return:
+    :return: argparse object
     """
     parser = argparse.ArgumentParser(description='Data science platform.', formatter_class=RawTextHelpFormatter)
 
-    parser.add_argument('--name', dest='output_name', type=str, default='*')
+    parser.add_argument('-n', '--name', dest='output_name', type=str, default='*',
+                        help='Set the name of the current execution. Otherwise generated automatically.')
 
     group = parser.add_argument_group('Experiment')
-    group.add_argument('--epoch', dest='epoch', type=int, default=1)
-    group.add_argument('--from-scratch', dest='from_scratch', type=bool, default=None)
-    group.add_argument('--validation-id', dest='validation_id', type=int, default=None)
-    # export
-    group.add_argument('--export', dest='export', action='store_true', default=False)
-    group.add_argument('--validation', dest='validation_only', action='store_true', default=False)
-    # parameters
-    group.add_argument('-p', '--params', dest='params', type=str, default='')
-    group.add_argument('-c', '--config', nargs='+', dest='config', default=None, help='list of configs')
 
-    group.add_argument('--clean', dest='clean', action='store_true', default=False, help='Clean tmp files.')
-    group.add_argument('--show', dest='show', action='store_true', default=False, help='Show tmp files.')
+    group.add_argument('-e', '--epoch', dest='epoch', type=int, default=1,
+                       help='Starts the training at the given epoch (default: 1)')
+
+    group.add_argument('-b', '--from-scratch', dest='from_scratch', type=bool, default=None,
+                       help='Execute the code from scratch (default:Auto).')
+
+    group.add_argument('-i', '--validation-id', dest='validation_id', type=int, default=None,
+                       help='when loading a specific model, use the one use at a specific validation (default: None)')
+
+    group.add_argument('-x', '--export', dest='export', action='store_true', default=False,
+                       help='At the end of the training (if training there is), export the results in a file ('
+                            'default: False)')
+
+    group.add_argument('-vo', '--validation', dest='validation_only', action='store_true', default=False,
+                       help='Do not train the model and execute a validation only (default: False)')
+
+    group.add_argument('-p', '--params', dest='params', type=str, default='',
+                       help='Parameters to override module calls (default=\'\')')
+
+    group.add_argument('-c', '--config', nargs='+', dest='config', default=None,
+                       help='Use configs to override module calls. Multiple configs can be given (default: None)')
+
+    group.add_argument('--clean', dest='clean', action='store_true', default=False,
+                       help='Clean generated files (default: False).')
+
+    group.add_argument('--show', dest='show', action='store_true', default=False,
+                       help='Show generated files (default: False).')
 
     group = parser.add_argument_group('Hardware')
-    group.add_argument('-g', '--gpu', dest='gpu', type=str, default=None)
-    group.add_argument('--workers', dest='nb_workers', type=int, default=16)
-    group.add_argument('--nodes', dest='nb_nodes', type=int, default=1)
+    group.add_argument('-g', '--gpu', dest='gpu', type=str, default=None, help='Ask for GPUs (default: None) ')
+
+    group.add_argument('-w', '--workers', dest='nb_workers', type=int, default=16,
+                       help='Change the default number of parallel workers (default: 16)')
+
+    group.add_argument('-no', '--nodes', dest='nb_nodes', type=int, default=1,
+                       help='Ask for multiple nodes on a cluster (default: 1)')
 
     group = parser.add_argument_group('Specials')
-    group.add_argument('-s', '--serious', dest='serious', action='store_true', default=False)
-    group.add_argument('--general-config', dest='general_config', type=str, default=None)
-    group.add_argument('--homex', dest='homex', type=str, default=None, help='where the data will be exported.')
-    group.add_argument('-v', '--verbose', dest='verbose', action='store_true', default=False)
-    group.add_argument('-d', '--debug', dest='debug', action='store_true', default=False)
-    group.add_argument('--style', dest='style', type=str, default='dark_background')
+    group.add_argument('-s', '--serious', dest='serious', action='store_true', default=False,
+                       help='Hide the funny messaged displayed at the beginning and at the end of an execution '
+                            '(default: False)')
+
+    group.add_argument('-gc', '--general-config', dest='general_config', type=str, default=None,
+                       help='Load a configuration file to adapt the framework execution (default: None)')
+
+    group.add_argument('--homex', dest='homex', type=str, default=None,
+                       help='Change the destination of the exported files. By default the data are exported in the '
+                            'experiment folder (default:None).')
+
+    group.add_argument('-v', '--verbose', dest='verbose', action='store_true', default=False,
+                       help='Activate the verbose mode (default: False).')
+    group.add_argument('-d', '--debug', dest='debug', action='store_true', default=False,
+                       help='Activate the debug mode (default: False). Debug + Verbose is a higher level of verbosity.')
+
+    group.add_argument('--style', dest='style', type=str, default='dark_background',
+                       help='Change the plots style (default: dark_background)')
     group.add_argument('-m', '--more', nargs='+', help='Additional attributes for special_parameters', required=False)
 
     return parser.parse_args()
