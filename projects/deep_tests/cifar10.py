@@ -2,6 +2,7 @@ from datascience.data.loader.cifar10 import cifar
 from datascience.ml.metrics import ValidationAccuracy
 from datascience.ml.neural.supervised import fit
 from datascience.ml.neural.models import CNN, load_create_nn
+from datascience.ml.neural.supervised.callbacks import StatCallback
 
 train, test = cifar()
 
@@ -24,7 +25,8 @@ training_params = {
 }
 
 validation_params = {
-    'metrics': (ValidationAccuracy(1),)
+    'metrics': (ValidationAccuracy(1),),
+    'vcallback':(StatCallback(),)
 }
 
 fit(
