@@ -36,9 +36,6 @@ def compute_filters(model, data, nb_elements=10, nb_filters=10, include_logit=Fa
     # the model parameters should not be optimizable
     _optimizable(model, False)
 
-    # dimension of an image.. the gradient should have the same dimension
-    dimension_grad = batch[0].shape[0] * batch[0].shape[1] * batch[0].shape[2]
-
     filters = []
 
     for layer in range(1, len(model_instance) + include_logit):
