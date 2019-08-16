@@ -10,7 +10,8 @@ def _optimizable(model, is_optimizable=True):
     for p in model.parameters():
         p.require_grad = is_optimizable
 
-def is_convolutive(output):
+
+def _is_convolutive(output):
     return len(output.shape) > 2
 
 
@@ -51,7 +52,7 @@ def compute_filters(model, data, nb_elements=10, nb_filters=10, include_logit=Fa
             # if convolutional filter, a single filter produces multiple outputs..
             # we have to select one
             select_filter_output = 0
-            if j == 0 and is_convolutive(output):
+            if j == 0 and _is_convolutive(output):
                 select_filter_output = randint(0, output.shape[2] - 1)
 
             # select one of the filters randomly
@@ -60,13 +61,12 @@ def compute_filters(model, data, nb_elements=10, nb_filters=10, include_logit=Fa
                 if batch.grad is not None:
                     batch.grad.data.zero_()
 
-                if is_convolutive(output):
+                if _is_convolutive(output):
                     output[i, select_filter, select_filter_output].backward(retain_graph=True)
                 else:
                     output[i, select_filter].backward(retain_graph=True)
 
                 layer_filters.append(torch.flatten(batch.grad[i].detach().cpu()).numpy())
-                print("TEst")
 
     _optimizable(model)
     for i in range(len(filters)):
