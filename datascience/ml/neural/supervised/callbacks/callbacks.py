@@ -92,25 +92,18 @@ class NewStatCallback(Callback):
 
     def __call__(self, validation_id):
         directions = compute_filters( self.model, self.dataset)
-        l = 0
-
+        print("Callback !!!")
         # we iterate over each layer
-        for layer in directions:
-            # layer is a matrix of dimension [nb_filters, input dimension
-            # TODO compute PCA here
-            pass
+        for l, layer in enumerate(directions):
+            vectors = layer - np.mean(layer,axis=0)
 
-        # TODO REMOVE CODE AFTER
-        for m in self.model.modules():
-            if type(m) is Linear and l < len(directions):
-                vectors = np.vstack(directions[l])
-                vectors = vectors - np.mean(vectors,axis=0)
+            pca_dir = PCA(n_components=vectors.shape[1])
+            pca_dir.fit(vectors)
 
-                pca_dir = PCA(n_components=vectors.shape[1])
-                pca_dir.fit(vectors)
-                self.dir_variances[l].append(-np.log(pca_dir.explained_variance_ratio_[0]))
+            var = -np.log(pca_dir.explained_variance_ratio_[0])
+            self.dir_variances[l].append(var)
+            print("Layer %d: var = %f" % (l, var))
 
-                l += 1
 
 
 class GradientCallBack(Callback):
