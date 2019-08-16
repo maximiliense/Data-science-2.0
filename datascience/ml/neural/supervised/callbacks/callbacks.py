@@ -2,7 +2,7 @@ from numpy.linalg import norm
 from torch.nn import Linear, BatchNorm1d
 import numpy as np
 
-from datascience.math.neural_analysis import compute_filters
+from datascience.math import compute_filters
 from datascience.ml.neural.supervised.callbacks.util import Callback
 from datascience.visu.deep_test_plots import plot_dataset, plot_activation_rate, plot_decision_boundary, \
     plot_gradient_field, compute_neural_directions
