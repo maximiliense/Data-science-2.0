@@ -91,13 +91,22 @@ class NewStatCallback(Callback):
 
     def __call__(self, validation_id):
         directions = compute_filters( self.model, self.dataset)
-        print("Callback !!!")
+
         # we iterate over each layer
         for l, layer in enumerate(directions):
+            a = np.random.randint(0,100)
+            b = np.random.randint(0,100)
+
+            print(a,b)
+            print(np.dot(layer[a],layer[b]))
+
+
             vectors = layer - np.mean(layer,axis=0)
 
             pca_dir = PCA(n_components=vectors.shape[1])
             pca_dir.fit(vectors)
+
+            print(pca_dir)
 
             var = -np.log(pca_dir.explained_variance_ratio_[0])
             self.dir_variances[l].append(var)
