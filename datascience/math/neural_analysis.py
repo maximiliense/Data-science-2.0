@@ -9,6 +9,10 @@ from torch.nn import DataParallel
 def _optimizable(model, is_optimizable=True):
     for p in model.parameters():
         p.require_grad = is_optimizable
+    if is_optimizable:
+        model.train()
+    else:
+        model.eval()
 
 
 def _is_convolutive(output):
@@ -39,13 +43,11 @@ def compute_filters(model, data, nb_elements=10, nb_filters=10, include_logit=Fa
 
     # the model parameters should not be optimizable
     _optimizable(model, False)
-    model.train()
 
     filters = []
 
     for layer in range(1, len(model_instance) + include_logit):
         output = model(batch, layer=layer)
-
         layer_filters = []
         filters.append(layer_filters)
 
@@ -67,9 +69,13 @@ def compute_filters(model, data, nb_elements=10, nb_filters=10, include_logit=Fa
                 else:
                     output[i, select_filter].backward(retain_graph=True)
 
-                layer_filters.append(torch.flatten(batch.grad[i].detach().cpu()).numpy())
+                # the tensor must be cloned
+                arr = torch.flatten(batch.grad[i].detach()).clone().cpu().numpy()
+                layer_filters.append(arr)
 
     _optimizable(model)
+
+    # constructing numpy arrays
     for i in range(len(filters)):
         filters[i] = np.array(filters[i])
     return filters
