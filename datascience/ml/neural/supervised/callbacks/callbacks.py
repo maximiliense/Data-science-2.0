@@ -106,28 +106,15 @@ class NewStatCallback(Callback):
 
         # we iterate over each layer
         for l, layer in enumerate(directions):
-            a = np.random.randint(0, 100)
-            b = np.random.randint(0, 100)
-
-            print(a, b)
-            print(layer[a].shape)
-            print(layer[b].shape)
-            print(layer[a])
-            print(layer[b])
-            print(np.linalg.norm(layer[a]), np.linalg.norm(layer[b]))
-            print(np.dot(layer[a], layer[b])/(np.linalg.norm(layer[a]) * np.linalg.norm(layer[b])))
-            exit()
-
             vectors = layer - np.mean(layer, axis=0)
 
             pca_dir = PCA(n_components=vectors.shape[1])
             pca_dir.fit(vectors)
 
-            print(pca_dir)
-
             var = -np.log(pca_dir.explained_variance_ratio_[0])
             self.dir_variances[l].append(var)
             print("Layer %d: var = %f" % (l, var))
+            print("Norm 0: %d / %d = %f" % (np.mean(np.linalg.norm(layer,0,axis=1)), vectors.shape[1],np.mean(np.linalg.norm(layer,0,axis=1))/vectors.shape[1]))
 
 
 class GradientCallBack(Callback):
