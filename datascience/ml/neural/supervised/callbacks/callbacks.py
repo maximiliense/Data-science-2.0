@@ -1,5 +1,5 @@
 from numpy.linalg import norm
-from torch.nn import Linear, BatchNorm1d
+from torch.nn import Linear, BatchNorm1d, Conv2d
 import numpy as np
 
 from datascience.math import compute_filters
@@ -80,7 +80,6 @@ class NewStatCallback(Callback):
         super().initial_call(modulo, nb_calls, dataset, model)
         self.dir_variances = []
         for m in model.modules():
-            if type(m) is Linear:
                 self.dir_variances.append([])
 
     def last_call(self):

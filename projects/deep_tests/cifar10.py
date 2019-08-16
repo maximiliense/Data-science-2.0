@@ -15,8 +15,6 @@ model_params = {
 
 model = load_create_nn(model_class=CustomizableCNN, model_params=model_params)
 
-compute_filters(model, train)
-exit()
 
 training_params = {
     'lr': 0.01,
