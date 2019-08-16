@@ -208,8 +208,8 @@ def configure(training_params, predict_params, validation_params, export_params,
             'iterations': None,
             'gamma': 0.1,
             'loss': CELoss(),
-            'val_modulo': 10,
-            'log_modulo': 10,
+            'val_modulo': 1,
+            'log_modulo': -1,
             'first_epoch': special_parameters.first_epoch
         }
     )
