@@ -98,6 +98,7 @@ class NewStatCallback(Callback):
             b = np.random.randint(0,100)
 
             print(a,b)
+            print(np.linalg.norm(layer[a]),np.linalg.norm(layer[b]))
             print(np.dot(layer[a],layer[b]))
 
 
