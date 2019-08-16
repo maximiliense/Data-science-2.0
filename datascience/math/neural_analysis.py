@@ -66,7 +66,6 @@ def compute_filters(model, data, nb_elements=10, nb_filters=10, include_logit=Fa
                     output[i, select_filter].backward(retain_graph=True)
 
                 layer_filters.append(torch.flatten(batch.grad[i].detach().cpu()).numpy())
-                print("TEst")
 
     _optimizable(model)
     for i in range(len(filters)):
