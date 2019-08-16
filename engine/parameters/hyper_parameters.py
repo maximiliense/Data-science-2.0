@@ -46,6 +46,7 @@ def _recursive_setup_config(keys, config, value, rec=0):
 
 
 def check_parameters(args):
+    global _overriding_parameters
     params = check_aliases(args)
     try:
         if special_parameters.check_known_parameters:
@@ -79,10 +80,9 @@ def check_parameters(args):
 
                 for p in patterns:
                     params = params.replace(p, '"' + p + '"')
-        new_params = {}
         for k, v in params.items():
             k_split = k.split('.')
-            c_param = new_params
+            c_param = _overriding_parameters
             for i, k2 in enumerate(k_split):
                 if i < len(k_split) - 1:
                     if k2 not in c_param:
@@ -98,8 +98,6 @@ def check_parameters(args):
         traceback.print_exc()
         print_errors(e)
         print_errors('Error in the parameters: ' + params, do_exit=True)
-    global _overriding_parameters
-    _overriding_parameters = new_params
 
 
 def _check_config(config, params):
@@ -122,5 +120,4 @@ def check_config(args):
                     _check_config(imported_file.config, _overriding_parameters)
             else:
                 print_errors(config + ' does not exist', do_exit=True)
-
         return config

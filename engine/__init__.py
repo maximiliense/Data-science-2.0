@@ -24,7 +24,7 @@ def configure_engine():
 
     import os
 
-    from engine.parameters.hyper_parameters import check_parameters, check_config, _overriding_parameters
+    from engine.parameters import hyper_parameters as hp
 
     args = get_argparse()
 
@@ -76,8 +76,8 @@ def configure_engine():
     load_model = (args.epoch != 1 or args.validation_only or args.export)
     special_parameters.from_scratch = not args.load_model if args.load_model is not None else not load_model
 
-    config_name = check_config(args)
-    check_parameters(args)
+    config_name = hp.check_config(args)
+    hp.check_parameters(args)
     default_name = os.path.split(sys.argv[0])[-1].replace('.py', '')
     if args.output_name == '*':
         if config_name is None:

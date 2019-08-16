@@ -22,6 +22,8 @@ validation_id = None
 validation_only = False
 export = False
 
+from_scratch = True
+
 machine = 'auto'
 
 interactive_cluster = True

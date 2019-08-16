@@ -2,7 +2,7 @@ import time
 
 from engine.path.path import add_config_elements
 from engine.logging import print_logs, print_durations, format_dict_and_tuple
-from engine.parameters import overriding_parameters
+from engine.parameters import hyper_parameters as hp
 from engine.util.merge_dict import merge
 
 
@@ -16,11 +16,11 @@ def module(func):
         print_logs('[Executing ' + func.__name__ + ']')
 
         # check changeable parameters (command line and more)
-        if func.__name__ in overriding_parameters():
+        if func.__name__ in hp.overriding_parameters():
             for arg, name in zip(args, func.__code__.co_varnames):
                 kwargs[name] = arg
             args = tuple()
-            merge(kwargs, overriding_parameters()[func.__name__])
+            merge(kwargs, hp.overriding_parameters()[func.__name__])
         if len(args) > 0 or len(kwargs) > 0:
             add_config_elements('[' + func.__name__ + ']')
         if len(args) > 0:
