@@ -54,8 +54,6 @@ def compute_filters(model, data, nb_elements=10, nb_filters=10, include_logit=Fa
             # select one of the filters randomly
             select_filter = randint(0, output.shape[1] - 1)
             for i in range(nb_elements):
-                found_filter = False
-                c = 0
                 if batch.grad is not None:
                     batch.grad.data.zero_()
 
