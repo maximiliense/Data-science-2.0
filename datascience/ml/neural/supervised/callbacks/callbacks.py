@@ -108,7 +108,7 @@ class NewStatCallback(Callback):
         for l, layer in enumerate(directions):
             vectors = layer - np.mean(layer, axis=0)
 
-            pca_dir = PCA(n_components=vectors.shape[1])
+            pca_dir = PCA(n_components=100)
             pca_dir.fit(vectors)
 
             var = -np.log(pca_dir.explained_variance_ratio_[0])
