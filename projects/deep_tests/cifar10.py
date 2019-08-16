@@ -29,7 +29,7 @@ training_params = {
 
 validation_params = {
     'metrics': (ValidationAccuracy(1),),
-    #'vcallback': (NewStatCallback(),)
+    'vcallback': (NewStatCallback(),)
 }
 
 fit(
