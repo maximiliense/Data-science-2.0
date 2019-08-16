@@ -74,7 +74,7 @@ def configure_engine():
     special_parameters.validation_id = args.validation_id
 
     load_model = (args.epoch != 1 or args.validation_only or args.export)
-    special_parameters.from_scratch = args.from_scratch if args.from_scratch is not None else not load_model
+    special_parameters.from_scratch = not args.load_model if args.load_model is not None else not load_model
 
     config_name = check_config(args)
     check_parameters(args)
