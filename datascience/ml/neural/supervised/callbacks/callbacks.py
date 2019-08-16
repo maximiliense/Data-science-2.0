@@ -2,6 +2,7 @@ from numpy.linalg import norm
 from torch.nn import Linear, BatchNorm1d
 import numpy as np
 
+from datascience.math.neural_analysis import compute_filters
 from datascience.ml.neural.supervised.callbacks.util import Callback
 from datascience.visu.deep_test_plots import plot_dataset, plot_activation_rate, plot_decision_boundary, \
     plot_gradient_field, compute_neural_directions
@@ -58,6 +59,48 @@ class StatCallback(Callback):
         directions, _, _ = compute_neural_directions(self.model, self.dataset.dataset, absolute_value=True,
                                                      threshold=False, min_activations=150)
         l = 0
+        for m in self.model.modules():
+            if type(m) is Linear and l < len(directions):
+                vectors = np.vstack(directions[l])
+                vectors = vectors - np.mean(vectors,axis=0)
+
+                pca_dir = PCA(n_components=vectors.shape[1])
+                pca_dir.fit(vectors)
+                self.dir_variances[l].append(-np.log(pca_dir.explained_variance_ratio_[0]))
+
+                l += 1
+
+
+class NewStatCallback(Callback):
+    def __init__(self):
+        super().__init__()
+        self.dir_variances = None
+
+    def initial_call(self, modulo, nb_calls, dataset, model):
+        super().initial_call(modulo, nb_calls, dataset, model)
+        self.dir_variances = []
+        for m in model.modules():
+            if type(m) is Linear:
+                self.dir_variances.append([])
+
+    def last_call(self):
+        fig = get_figure('StatCallback')
+        ax = fig.gca()
+        for j, i in enumerate(self.dir_variances):
+            ax.plot(i, label='Layer ' + str(j + 1))
+        fig.legend()
+
+    def __call__(self, validation_id):
+        directions = compute_filters( self.model, self.dataset)
+        l = 0
+
+        # we iterate over each layer
+        for layer in directions:
+            # layer is a matrix of dimension [nb_filters, input dimension
+            # TODO compute PCA here
+            pass
+
+        # TODO REMOVE CODE AFTER
         for m in self.model.modules():
             if type(m) is Linear and l < len(directions):
                 vectors = np.vstack(directions[l])

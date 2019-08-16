@@ -58,7 +58,8 @@ def load_model(path, model=None, model_params={}):
 def load_or_create(model_class, from_scratch=True, model_params={}, p_input=one_input, p_label=one_label):
 
     # update class to dynamically manage the input
-    model_class.forward = decorated_forward(model_class.forward, p_input)
+    # not necessarily useful in pytorch 1.2
+    # model_class.forward = decorated_forward(model_class.forward, p_input)
 
     # Constructing the model
     if from_scratch:

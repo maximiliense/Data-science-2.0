@@ -1,32 +1,35 @@
 from datascience.data.loader.cifar10 import cifar
+from datascience.math.neural_analysis import compute_filters
 from datascience.ml.metrics import ValidationAccuracy
 from datascience.ml.neural.supervised import fit
 from datascience.ml.neural.models import CNN, load_create_nn
-from datascience.ml.neural.supervised.callbacks import StatCallback
+from datascience.ml.neural.models.cnn import CustomizableCNN
+from datascience.ml.neural.supervised.callbacks.callbacks import NewStatCallback
 
 train, test = cifar()
 
 # classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
 model_params = {
-    'relu': True,
-    'width': 100  # 5, 20, 50, 100, 200
 }
 
-model = load_create_nn(model_class=CNN, model_params=model_params)
+model = load_create_nn(model_class=CustomizableCNN, model_params=model_params)
+
+compute_filters(model, train)
+exit()
 
 training_params = {
-    'lr': 0.1,
-    'iterations': [50, 80, 100],  # iterations with learning rate decay
+    'lr': 0.01,
+    'iterations': [10],  # iterations with learning rate decay
     'log_modulo': -1,  # print loss once per epoch
-    'val_modulo': 5,  # run a validation on the validation set every 5 epochs
-    'batch_size': 10
+    'val_modulo': 1,  # run a validation on the validation set every 5 epochs
+    'batch_size': 64
 
 }
 
 validation_params = {
     'metrics': (ValidationAccuracy(1),),
-    'vcallback':(StatCallback(),)
+    #'vcallback': (NewStatCallback(),)
 }
 
 fit(

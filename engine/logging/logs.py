@@ -1,8 +1,12 @@
 # from engine.util import special_parameters
 import sys
 
+from torch import nn
+from torch.nn import DataParallel
+
 from engine.logging.verbosity import is_debug, is_verbose
 from engine.util.console.print_colors import color
+from inspect import isclass, getmodule
 
 
 def print_info(log, end='\n'):
@@ -137,13 +141,46 @@ def print_dataset_statistics(train_size, validation_size, test_size, source_name
     print_statistics('-' * 50)
 
 
-def format_dict(d, t=0, tab='  '):
-    result = "{\n"
+def format_dict_and_tuple(d, t=0, tab='  '):
 
-    for k, v in d.items():
-        if type(v) is not dict:
-            result += tab * (t+1) + str(k) + ': ' + str(v) + ',\n'
-        else:
-            result += tab * (t+1) + str(k) + ': ' + format_dict(v, t + 1) + ',\n'
-    result += tab * t + '}'
+    result = '{\n' if type(d) is dict else '(\n'
+    result += _format_dict(d, t, tab) if type(d) is dict else _format_tuple(d, t, tab)
+    result += tab * t + '}' if type(d) is dict else tab * t + ')'
     return result
+
+
+def _format_dict(d, t=0, tab='  '):
+    result = ''
+    for k, v in d.items():
+        if type(v) is not dict and type(v) is not tuple:
+            result += tab * (t+1) + str(k) + ': ' + _object_str(v) + ',\n'
+        else:
+            result += tab * (t+1) + str(k) + ': ' + format_dict_and_tuple(v, t + 1) + ',\n'
+    return result
+
+
+def _format_tuple(d, t=0, tab='  '):
+    result = ''
+    for v in d:
+        if type(v) is not dict and type(v) is not tuple:
+            result += tab * (t + 1) + _object_str(v) + ',\n'
+        else:
+            result += tab * (t + 1) + format_dict_and_tuple(v, t + 1) + ',\n'
+    return result
+
+
+def _object_str(el):
+
+    if isclass(el):
+        return el.__name__
+    elif isinstance(el, nn.Module):
+        if type(el) is DataParallel:
+            el = el.module
+        repr_filename = el.__repr__.__code__.co_filename
+        base_repr_filename = getmodule(el.__class__.__base__).__file__
+        if repr_filename == base_repr_filename and (not is_verbose() or not is_debug()):
+            return 'model(' + el.__class__.__name__ + ')'
+        else:
+            return repr(el)
+    else:
+        return repr(el)

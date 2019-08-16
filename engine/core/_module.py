@@ -1,7 +1,7 @@
 import time
 
 from engine.path.path import add_config_elements
-from engine.logging import print_logs, print_durations, format_dict
+from engine.logging import print_logs, print_durations, format_dict_and_tuple
 from engine.parameters import overriding_parameters
 from engine.util.merge_dict import merge
 
@@ -24,12 +24,12 @@ def module(func):
         if len(args) > 0 or len(kwargs) > 0:
             add_config_elements('[' + func.__name__ + ']')
         if len(args) > 0:
-            print_logs('Args: '+str(args))
-            add_config_elements('Args: '+str(args))
+            print_logs('Args: '+format_dict_and_tuple(args))
+            add_config_elements('Args: ' + format_dict_and_tuple(args))
 
         if len(kwargs) > 0:
-            print_logs('Kwargs: ' + format_dict(kwargs))
-            add_config_elements('Kwargs: ' + format_dict(kwargs))
+            print_logs('Kwargs: ' + format_dict_and_tuple(kwargs))
+            add_config_elements('Kwargs: ' + format_dict_and_tuple(kwargs))
 
         results = func(*args, **kwargs)
         print_durations(time.time() - start)

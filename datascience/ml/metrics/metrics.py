@@ -16,6 +16,9 @@ class ValidationMetric(ABC):
     def get_result(self):
         return self.result
 
+    def __repr__(self):
+        return self.__class__.__name__
+
 
 class JustExportPredictions(ValidationMetric):
     def __init__(self, final_validation=False):

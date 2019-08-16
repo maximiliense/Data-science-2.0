@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from torch.nn import Linear, BatchNorm1d
+from torch.nn import Linear, BatchNorm1d, Conv2d, BatchNorm2d
 
 from datascience.ml.neural.models import fully_connected
 from datascience.visu.util import plt
