@@ -19,7 +19,7 @@ training_params = {
     'iterations': [50, 80, 100],  # iterations with learning rate decay
     'log_modulo': -1,  # print loss once per epoch
     'val_modulo': 1,  # run a validation on the validation set every 5 epochs
-    'batch_size': 10
+    'batch_size': 1024
 
 }
 

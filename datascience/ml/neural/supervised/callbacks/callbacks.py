@@ -114,7 +114,7 @@ class NewStatCallback(Callback):
             var = -np.log(pca_dir.explained_variance_ratio_[0])
             self.dir_variances[l].append(var)
             print("Layer %d: var = %f" % (l, var))
-            print(np.linalg.norm(layer,axis=1))
+            print("Norm 0: %d / %d = %f" % (np.mean(np.linalg.norm(layer,0,axis=1)), vectors.shape[1],np.mean(np.linalg.norm(layer,0,axis=1))/vectors.shape[1]))
 
 
 class GradientCallBack(Callback):
