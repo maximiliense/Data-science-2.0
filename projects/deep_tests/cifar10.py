@@ -1,8 +1,7 @@
 from datascience.data.loader.cifar10 import cifar
-from datascience.math.neural_analysis import compute_filters
 from datascience.ml.metrics import ValidationAccuracy
 from datascience.ml.neural.supervised import fit
-from datascience.ml.neural.models import CNN, load_create_nn
+from datascience.ml.neural.models import load_create_nn
 from datascience.ml.neural.models.cnn import CustomizableCNN
 from datascience.ml.neural.supervised.callbacks.callbacks import NewStatCallback
 
@@ -14,7 +13,6 @@ model_params = {
 }
 
 model = load_create_nn(model_class=CustomizableCNN, model_params=model_params)
-
 
 training_params = {
     'lr': 0.01,

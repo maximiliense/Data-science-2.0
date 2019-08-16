@@ -77,12 +77,24 @@ class NewStatCallback(Callback):
         self.dir_variances = None
 
     def initial_call(self, modulo, nb_calls, dataset, model):
+        """
+        initialize the callback
+        :param modulo:
+        :param nb_calls:
+        :param dataset:
+        :param model:
+        :return:
+        """
         super().initial_call(modulo, nb_calls, dataset, model)
         self.dir_variances = []
-        for m in model.modules():
-                self.dir_variances.append([])
+        for _ in model.modules():
+            self.dir_variances.append([])
 
     def last_call(self):
+        """
+        Last call of the callback. The figure is generated here
+        :return:
+        """
         fig = get_figure('StatCallback')
         ax = fig.gca()
         for j, i in enumerate(self.dir_variances):
@@ -90,18 +102,23 @@ class NewStatCallback(Callback):
         fig.legend()
 
     def __call__(self, validation_id):
-        directions = compute_filters( self.model, self.dataset)
+        directions = compute_filters(self.model, self.dataset)
 
         # we iterate over each layer
         for l, layer in enumerate(directions):
-            a = np.random.randint(0,100)
-            b = np.random.randint(0,100)
+            a = np.random.randint(0, 100)
+            b = np.random.randint(0, 100)
 
-            print(a,b)
-            print(np.dot(layer[a],layer[b]))
+            print(a, b)
+            print(layer[a].shape)
+            print(layer[b].shape)
+            print(layer[a])
+            print(layer[b])
+            print(np.linalg.norm(layer[a]), np.linalg.norm(layer[b]))
+            print(np.dot(layer[a], layer[b])/(np.linalg.norm(layer[a]) * np.linalg.norm(layer[b])))
+            exit()
 
-
-            vectors = layer - np.mean(layer,axis=0)
+            vectors = layer - np.mean(layer, axis=0)
 
             pca_dir = PCA(n_components=vectors.shape[1])
             pca_dir.fit(vectors)
@@ -111,7 +128,6 @@ class NewStatCallback(Callback):
             var = -np.log(pca_dir.explained_variance_ratio_[0])
             self.dir_variances[l].append(var)
             print("Layer %d: var = %f" % (l, var))
-
 
 
 class GradientCallBack(Callback):
