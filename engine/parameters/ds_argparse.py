@@ -27,8 +27,8 @@ def get_argparse():
     group.add_argument('-e', '--epoch', dest='epoch', type=int, default=1,
                        help='Starts the training at the given epoch (default: 1)')
 
-    group.add_argument('-b', '--from-scratch', dest='from_scratch', type=bool, default=None,
-                       help='Execute the code from scratch (default:Auto).')
+    group.add_argument('-l', '--load-model', dest='load_model', action='store_true', default=None,
+                       help='Load model from previous execution (default: Auto).')
 
     group.add_argument('-i', '--validation-id', dest='validation_id', type=int, default=None,
                        help='when loading a specific model, use the one use at a specific validation (default: None)')
