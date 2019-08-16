@@ -23,8 +23,6 @@ def compute_filters(model, data, nb_elements=10, nb_filters=10, include_logit=Fa
     :param include_logit: include the logit when computing the filters
     :return: the various filters in a list of shape [list of layers, list of filter in the layer]
     """
-    eps = 0.001
-
     include_logit = 1 if include_logit else 0
 
     model_instance = model.module if type(model) is DataParallel else model
