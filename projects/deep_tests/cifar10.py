@@ -15,12 +15,9 @@ model_params = {
 
 model = load_create_nn(model_class=CustomizableCNN, model_params=model_params)
 
-compute_filters(model, train)
-exit()
-
 training_params = {
     'lr': 0.01,
-    'iterations': [10],  # iterations with learning rate decay
+    'iterations': [50, 80, 100],  # iterations with learning rate decay
     'log_modulo': -1,  # print loss once per epoch
     'val_modulo': 1,  # run a validation on the validation set every 5 epochs
     'batch_size': 64
