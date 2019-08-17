@@ -38,13 +38,13 @@ def _size(memory_size):
 
 
 def recursive_clean(path, regex, disp_only=True):
-
+    total = 0
     for file in os.listdir(path):
         path_file = os.path.join(path, file)
         if 'final' in path_file or 'keep' in path_file:
             continue
         elif os.path.isdir(path_file):
-            recursive_clean(path_file, regex, disp_only)
+            total += recursive_clean(path_file, regex, disp_only)
             if len(os.listdir(path_file)) == 0 and not disp_only:
                 os.rmdir(path_file)
                 print('rm ' + path_file)
@@ -56,8 +56,9 @@ def recursive_clean(path, regex, disp_only=True):
             if to_delete:
                 file_path = os.path.join(path, file)
                 memory_size = os.stat(file_path).st_size
-
+                total += memory_size
                 print('rm ' + file_path + ' (' + _size(memory_size) + ')')
 
                 if not disp_only:
                     os.remove(file_path)
+    return total
