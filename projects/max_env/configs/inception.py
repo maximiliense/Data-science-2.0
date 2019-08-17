@@ -12,5 +12,5 @@ validation_params = {
     'metrics': (ValidationAccuracyMultiple([1, 10, 30]),)
 }
 # predict_params = {
-#     'filters': (FilterLabelsList(get_setup_path() + '/allowed_classes.txt'),)
+#     'filters': (FilterLabelsList(get_setup_path() + '/allowed_classes_final.txt'),)
 # }

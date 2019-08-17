@@ -37,7 +37,7 @@ validation_params = {
                 ValidationAccuracyForAllSpecies(train=train, final_validation=True))
 }
 # predict_params = {
-#     'filters': (FilterLabelsList(get_setup_path() + '/allowed_classes.txt'),)
+#     'filters': (FilterLabelsList(get_setup_path() + '/allowed_classes_final.txt'),)
 # }
 fit(
     model, train=train, val=val, test=test, training_params=training_params, validation_params=validation_params

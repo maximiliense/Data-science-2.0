@@ -21,7 +21,20 @@ def clean(path, name, disp_only=True):
     json_re = re.compile(r'{}.*\.json$'.format(name))
     pyc_re = re.compile(r'{}.*\.pyc$'.format(name))
 
-    recursive_clean(path, (torch_re, csv_re, image_re, logs_re, txt_re, json_re, pyc_re), disp_only)
+    total = recursive_clean(path, (torch_re, csv_re, image_re, logs_re, txt_re, json_re, pyc_re), disp_only)
+
+    print('Total amount: ' + _size(total))
+
+
+def _size(memory_size):
+    if memory_size > 1073741824:
+        return str(memory_size >> 30) + ' MB'
+    if memory_size > 1048576:
+        return str(memory_size >> 20) + ' MB'
+    elif memory_size > 1024:
+        return str(memory_size >> 10) + ' KB'
+    else:
+        return str(memory_size) + ' B'
 
 
 def recursive_clean(path, regex, disp_only=True):
@@ -44,12 +57,7 @@ def recursive_clean(path, regex, disp_only=True):
                 file_path = os.path.join(path, file)
                 memory_size = os.stat(file_path).st_size
 
-                if memory_size > 1048576:
-                    print('rm ' + file_path + ' (' + str(memory_size >> 20) + ' MB)')
-                elif memory_size > 1024:
-                    print('rm ' + file_path + ' (' + str(memory_size >> 10) + ' KB)')
-                else:
-                    print('rm ' + file_path + ' (' + str(memory_size) + ' B)')
+                print('rm ' + file_path + ' (' + _size(memory_size) + ')')
 
                 if not disp_only:
                     os.remove(file_path)
