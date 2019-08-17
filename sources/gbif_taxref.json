@@ -1,10 +1,14 @@
 {
   "gpu4": {
     "occurrences": "/home/data/occurrences_gbif_taxref.csv",
-    "rasters": "/home/data/rasters_GLC19/"
+    "rasters": "/home/data/rasters_GLC19/",
+    "id_name": "id",
+    "label_name": "Label"
   },
   "nef": {
     "occurrences":"/data/zenith/share/GeoLifeCLEF/occurrences_gbif_taxref.csv",
-    "rasters": "/data/zenith/share/GeoLifeCLEF/rasters_GLC19/"
+    "rasters": "/data/zenith/share/GeoLifeCLEF/rasters_GLC19/",
+    "id_name": "id",
+    "label_name": "Label"
   }
 }

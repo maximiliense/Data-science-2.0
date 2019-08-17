@@ -1,6 +1,13 @@
 # training model
 from datascience.ml.metrics.metrics import ValidationAccuracyMultiple
 
+# loading/creating model
+model_params = {
+    'dropout': 0.8,
+    'n_labels': 34382,
+    'n_input': 35
+}
+
 training_params = {
     'batch_size': 160,
     'lr': 0.1,
