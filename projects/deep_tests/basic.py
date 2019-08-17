@@ -9,8 +9,7 @@ from engine.parameters import get_parameters
 if get_parameters('mnist', False):
     train, test = mnist()
     model_params = {
-        'dim_in': 1,
-        'im_size': 28,
+        'im_shape': train[0][0].shape,
         'conv_layers': (100,),
         'linear_layers': tuple()
     }
@@ -18,6 +17,7 @@ else:
     # classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
     train, test = cifar10()
     model_params = {
+        'im_shape': train[0][0].shape
     }
 
 model = load_create_nn(model_class=CustomizableCNN, model_params=model_params)
