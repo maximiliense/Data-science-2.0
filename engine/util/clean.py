@@ -28,8 +28,8 @@ def clean(path, name, disp_only=True):
 
 def _size(memory_size):
     if memory_size > 1073741824:
-        return str(memory_size >> 30) + ' MB'
-    if memory_size > 1048576:
+        return '%.2f GB' % (memory_size / 1073741824)
+    elif memory_size > 1048576:
         return str(memory_size >> 20) + ' MB'
     elif memory_size > 1024:
         return str(memory_size >> 10) + ' KB'
