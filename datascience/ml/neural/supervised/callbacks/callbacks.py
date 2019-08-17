@@ -9,6 +9,8 @@ from datascience.visu.deep_test_plots import plot_dataset, plot_activation_rate,
 from datascience.visu.util import plt, get_figure
 from sklearn.decomposition import PCA
 
+from datascience.visu.util.util import save_fig_direct_call
+
 
 class VCallback(Callback):
 
@@ -100,6 +102,7 @@ class NewStatCallback(Callback):
         for j, i in enumerate(self.dir_variances):
             ax.plot(i, label='Layer ' + str(j + 1))
         fig.legend()
+        save_fig_direct_call(figure_name='StatCallback')
 
     def __call__(self, validation_id):
         directions = compute_filters(self.model, self.dataset)

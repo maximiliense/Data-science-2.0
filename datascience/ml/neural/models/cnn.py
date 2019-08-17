@@ -80,8 +80,17 @@ def fc_layer(in_f, out_f, relu=True, bias=True):
 
 
 class CustomizableCNN(nn.Module):
-    def __init__(self, conv_layers=(100, 100), linear_layers=(124,), dim_in=3, dim_out=10, relu=True, batchnorm=True):
+    def __init__(self, conv_layers=(100, 100), linear_layers=(124,), dim_in=3, dim_out=10, im_size=32,
+                 relu=True, batchnorm=True):
         super(CustomizableCNN, self).__init__()
+        rep_size = im_size
+        conv_size = 5
+        stride = 2
+        for _ in range(len(conv_layers)):
+            rep_size -= conv_size - 1
+            rep_size /= stride
+            rep_size = int(rep_size)
+
         layers = [dim_in] + [s for s in conv_layers]
         layers = [
             convolutional_layer(in_f, out_f, relu, batchnorm) for in_f, out_f in zip(
@@ -89,7 +98,8 @@ class CustomizableCNN(nn.Module):
         ]
 
         self.conv_layers = self.layers = nn.Sequential(*layers)
-        layers = [conv_layers[-1] * 5 * 5] + [s for s in linear_layers] + [dim_out]
+
+        layers = [conv_layers[-1] * int(rep_size)**2] + [s for s in linear_layers] + [dim_out]
 
         layers = [
             fc_layer(in_f, out_f, relu) for in_f, out_f in zip(

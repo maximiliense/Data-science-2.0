@@ -1,16 +1,24 @@
-from datascience.data.loader.cifar10 import cifar
+from datascience.data.loader import cifar10, mnist
 from datascience.ml.metrics import ValidationAccuracy
 from datascience.ml.neural.supervised import fit
 from datascience.ml.neural.models import load_create_nn
 from datascience.ml.neural.models.cnn import CustomizableCNN
 from datascience.ml.neural.supervised.callbacks.callbacks import NewStatCallback
+from engine.parameters import get_parameters
 
-train, test = cifar()
-
-# classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
-
-model_params = {
-}
+if get_parameters('mnist', False):
+    train, test = mnist()
+    model_params = {
+        'dim_in': 1,
+        'im_size': 28,
+        'conv_layers': (100,),
+        'linear_layers': tuple()
+    }
+else:
+    # classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
+    train, test = cifar10()
+    model_params = {
+    }
 
 model = load_create_nn(model_class=CustomizableCNN, model_params=model_params)
 
