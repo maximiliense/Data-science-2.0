@@ -6,19 +6,18 @@ from datascience.ml.neural.models.cnn import CustomizableCNN
 from datascience.ml.neural.supervised.callbacks.callbacks import NewStatCallback
 from engine.parameters import get_parameters
 
+# load MNIST or CIFAR10
 if get_parameters('mnist', False):
     train, test = mnist()
-    model_params = {
-        'im_shape': train[0][0].shape,
-        'conv_layers': (100,),
-        'linear_layers': tuple()
-    }
 else:
     # classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
     train, test = cifar10()
-    model_params = {
-        'im_shape': train[0][0].shape
-    }
+
+model_params = {
+    'im_shape': train[0][0].shape,
+    'conv_layers': (100,),
+    'linear_layers': tuple()
+}
 
 model = load_create_nn(model_class=CustomizableCNN, model_params=model_params)
 
