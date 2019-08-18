@@ -8,11 +8,11 @@ from datascience.ml.neural.models.inception import InceptionD, InceptionE
 from engine.logging import is_verbose, is_debug
 
 
-class Net(nn.Module):
+class InceptionEnv(nn.Module):
 
     def __init__(self, n_labels=3336, n_input=80, dropout=0.5, last_layer=True, logit=False, exp=False,
                  normalize_weight=1.):
-        super(Net, self).__init__()
+        super(InceptionEnv, self).__init__()
         if n_input >= 15:
             self.Conv2d_1a_3x3 = BasicConv2d(n_input, 80, kernel_size=3, stride=1, padding=1)
             self.Conv2d_2a_3x3 = BasicConv2d(80, 80, kernel_size=3, stride=1, padding=1)
@@ -136,5 +136,5 @@ class Net(nn.Module):
     
     def __repr__(self):
         if is_verbose() and is_debug():
-            return super(Net, self).__repr__()
+            return super(InceptionEnv, self).__repr__()
         return '(Environmental Inception)'

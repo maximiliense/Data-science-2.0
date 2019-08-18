@@ -4,6 +4,7 @@ import pandas as pd
 from datascience.data.util.filters import filter_test, index_labels, online_filters_processing
 from datascience.data.util.index import save_reversed_index, get_to_save, get_to_load, get_index, reverse_indexing
 from datascience.data.model_selection.util import perform_split
+from engine.parameters import special_parameters
 from engine.path import output_path
 from engine.logging import print_dataset_statistics
 
@@ -17,6 +18,15 @@ def labels_indexed_str(indexer):
 
 def get_label(r, label_name):
     return [int(r[1][label]) for label in label_name] if type(label_name) in (tuple, list) else int(r[1][label_name])
+
+
+def index_init(save_index, label_name):
+    if save_index in ('default', 'auto') and not special_parameters.from_scratch:
+        if label_name is not None:
+            save_index = 'load_and_save'
+        else:
+            save_index = 'load'
+    return save_index
 
 
 # TODO filters for RF for instance...
@@ -44,11 +54,8 @@ def _occurrence_loader(dataset_class, occurrences, validation_size=0.1, test_siz
     :return: train, val and test set, pytorch ready
     """
 
-    if 'default' == save_index and test_size == 1.:
-        if label_name is not None:
-            save_index = 'load_and_save'
-        else:
-            save_index = 'load'
+    # initialize index to a specific behaviour if save index is default
+    save_index = index_init(save_index, label_name)
 
     labels_indexed_bis = None
 

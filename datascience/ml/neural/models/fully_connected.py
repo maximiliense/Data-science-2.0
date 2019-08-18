@@ -18,10 +18,10 @@ def fully_connected_relu(in_f, out_f, relu=True, batchnorm=True, bias=True):
         )
 
 
-class Net(nn.Module):
+class FullyConnected(nn.Module):
     def __init__(self, n_labels=2, n_input=2, architecture=(2,), relu=True, batchnorm=True, bias=True, dropout=0.0,
                  last_sigmoid=True, hidden_layer=False):
-        super(Net, self).__init__()
+        super(FullyConnected, self).__init__()
         if type(architecture) is str:
             architecture = ast.literal_eval(architecture)
         self.last_sigmoid = last_sigmoid
@@ -53,5 +53,5 @@ class Net(nn.Module):
 
 
 if __name__ == '__main__':
-    model = Net()
+    model = FullyConnected()
     print(model)

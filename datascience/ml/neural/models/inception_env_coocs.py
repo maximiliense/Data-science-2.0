@@ -6,10 +6,10 @@ import torch.nn.functional as F
 from engine.logging import is_debug, is_verbose
 
 
-class Net(nn.Module):
+class InceptionEnvCoocs(nn.Module):
 
     def __init__(self, n_labels=3336, n_input=80, dropout=0.5, last_layer=False, config=0):
-        super(Net, self).__init__()
+        super(InceptionEnvCoocs, self).__init__()
 
         # env
         if n_input >= 15:
@@ -165,7 +165,7 @@ class Net(nn.Module):
 
     def __repr__(self):
         if is_verbose() and is_debug():
-            return super(Net, self).__repr__()
+            return super(InceptionEnvCoocs, self).__repr__()
         return '(Environmental and co-occurrences Inception)'
 
 

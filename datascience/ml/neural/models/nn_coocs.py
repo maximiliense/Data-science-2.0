@@ -2,10 +2,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-class Net(nn.Module):
+class NNCoocs(nn.Module):
 
     def __init__(self, n_labels=3336, last_layer=False):
-        super(Net, self).__init__()
+        super(NNCoocs, self).__init__()
 
         # co-occurrences
         self.fc_cooc_1 = nn.Linear(n_labels, 256)
