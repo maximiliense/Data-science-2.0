@@ -1,5 +1,3 @@
-from engine.logging.logs import print_statistics
-
 import torch
 
 import progressbar
@@ -11,10 +9,9 @@ from datascience.data.util.index import get_index
 from engine.path import output_path
 from engine.parameters import special_parameters
 from engine.core import module
+from engine.logging import print_statistics, print_logs
 
 import numpy as np
-
-from engine.logging.logs import print_logs
 
 
 def export_results(dataset, predictions, size=50, header=False):
