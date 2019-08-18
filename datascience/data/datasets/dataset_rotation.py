@@ -2,7 +2,7 @@ import torch
 from torch.utils.data import Dataset
 from datascience.data.rasters.environmental_raster_glc import PatchExtractor
 from datascience.data.transforms import random_rotation
-from engine.flags.flags import deprecated
+from engine.flags import deprecated
 
 
 @deprecated(comment='Transforms should be attribute of the regular EnvironmentalDataset.')
