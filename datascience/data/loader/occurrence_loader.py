@@ -53,7 +53,6 @@ def _occurrence_loader(dataset_class, occurrences, validation_size=0.1, test_siz
     :param test_size:
     :return: train, val and test set, pytorch ready
     """
-
     # initialize index to a specific behaviour if save index is default
     save_index = index_init(save_index, label_name)
 
@@ -95,10 +94,10 @@ def _occurrence_loader(dataset_class, occurrences, validation_size=0.1, test_siz
 
     columns = (labels, dataset, ids)
     # splitting train test
-    train, test = perform_split(columns, test_size, splitter)
+    train, test = perform_split(columns, test_size, splitter, **kwargs)
 
     # splitting validation
-    train, val = perform_split(train, validation_size, splitter)
+    train, val = perform_split(train, validation_size, splitter, **kwargs)
 
     # apply filters
     # for f in filters:  # TODO update filters taking into account the new structure
