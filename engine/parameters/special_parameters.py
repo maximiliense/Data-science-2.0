@@ -49,6 +49,11 @@ other_options = []
 xp_name = ''
 
 
+def get_validation_id():
+    global validation_id
+    return validation_id
+
+
 def get_parameters(param_name, default_value):
     """
     return parameters that available in this module... Notice that these parameters can be
