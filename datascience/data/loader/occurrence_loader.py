@@ -3,7 +3,7 @@ import pandas as pd
 
 from datascience.data.util.filters import filter_test, index_labels, online_filters_processing
 from datascience.data.util.index import save_reversed_index, get_to_save, get_to_load, get_index, reverse_indexing
-from datascience.data.model_selection.util import perform_split
+from datascience.model_selection.util import perform_split
 from engine.parameters import special_parameters
 from engine.path import output_path
 from engine.logging import print_dataset_statistics
@@ -94,10 +94,10 @@ def _occurrence_loader(dataset_class, occurrences, validation_size=0.1, test_siz
 
     columns = (labels, dataset, ids)
     # splitting train test
-    train, test = perform_split(columns, test_size, splitter, **kwargs)
+    train, test = perform_split(columns, test_size, splitter)
 
     # splitting validation
-    train, val = perform_split(train, validation_size, splitter, **kwargs)
+    train, val = perform_split(train, validation_size, splitter)
 
     # apply filters
     # for f in filters:  # TODO update filters taking into account the new structure
