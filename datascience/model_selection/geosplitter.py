@@ -5,17 +5,26 @@ from collections import OrderedDict
 
 
 class SplitterGeoQuadra(object):
-    def __init__(self, quad_size=0):
+    def __init__(self, quad_size=0, proj_in='epsg:4326', proj_out='epsg:3035'):
         self.quad_size = quad_size
-        self.proj_in = Proj(init='epsg:4326')
-        self.proj_out = Proj(init='epsg:3035')
-        self.transformer = Transformer.from_proj(self.proj_in, self.proj_out)
 
-    def project(self, longitude, latitude):
+        proj_in = Proj(init=proj_in)
+        proj_out = Proj(init=proj_out)
+
+        self.transformer = Transformer.from_proj(proj_in, proj_out)
+
+    def _project(self, longitude, latitude):
         x, y = self.transformer.transform(longitude, latitude)
         return x / 1000, y / 1000
 
     def __call__(self, *columns, test_size, random_state=42):
+        """
+        perform the split. columns[1] must contains the GPS positions
+        :param columns:
+        :param test_size:
+        :param random_state:
+        :return:
+        """
         # print(quad_size, columns)  if print is to stay, then use logging
         w = self.quad_size
         dataset = columns[1]
@@ -46,7 +55,6 @@ class SplitterGeoQuadra(object):
             test_ids = [i for quadra in test_map for i in proj[quadra]]
         # creating output
         r = []
-        print(train_ids)
         for col in columns:
             r.extend((col[train_ids], col[test_ids]))
 
