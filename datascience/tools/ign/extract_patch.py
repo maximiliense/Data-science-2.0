@@ -36,8 +36,8 @@ def extract_patch(source, offset=0, check_file=True):
     print_info(str(len(df)) + ' occurrences to extract!')
 
     im_manager.extract_patches(
-        df[[r['longitude'], r['latitude']]],
-        df[r['id_name']], r['patches'],
+        df[[r['longitude'], r['latitude'], r['id_name']]],
+        r['patches'],
         size=extract_size,
         step=extract_step,
         check_file=check_file
