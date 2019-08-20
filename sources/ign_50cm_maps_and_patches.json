@@ -1,0 +1,10 @@
+{
+  "jean-zay": {
+    "occurrences": "/gpfswork/rech/fqg/uid61lx/data/occurrences/full_ign.csv",
+    "maps": "/gpfswork/rech/fqg/uid61lx/data/ign_50cm_maps/",
+    "patches": "/gpfsssd/scratch/rech/fqg/uid61lx/data/ign_50cm_patches/",
+    "id_name": "X_key",
+    "latitude": "Latitude",
+    "longitude": "Longitude"
+  }
+}

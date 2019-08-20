@@ -1,42 +1,44 @@
 import datascience.tools.ign.ign_image as igni
 import pandas as pd
-import os
-import numpy as np
-import datetime
-import time as ti
-from pyproj import Transformer, Proj
+
+from datascience.data.util.source_management import check_source
 from engine.core import module
+from engine.logging import print_info
 
 
 @module
-def extract_patch(offset=0, check_file=True):
+def extract_patch(source, offset=0, check_file=True):
     """
     Extract IGN patch from IGN maps.
+    :param source:
     :param offset:
     :param check_file:
     :return:
     """
-    im_manager = igni.IGNImageManager('/gpfswork/rech/fqg/uid61lx/data/ign_5m_maps/')  # on Jean Zay
+
+    # checking the source
+    r = check_source(source)
+
+    # extract manager
+    im_manager = igni.IGNImageManager(r['maps'])
     extract_size = 64
     extract_step = 1
 
-    # d = "/data/ign/ign_patch_"+image_type+"_"+resolution+"_"+str(extract_size)+"_"+str(extract_step)+"/"
+    # loading the occurrence file
+    df = pd.read_csv(r['occurrences'], header='infer', sep=';', low_memory=False)
 
-    d = '/gpfsssd/scratch/rech/fqg/uid61lx/data/ign_5m_patches/'
+    # offset management
+    df = df.iloc[offset:]
 
-    df = pd.read_csv(
-        '/gpfswork/rech/fqg/uid61lx/data/occurrences/full_ign.csv', header='infer', sep=';', low_memory=False
-    )
+    print_info(str(len(df)) + ' occurrences to extract!')
 
-    print(str(len(df)) + ' occurrences!')
+    # sorting the dataset to optimise the extraction
     df.sort_values('Latitude', inplace=True)
 
-    list_pos = []
-    list_ids = []
-
-    for idx, row in enumerate(df.iterrows()):
-        if idx >= offset:
-            list_pos.append((row[1]['Longitude'], row[1]['Latitude']))
-            list_ids.append(int(row[1]['X_key']))
-
-    im_manager.extract_patches(list_pos, list_ids, d, size=extract_size, step=extract_step, check_file=check_file)
+    im_manager.extract_patches(
+        df[[r['longitude'], r['latitude']]],
+        df[r['id_name']], r['patches'],
+        size=extract_size,
+        step=extract_step,
+        check_file=check_file
+    )
