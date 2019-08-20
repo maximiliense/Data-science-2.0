@@ -13,82 +13,42 @@ def project(longitude, latitude):
 
 
 class SplitterGeoQuadra(object):
-    def __init__(self, quadra_size=0):
-        self.quadra_size = quadra_size
+    def __init__(self, quad_size=0):
+        self.quad_size = quad_size
 
     def __call__(self, *columns, test_size, random_state=42):
         # print(quad_size, columns)  if print is to stay, then use logging
         w = self.quad_size
         dataset = columns[1]
         ids = columns[2]
-        labels = columns[0]
+        print(self.quad_size)
         if w == 0:
-            x_tr, x_te, ids_tr, ids_te, y_tr, y_te = train_test_split(dataset, ids, labels,
-                                                                      test_size=test_size, random_state=random_state)
+            train_ids, test_ids = train_test_split(ids, test_size=test_size, random_state=random_state)
         else:
-            r_lon = np.random.RandomState(random_state)
-            d_lon = r_lon.rand()
-            r_lat = np.random.RandomState(random_state + 10)
-            d_lat = r_lat.rand()
+            r = np.random.RandomState(seed=random_state)
+            d_lon = r.random_sample()
+            r_lat = np.random.RandomState(seed=random_state + 10)
+            d_lat = r_lat.random_sample()
 
-            proj = OrderedDict()
-            data = {}
-
+            proj = {}
+            print('avant split')
             for i, coor in enumerate(dataset):
                 lon, lat = project(coor[0], coor[1])
                 proj_lon = (lon + d_lon * w) // w
                 proj_lat = (lat + d_lat * w) // w
-                if (proj_lon, proj_lat) in proj:
+                if (proj_lon, proj_lat) in proj.keys():
                     proj[(proj_lon, proj_lat)].append(ids[i])
                 else:
                     proj[(proj_lon, proj_lat)] = [ids[i]]
 
-                data[ids[i]] = (dataset[i], labels[i])
-
             train_map, test_map = train_test_split(list(proj.keys()), test_size=test_size, random_state=random_state)
-            x_tr = []
-            y_tr = []
-            x_te = []
-            y_te = []
-            ids_tr = []
-            ids_te = []
 
-            for quadra in train_map:
-                q_ids = proj[quadra]
-                for id in q_ids:
-                    x_tr.append(data[id][0])
-                    y_tr.append(data[id][1])
-                    ids_tr.append(id)
-
-            for quadra in test_map:
-                q_ids = proj[quadra]
-                for id in q_ids:
-                    x_te.append(data[id][0])
-                    y_te.append(data[id][1])
-                    ids_te.append(id)
-
-        res = x_tr, x_te, ids_tr, ids_te, y_tr, y_te
-        return res
-
-
-def splitter_geo_quadra_diff_size(*columns, test_size, random_state=42, w):
-    dataset = columns[0]
-    ids = columns[1]
-    labels = columns[2]
-    x_te_samp = []
-    ids_te_samp = []
-    y_te_samp = []
-    x_tr = dataset
-    ids_tr = ids
-    y_tr = labels
-    splitter_geo_quadra = SplitterGeoQuadra()
-    for w_sample in w:
-        x_tr, x_te, ids_tr, ids_te, y_tr, y_te = splitter_geo_quadra(x_tr, ids_tr, y_tr, w=w_sample,
-                                                                     test_size=test_size / len(w),
-                                                                     random_state=random_state)
-        x_te_samp = x_te_samp+x_te
-        ids_te_samp = ids_te_samp + ids_te
-        y_te_samp = y_te_samp + y_te
-    res = x_tr, x_te_samp, ids_tr, ids_te_samp, y_tr, y_te_samp
-
-    return res
+            train_ids = [[i for i in proj[quadra]] for quadra in train_map]
+            test_ids = [[i for i in proj[quadra]] for quadra in test_map]
+            print('apres les id')
+        # creating output
+        r = []
+        for col in columns:
+            r.extend((col[train_ids], col[test_ids]))
+        print('apres les colonnes')
+        return r
