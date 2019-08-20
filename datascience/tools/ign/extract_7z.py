@@ -2,7 +2,7 @@ import os
 
 from datascience.data.util.source_management import check_source
 from engine.core import module
-from engine.logging import print_info
+from engine.logging import print_info, print_h2
 
 
 @module
@@ -23,7 +23,7 @@ def extract_7z(source, extension='.7z'):
         print_info(str(i+1) + '/' + str(n))
         if item.endswith(extension):  # check for ".zip" or ".7z", etc. extension
             file_name = os.path.abspath(item)  # get full path of files
-            print_info(file_name)
+            print_h2(file_name)
             print_info('\n')
 
             os.system('7z x '+file_name+' -o'+dest_name)
