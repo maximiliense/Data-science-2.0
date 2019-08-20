@@ -27,13 +27,13 @@ def extract_patch(source, offset=0, check_file=True):
     # loading the occurrence file
     df = pd.read_csv(r['occurrences'], header='infer', sep=';', low_memory=False)
 
+    # sorting the dataset to optimise the extraction
+    df.sort_values('Latitude', inplace=True)
+
     # offset management
     df = df.iloc[offset:]
 
     print_info(str(len(df)) + ' occurrences to extract!')
-
-    # sorting the dataset to optimise the extraction
-    df.sort_values('Latitude', inplace=True)
 
     im_manager.extract_patches(
         df[[r['longitude'], r['latitude']]],
