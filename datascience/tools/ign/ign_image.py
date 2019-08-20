@@ -323,7 +323,7 @@ class IGNImageManager(object):
 
             patch_id = int(row[1][2])
 
-            # construcing path with hierachical structure
+            # constructing path with hierarchical structure
             sub_d = dest_dir + str(patch_id)[-2:] + "/"
             if not os.path.exists(sub_d):
                 os.makedirs(sub_d)
@@ -336,6 +336,7 @@ class IGNImageManager(object):
                 continue
 
             t1 = ti.time()
+            t2 = 0
             try:
                 patch = self.extract_patch_wgs84(lat, long, size, step, id=int(patch_id),
                                                  white_percent_allowed=white_percent_allowed)
@@ -355,17 +356,17 @@ class IGNImageManager(object):
 
         self.write_errors(error_extract_file, error_cache)
 
+
 if __name__ == "__main__":
-    #im_manager = IGNImageManager("/data/ign/5M00/")
-    #im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/BDORTHO_2-0_IRC-0M50_JP2-E080_LAMB93_D011_2015-01-01/")
-    #im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/BDORTHO_2-0_RVB-0M50_JP2-E080_LAMB93_D011_2015-01-01_old")
-    #im_manager = IGNImageManager("/home/data/5M00/")
+    # im_manager = IGNImageManager("/data/ign/5M00/")
+    # im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/BDORTHO_2-0_IRC-0M50_JP2-E080_LAMB93_D011_2015-01-01/")
+    # im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/BDORTHO_2-0_RVB-0M50_JP2-E080_LAMB93_D011_2015-01-01_old")
+    # im_manager = IGNImageManager("/home/data/5M00/")
     im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/5M00/")
 
     print(im_manager.carto)
 
     lat, long = 46.665224, 2.543866
-
 
     im = im_manager.get_image_at_location(lat, long)
     print(im.department, im.date, im.image_name)
