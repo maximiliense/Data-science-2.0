@@ -30,13 +30,13 @@ class SplitterGeoQuadra(object):
             r_lat = np.random.RandomState(seed=random_state + 10)
             d_lat = r_lat.random_sample()
 
-            proj = {}
+            proj = OrderedDict()
             print('avant split')
             for i, coor in enumerate(dataset):
                 lon, lat = project(coor[0], coor[1])
                 proj_lon = (lon + d_lon * w) // w
                 proj_lat = (lat + d_lat * w) // w
-                if (proj_lon, proj_lat) in proj.keys():
+                if (proj_lon, proj_lat) in proj:
                     proj[(proj_lon, proj_lat)].append(ids[i])
                 else:
                     proj[(proj_lon, proj_lat)] = [ids[i]]
