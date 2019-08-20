@@ -28,10 +28,9 @@ class SplitterGeoQuadra(object):
         # print(quad_size, columns)  if print is to stay, then use logging
         w = self.quad_size
         dataset = columns[1]
-        labels = columns[0]
         print(self.quad_size)
         if w == 0:
-            train_ids, test_ids = train_test_split(labels, test_size=test_size, random_state=random_state)
+            train_ids, test_ids = train_test_split([i for i in range(len(dataset))], test_size=test_size, random_state=random_state)
         else:
             r = np.random.RandomState(random_state)
             d_lon = r.random_sample()
@@ -39,15 +38,15 @@ class SplitterGeoQuadra(object):
             d_lat = r_lat.random_sample()
 
             proj = OrderedDict()
-
+            print('ici')
             for i, coor in enumerate(dataset):
                 lon, lat = self._project(coor[0], coor[1])
                 proj_lon = (lon + d_lon * w) // w
                 proj_lat = (lat + d_lat * w) // w
                 if (proj_lon, proj_lat) in proj:
-                    proj[(proj_lon, proj_lat)].append(labels[i])
+                    proj[(proj_lon, proj_lat)].append(i)
                 else:
-                    proj[(proj_lon, proj_lat)] = [labels[i]]
+                    proj[(proj_lon, proj_lat)] = [i]
 
             train_map, test_map = train_test_split(list(proj.keys()), test_size=test_size, random_state=random_state)
 
@@ -57,5 +56,4 @@ class SplitterGeoQuadra(object):
         r = []
         for col in columns:
             r.extend((col[train_ids], col[test_ids]))
-
         return r
