@@ -41,7 +41,7 @@ class SplitterGeoQuadra(object):
             proj = OrderedDict()
 
             for i, coor in enumerate(dataset):
-                lon, lat = self.project(coor[0], coor[1])
+                lon, lat = self._project(coor[0], coor[1])
                 proj_lon = (lon + d_lon * w) // w
                 proj_lat = (lat + d_lat * w) // w
                 if (proj_lon, proj_lat) in proj:
