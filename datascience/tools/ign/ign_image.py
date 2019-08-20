@@ -11,16 +11,6 @@ class ExtractionError(Exception):
     pass
 
 
-class IGN5M00(object):
-    image_range = 10000
-    image_size = 2000
-
-
-class IGN0M50(object):
-    image_range = 5000
-    image_size = 10000
-
-
 class Tile(object):
     """
     Objet contenant les informations d'une tile/une image
@@ -181,6 +171,7 @@ class IGNImageManager(object):
 
     def erreur_extract(self, x, y, error_type=1, id="NA"):
         """
+        :param error_type:
         :param x:
         :param y:
         :param type: 1 = partially outside of the area; 2 = center outside of the area; 3 = on the area but out of data coverage
@@ -225,15 +216,16 @@ class IGNImageManager(object):
                 self.cache_dic[pos] = im
         return im
 
-    def extract_patch_wgs84(self, lat, long, size, step, id=-1, white_percent_allowed=20):
+    def extract_patch_wgs84(self, lat, long, size, step, id=-1, white_percent_allowed=20, verbose=False):
         y, x = self.transformer_wgs84_to_lambert93.transform(long, lat)
         try:
-            patch = self.extract_patch_lambert93(x, y, size, step, id, white_percent_allowed=white_percent_allowed)
+            patch = self.extract_patch_lambert93(x, y, size, step, id, white_percent_allowed=white_percent_allowed,
+                                                 verbose=verbose)
         except ExtractionError:
             raise
         return patch
 
-    def extract_patch_lambert93(self, x_lamb, y_lamb, size, step, id=-1, white_percent_allowed=20):
+    def extract_patch_lambert93(self, x_lamb, y_lamb, size, step, id=-1, white_percent_allowed=20, verbose=False):
         x, y = self.position_to_tile_index(x_lamb, y_lamb)
 
         if self.is_not_tile(x, y):
@@ -272,6 +264,9 @@ class IGNImageManager(object):
             if y_max >= self.image_size*aggregation_size_y:
                 aggregation_size_y += 1
 
+        if verbose:
+            print("number of tiles to load", aggregation_size_x*aggregation_size_y)
+
         list_im = []
         for i in range(aggregation_size_x):
             for j in range(aggregation_size_y):
@@ -294,7 +289,7 @@ class IGNImageManager(object):
             raise ExtractionError(self.erreur_extract(x_lamb, y_lamb, error_type=3, id=id))
         return patch
 
-    def extract_patches(self, list_pos, list_ids, dest_dir, size=64, step=1, error_extract_folder=None,
+    def extract_patches(self, df_occ, dest_dir, size=64, step=1, error_extract_folder=None,
                         error_cache_size=1000, white_percent_allowed=20, check_file=True, verbose=True):
 
         if not os.path.exists(dest_dir):
@@ -307,12 +302,12 @@ class IGNImageManager(object):
         else:
             error_extract_file = self.init_error_file(error_extract_folder)
 
-        total = len(list_pos)
+        total = df_occ.shape[0]
         start = datetime.datetime.now()
         extract_time = 0
 
-        for idx, pos in enumerate(list_pos):
-            long, lat = pos[0], pos[1]
+        for idx, row in enumerate(df_occ.iterrows()):
+            long, lat = row[1][0], row[1][1]
 
             if (idx - 1) % 100000 == 99999 and verbose:
                 time = datetime.datetime.now()
@@ -326,7 +321,7 @@ class IGNImageManager(object):
                 print("Actual position:", (lat, long), "Errors:", nb_errors)
                 print("Time:", datetime.timedelta(seconds=delta), "ETA:", date_estimation)
 
-            patch_id = int(list_ids[idx])
+            patch_id = int(row[1][2])
 
             # construcing path with hierachical structure
             sub_d = dest_dir + str(patch_id)[-2:] + "/"
@@ -377,7 +372,7 @@ if __name__ == "__main__":
 
     print(im_manager.carto.shape)
 
-    im = im_manager.extract_patch_wgs84(lat, long, 1024, 10)
+    im = im_manager.extract_patch_wgs84(lat, long, 128, 30, verbose=True)
     print(im)
     plt.imshow(im)
     plt.show()
