@@ -1,4 +1,4 @@
-import datascience.tools.ign.ign_image as igni
+from datascience.tools.ign.ign_image import IGNImageManager
 import pandas as pd
 
 from datascience.data.util.source_management import check_source
@@ -20,7 +20,7 @@ def extract_patch(source, offset=0, check_file=True):
     r = check_source(source)
 
     # extract manager
-    im_manager = igni.IGNImageManager(r['maps'])
+    im_manager = IGNImageManager(r['maps'])
     extract_size = 64
     extract_step = 1
 
