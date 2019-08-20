@@ -11,16 +11,6 @@ class ExtractionError(Exception):
     pass
 
 
-class IGN5M00(object):
-    image_range = 10000
-    image_size = 2000
-
-
-class IGN0M50(object):
-    image_range = 5000
-    image_size = 10000
-
-
 class Tile(object):
     """
     Objet contenant les informations d'une tile/une image
@@ -299,7 +289,7 @@ class IGNImageManager(object):
             raise ExtractionError(self.erreur_extract(x_lamb, y_lamb, error_type=3, id=id))
         return patch
 
-    def extract_patches(self, list_pos, list_ids, dest_dir, size=64, step=1, error_extract_folder=None,
+    def extract_patches(self, df_occ, dest_dir, size=64, step=1, error_extract_folder=None,
                         error_cache_size=1000, white_percent_allowed=20, check_file=True, verbose=True):
 
         if not os.path.exists(dest_dir):
@@ -312,12 +302,12 @@ class IGNImageManager(object):
         else:
             error_extract_file = self.init_error_file(error_extract_folder)
 
-        total = len(list_pos)
+        total = df_occ.shape[0]
         start = datetime.datetime.now()
         extract_time = 0
 
-        for idx, pos in enumerate(list_pos):
-            long, lat = pos[0], pos[1]
+        for idx, row in enumerate(df_occ.iterrows()):
+            long, lat = row[1][0], row[1][1]
 
             if (idx - 1) % 100000 == 99999 and verbose:
                 time = datetime.datetime.now()
@@ -331,7 +321,7 @@ class IGNImageManager(object):
                 print("Actual position:", (lat, long), "Errors:", nb_errors)
                 print("Time:", datetime.timedelta(seconds=delta), "ETA:", date_estimation)
 
-            patch_id = int(list_ids[idx])
+            patch_id = int(row[1][2])
 
             # construcing path with hierachical structure
             sub_d = dest_dir + str(patch_id)[-2:] + "/"
