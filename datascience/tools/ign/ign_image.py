@@ -168,7 +168,7 @@ class IGNImageManager(object):
         max_x = None
         for i, item in enumerate(files_list):
             if item.endswith(".jp2") or item.endswith(".tif"):
-                tile = Tile(self.image_dir + item)
+                tile = Tile(item)
                 if min_y is None or tile.y_min < min_y:
                     min_y = tile.y_min
                 elif max_y is None or tile.y_min > max_y:
