@@ -1,3 +1,10 @@
+"""
+This code extract the IGN archives and export the results into patches
+
+usage: sjobs projects/max_env/extract_ign.py  #  for 5m patch
+       sjobs projects/max_env/extract_ign.py -m source50cm=True  # for 50cm patch
+"""
+
 from datascience.tools.ign.check_extraction import check_extraction
 from datascience.tools.ign.extract_7z import extract_7z
 from datascience.tools.ign.extract_patch import extract_patch
