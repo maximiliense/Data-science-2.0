@@ -337,7 +337,7 @@ class IGNImageManager(object):
             t2 = 0
             try:
                 patch = self.extract_patch(latitude, longitude, size, step, identifier=int(patch_id),
-                                                 white_percent_allowed=white_percent_allowed)
+                                           white_percent_allowed=white_percent_allowed)
             except ExtractionError as err:
                 t2 = ti.time()
                 error_manager.append(err)
