@@ -351,6 +351,19 @@ class IGNImageManager(object):
 
         error_manager.write_errors()
 
+    # TODO : code to produce tiff
+    """
+    def create_tiff(self):
+        copy_carto = np.transpose(self.carto)
+        raster = np.zeros((copy_carto.shape[0]*self.image_size, copy_carto.shape[1]*self.image_size, 2), dtype=np.uint8)
+        print(raster.shape)
+        for row in progressbar.progressbar(copy_carto):
+            for tuile in row:
+                if tuile is not None:
+                    raster[tuile.pos_y:tuile.pos_y+self.image_size, tuile.pos_x:tuile.pos_x+self.image_size]\
+                        = self.readImage((tuile.pos_x, tuile.pos_y))[:, :, :1]
+    """
+
 
 class _ErrorManager(object):
     def __init__(self, in_proj, out_proj, path, cache_size=1000):
