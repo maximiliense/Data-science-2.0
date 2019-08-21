@@ -12,7 +12,7 @@ class ExtractionError(Exception):
     """
     Exception raised when any problem during the extraction of a patch
     """
-    def __init__(self, x, y, error_type=1, identifier="NA", message=''):
+    def __init__(self, x, y, error_type=1, identifier=None, message=''):
         """
         :param _id:
         :param error_type:
@@ -25,7 +25,10 @@ class ExtractionError(Exception):
         self.x = x,
         self.y = y
         self.error_type = error_type,
-        self.identifier = identifier
+        if identifier is not None:
+            self.identifier = identifier
+        else:
+            self.identifier = "NA"
 
 
 # resolutions of the IGN maps
@@ -96,7 +99,8 @@ class IGNImageManager(object):
         # config geographic projections
         self.in_proj, self.out_proj = Proj(init=in_proj), Proj(init=out_proj)
 
-        self.transformer_in_out = Transformer.from_proj(in_proj, out_proj)
+        # self.transformer_in_out = Transformer.from_proj(in_proj, out_proj)
+        self.transformer_in_out = Transformer.from_proj(self.in_proj, self.out_proj)
 
         # configure cache of tiles
         self.cache_dic = {}
@@ -196,7 +200,9 @@ class IGNImageManager(object):
     def get_image_at_location(self, lat, long):
         y2, x2 = self.transformer_in_out.transform(long, lat)
         # x2,y2 = int(x2),int(y2)
+        print(x2, y2)
         x, y = self.position_to_tile_index(x2, y2)
+        print(x, y)
         if x < 0 or x > self.x_size-1 or y < 0 or y > self.y_size-1 or type(self.map[x, y]) is not Tile:
             print_errors("Outside study zone...", do_exit=True)
         return self.map[x, y]
@@ -331,7 +337,7 @@ class IGNImageManager(object):
             t1 = ti.time()
             t2 = 0
             try:
-                patch = self.extract_patch_wgs84(latitude, longitude, size, step, id=int(patch_id),
+                patch = self.extract_patch_wgs84(latitude, longitude, size, step, identifier=int(patch_id),
                                                  white_percent_allowed=white_percent_allowed)
             except ExtractionError as err:
                 t2 = ti.time()
@@ -425,7 +431,7 @@ if __name__ == "__main__":
 
     print(im_manager.map.shape)
 
-    im = im_manager.extract_patch_wgs84(lat, long, 128, 30, verbose=True)
+    im = im_manager.extract_patch_wgs84(lat, long, 128, 30)
     print(im)
     plt.imshow(im)
     plt.show()
