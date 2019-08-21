@@ -10,7 +10,7 @@ then
  then
         cluster="Jean Zay";
         command="$dir/jz.sh";
- elif [[ "$(hostname)" =~ "hardware" ]];
+ elif [[ "$(hostname)" =~ "gpu" ]];
  then
         cluster="GPUx";
         command="$dir/gpu4.sh";
