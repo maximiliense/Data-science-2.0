@@ -336,7 +336,7 @@ class IGNImageManager(object):
             t1 = ti.time()
             t2 = 0
             try:
-                patch = self.extract_patch_wgs84(latitude, longitude, size, step, identifier=int(patch_id),
+                patch = self.extract_patch(latitude, longitude, size, step, identifier=int(patch_id),
                                                  white_percent_allowed=white_percent_allowed)
             except ExtractionError as err:
                 t2 = ti.time()
@@ -430,7 +430,7 @@ if __name__ == "__main__":
 
     print(im_manager.map.shape)
 
-    im = im_manager.extract_patch_wgs84(lat, long, 128, 30)
+    im = im_manager.extract_patch(lat, long, 128, 30)
     print(im)
     plt.imshow(im)
     plt.show()
