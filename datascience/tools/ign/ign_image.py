@@ -83,8 +83,8 @@ class IGNImageManager(object):
     - imdir : le chemin d'accès au dossier contenant toutes les miages de la zones détude. Les images doivent toutes
     être du même type (RVB/IR et et même résolution)
     - list_tile : la liste des tiles de toutes la zone d'étude
-    - min_x/max_x : les minimum/maximum est-ouest (croissant vers l'est) couvert par la zone détude
-    - min_y/max_y : les minimum/maximum nord-sud (croissant vers le nord) couvert par la zone détude
+    - min_x/max_x : les minimum/maximum nord-sud (croissant vers le nord) couvert par la zone détude
+    - min_y/max_y : les minimum/maximum est-ouest (croissant vers l'est) couvert par la zone détude
     - image_resolution : résolution des images en m/pixels
     - image_type : le type d'image, RVB ou IR
     - image_encoding : l'encodage des images
