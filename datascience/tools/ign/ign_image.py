@@ -161,7 +161,6 @@ class IGNImageManager(object):
         for i, item in enumerate(files_list):
             if item.endswith(".jp2") or item.endswith(".tif"):
                 tile = Tile(self.image_dir + item)
-                print(i)
                 if not init:
                     init = True
                     min_y = tile.y_min
@@ -410,12 +409,13 @@ def _print_details(idx, total, start, extract_time, latitude, longitude, nb_erro
     print_logs('Actual position: {}, Errors: {}'.format((latitude, longitude), nb_errors))
     print_logs('Time: {}, ETA: {}'.format(datetime.timedelta(seconds=delta), date_estimation))
 
+
 if __name__ == "__main__":
     # im_manager = IGNImageManager("/data/ign/5M00/")
     # im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/BDORTHO_2-0_IRC-0M50_JP2-E080_LAMB93_D011_2015-01-01/")
     # im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/BDORTHO_2-0_RVB-0M50_JP2-E080_LAMB93_D011_2015-01-01_old")
     # im_manager = IGNImageManager("/home/data/5M00/")
-    im_manager = IGNImageManager("/home/data/5M00/")
+    im_manager = IGNImageManager("/home/data/5M00/")  # "/home/bdeneu/Desktop/IGN/5M00/"
 
     print(im_manager.map)
 
