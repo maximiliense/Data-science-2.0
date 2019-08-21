@@ -157,11 +157,13 @@ class IGNImageManager(object):
         :return:
         """
         list_tile = []
-
+        init = False
         for i, item in enumerate(files_list):
             if item.endswith(".jp2") or item.endswith(".tif"):
                 tile = Tile(self.image_dir + item)
-                if i == 0:
+                print(i)
+                if not init:
+                    init = True
                     min_y = tile.y_min
                     max_y = tile.y_min
                     min_x = tile.x_max
@@ -413,7 +415,7 @@ if __name__ == "__main__":
     # im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/BDORTHO_2-0_IRC-0M50_JP2-E080_LAMB93_D011_2015-01-01/")
     # im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/BDORTHO_2-0_RVB-0M50_JP2-E080_LAMB93_D011_2015-01-01_old")
     # im_manager = IGNImageManager("/home/data/5M00/")
-    im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/5M00/")
+    im_manager = IGNImageManager("/home/data/5M00/")
 
     print(im_manager.map)
 
