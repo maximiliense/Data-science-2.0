@@ -53,7 +53,6 @@ def _occurrence_loader(dataset_class, occurrences, validation_size=0.1, test_siz
     :param test_size:
     :return: train, val and test set, pytorch ready
     """
-
     # initialize index to a specific behaviour if save index is default
     save_index = index_init(save_index, label_name)
 

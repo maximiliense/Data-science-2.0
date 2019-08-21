@@ -1,1 +1,2 @@
 from .stratified_splitter import train_test_split_stratified
+from .geosplitter import SplitterGeoQuadra
