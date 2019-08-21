@@ -14,7 +14,7 @@ class ExtractionError(Exception):
     """
     def __init__(self, x, y, error_type=1, identifier=None, message=''):
         """
-        :param _id:
+        :param identifier:
         :param error_type:
         :param x:
         :param y:
@@ -80,7 +80,8 @@ class IGNImageManager(object):
     Manages IGN images
 
     liste attibuts :
-    - imdir : le chemin d'accès au dossier contenant toutes les miages de la zones détude. Les images doivent toutes être du même type (RVB/IR et et même résolution)
+    - imdir : le chemin d'accès au dossier contenant toutes les miages de la zones détude. Les images doivent toutes
+    être du même type (RVB/IR et et même résolution)
     - list_tile : la liste des tiles de toutes la zone d'étude
     - min_x/max_x : les minimum/maximum est-ouest (croissant vers l'est) couvert par la zone détude
     - min_y/max_y : les minimum/maximum nord-sud (croissant vers le nord) couvert par la zone détude
@@ -161,25 +162,21 @@ class IGNImageManager(object):
         :return:
         """
         list_tile = []
-        init = False
+        min_y = None
+        max_y = None
+        min_x = None
+        max_x = None
         for i, item in enumerate(files_list):
             if item.endswith(".jp2") or item.endswith(".tif"):
                 tile = Tile(self.image_dir + item)
-                if not init:
-                    init = True
+                if min_y is None or tile.y_min < min_y:
                     min_y = tile.y_min
+                elif max_y is None or tile.y_min > max_y:
                     max_y = tile.y_min
+                if min_x is None or tile.x_max < min_x:
                     min_x = tile.x_max
+                elif max_x is None or tile.x_max > max_x:
                     max_x = tile.x_max
-                else:
-                    if tile.y_min < min_y:
-                        min_y = tile.y_min
-                    elif tile.y_min > max_y:
-                        max_y = tile.y_min
-                    if tile.x_max < min_x:
-                        min_x = tile.x_max
-                    elif tile.x_max > max_x:
-                        max_x = tile.x_max
                 list_tile.append(tile)
 
         if get_bounds:
@@ -197,8 +194,8 @@ class IGNImageManager(object):
             return True
         return False
 
-    def get_image_at_location(self, lat, long):
-        y2, x2 = self.transformer_in_out.transform(long, lat)
+    def get_image_at_location(self, x_lat, y_long):
+        y2, x2 = self.transformer_in_out.transform(y_long, x_lat)
         # x2,y2 = int(x2),int(y2)
         print(x2, y2)
         x, y = self.position_to_tile_index(x2, y2)
@@ -209,24 +206,25 @@ class IGNImageManager(object):
 
     def read_tile(self, pos):
         if pos in self.cache_dic:
-            im = self.cache_dic[pos]
+            im_tile = self.cache_dic[pos]
         else:
-            im = plt.imread(self.map[pos[0], pos[1]].image_name)
+            im_tile = plt.imread(self.map[pos[0], pos[1]].image_name)
             if len(self.cache_list) >= self.max_cache:
                 self.cache_dic.pop(self.cache_list[0])
                 self.cache_list.pop(0)
                 self.cache_list.append(pos)
-                self.cache_dic[pos] = im
+                self.cache_dic[pos] = im_tile
             else:
                 self.cache_list.append(pos)
-                self.cache_dic[pos] = im
-        return im
+                self.cache_dic[pos] = im_tile
+        return im_tile
 
     def extract_patch_wgs84(self, latitude, longitude, size, step, identifier=-1, white_percent_allowed=20):
         y, x = self.transformer_in_out.transform(longitude, latitude)
         return self.extract_patch_lambert93(x, y, size, step, identifier, white_percent_allowed=white_percent_allowed)
 
-    def extract_patch_lambert93(self, x_lamb, y_lamb, size, step, identifier=-1, white_percent_allowed=20, verbose=False):
+    def extract_patch_lambert93(self, x_lamb, y_lamb, size, step, identifier=-1,
+                                white_percent_allowed=20, verbose=False):
         x, y = self.position_to_tile_index(x_lamb, y_lamb)
 
         if self.is_not_tile(x, y):
@@ -281,8 +279,9 @@ class IGNImageManager(object):
         aggregation_im = np.ndarray((self.image_size*aggregation_size_x, self.image_size*aggregation_size_y, 3),
                                     dtype=int)
 
-        for im in list_im:
-            aggregation_im[im[1][0]:im[1][1], im[1][2]:im[1][3]] = self.read_tile((im[0][0], im[0][1]))
+        for im_tile in list_im:
+            aggregation_im[im_tile[1][0]:im_tile[1][1], im_tile[1][2]:im_tile[1][3]]\
+                = self.read_tile((im_tile[0][0], im_tile[0][1]))
 
         patch = aggregation_im[x_min:x_max:step, y_min:y_max:step, :]
 
@@ -353,7 +352,7 @@ class IGNImageManager(object):
 
 
 class _ErrorManager(object):
-    def __init__(self, in_proj, out_proj, path, cache_size=1000 ):
+    def __init__(self, in_proj, out_proj, path, cache_size=1000):
         # setting up the transformer
         self.transformer_out_in = Transformer.from_proj(out_proj, in_proj)
 
