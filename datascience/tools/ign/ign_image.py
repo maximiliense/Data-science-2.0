@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import datetime
 from engine.path import list_files
-from engine.logging.logs import print_logs, print_info
+from engine.logging.logs import print_logs, print_info, print_errors
 from pyproj import Transformer, Proj
 import time as ti
 
@@ -197,9 +197,8 @@ class IGNImageManager(object):
         y2, x2 = self.transformer_in_out.transform(long, lat)
         # x2,y2 = int(x2),int(y2)
         x, y = self.position_to_tile_index(x2, y2)
-        if x < 0 or x > self.x_size-1 or y < 0 or y > self.y_size-1 or type(self.map[x, y]) != Tile:
-            print("hors de la zone d'étude")
-            return
+        if x < 0 or x > self.x_size-1 or y < 0 or y > self.y_size-1 or type(self.map[x, y]) is not Tile:
+            print_errors("Outside study zone...", do_exit=True)
         return self.map[x, y]
 
     def read_tile(self, pos):
@@ -415,7 +414,7 @@ if __name__ == "__main__":
     # im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/BDORTHO_2-0_IRC-0M50_JP2-E080_LAMB93_D011_2015-01-01/")
     # im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/BDORTHO_2-0_RVB-0M50_JP2-E080_LAMB93_D011_2015-01-01_old")
     # im_manager = IGNImageManager("/home/data/5M00/")
-    im_manager = IGNImageManager("/home/data/5M00/")  # "/home/bdeneu/Desktop/IGN/5M00/"
+    im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/5M00/")  # "/home/bdeneu/Desktop/IGN/5M00/"
 
     print(im_manager.map)
 
