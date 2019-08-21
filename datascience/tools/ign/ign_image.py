@@ -46,9 +46,9 @@ class Tile(object):
     - image_name : the absolute path to the corresponding tile,
     - decomposed_name : the path in the form of a list of directories up to the file itself,
     - department : the french department visible on the tile,
-    - data : the date of the view,
-    - x_min/x_max : minimum and maximum longitude wise,
-    - y_min/y_max : minimum and maximum latitude wise.
+    - date : the date of the view,
+    - x_min/x_max : minimum and maximum latitude wise,
+    - y_min/y_max : minimum and maximum longitude wise.
     """
     def __init__(self, image_name):
         self.image_name = image_name
