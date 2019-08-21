@@ -152,8 +152,9 @@ class IGNImageManager(object):
             if type(self.map[pos_x, pos_y]) is not Tile or int(self.map[pos_x, pos_y].date) < int(tile.date):
                 # if 2 tiles cover the same area we keep the most recent one
                 self.map[pos_x, pos_y] = tile
-    
-    def get_tile_list(self, files_list, get_bounds):
+
+    @staticmethod
+    def get_tile_list(files_list, get_bounds):
         """
         returns the list of tiles object from a list of files.
         If some files do not correspond to tiles, they are ignored
