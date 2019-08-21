@@ -12,7 +12,7 @@ else:
         extract_7z()
 
     # extract patches from a dataset and the IGN maps
-    extract_patch(get_parameters('offset', 0))
+    extract_patch('full_ign', offset=get_parameters('offset', 0))
 
     # check extraction, save errors and filter dataset
     check_extraction(source='full_ign')

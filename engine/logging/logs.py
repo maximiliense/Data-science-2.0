@@ -1,6 +1,7 @@
 # from engine.util import special_parameters
 import sys
 
+import traceback
 from torch import nn
 from torch.nn import DataParallel
 
@@ -112,6 +113,8 @@ def print_errors(log, end='\n', do_exit=False):
     :param end:
     :return:
     """
+    if is_debug():
+        traceback.print_stack()
     print(color.RED + '\t*** ' + log + ' ***' + color.END, end=end)
     if do_exit:
         exit()
