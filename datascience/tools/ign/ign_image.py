@@ -94,14 +94,14 @@ class IGNImageManager(object):
     - carto : matrice contenant les tiles ordonnées par leur position relative
     """
 
-    def __init__(self, image_dir, max_cache=1000, in_proj='epsg:4326', out_proj='epsg:2154'):
+    def __init__(self, image_dir, max_cache=1000, in_proj='epsg:4326'):
         self.image_dir = image_dir
         
         # config geographic projections
-        self.in_proj, self.out_proj = Proj(init=in_proj), Proj(init=out_proj)
+        self.in_proj, self.ign_proj = Proj(init=in_proj), Proj(init='epsg:2154')
 
         # self.transformer_in_out = Transformer.from_proj(in_proj, out_proj)
-        self.transformer_in_out = Transformer.from_proj(self.in_proj, self.out_proj)
+        self.transformer = Transformer.from_proj(self.in_proj, self.ign_proj)
 
         # configure cache of tiles
         self.cache_dic = {}
@@ -195,7 +195,7 @@ class IGNImageManager(object):
         return False
 
     def get_image_at_location(self, x_lat, y_long):
-        y2, x2 = self.transformer_in_out.transform(y_long, x_lat)
+        y2, x2 = self.transformer.transform(y_long, x_lat)
         # x2,y2 = int(x2),int(y2)
         print(x2, y2)
         x, y = self.position_to_tile_index(x2, y2)
@@ -219,8 +219,8 @@ class IGNImageManager(object):
                 self.cache_dic[pos] = im_tile
         return im_tile
 
-    def extract_patch_wgs84(self, latitude, longitude, size, step, identifier=-1, white_percent_allowed=20):
-        y, x = self.transformer_in_out.transform(longitude, latitude)
+    def extract_patch(self, latitude, longitude, size, step, identifier=-1, white_percent_allowed=20):
+        y, x = self.transformer.transform(longitude, latitude)
         return self.extract_patch_lambert93(x, y, size, step, identifier, white_percent_allowed=white_percent_allowed)
 
     def extract_patch_lambert93(self, x_lamb, y_lamb, size, step, identifier=-1,
@@ -307,7 +307,7 @@ class IGNImageManager(object):
             os.makedirs(destination_directory)
 
         error_manager = _ErrorManager(self.in_proj,
-                                      self.out_proj,
+                                      self.ign_proj,
                                       destination_directory if error_extract_folder is None else error_extract_folder,
                                       cache_size=error_cache_size
                                       )
@@ -423,7 +423,7 @@ if __name__ == "__main__":
 
     print(im_manager.map)
 
-    lat, long = 46.665224, 2.543866
+    lat, long = 43.238676, 2.381339
 
     im = im_manager.get_image_at_location(lat, long)
     print(im.department, im.date, im.image_name)
