@@ -34,7 +34,7 @@ class ExtractionError(Exception):
 # resolutions of the IGN maps
 resolution_details = {
     '5M00': (10000, 2000),
-    '0M50': (5000, 1000)
+    '0M50': (5000, 10000)
 }
 
 
@@ -433,7 +433,8 @@ if __name__ == "__main__":
     # im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/BDORTHO_2-0_IRC-0M50_JP2-E080_LAMB93_D011_2015-01-01/")
     # im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/BDORTHO_2-0_RVB-0M50_JP2-E080_LAMB93_D011_2015-01-01_old")
     # im_manager = IGNImageManager("/home/data/5M00/")
-    im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/5M00/")  # "/home/bdeneu/Desktop/IGN/5M00/"
+    # im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/5M00/")  # "/home/bdeneu/Desktop/IGN/5M00/"
+    im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/0M50/")
 
     print(im_manager.map)
 
@@ -444,7 +445,7 @@ if __name__ == "__main__":
 
     print(im_manager.map.shape)
 
-    im = im_manager.extract_patch(lat, long, 128, 30)
+    im = im_manager.extract_patch(lat, long, 64, 1)
     print(im)
     plt.imshow(im)
     plt.show()
