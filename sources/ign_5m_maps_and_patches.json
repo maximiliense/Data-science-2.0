@@ -1,0 +1,20 @@
+{
+  "gpu4": {
+    "archive": "/home/data/5M00/",
+    "occurrences": "/home/data/occurrences_GLC19/full_ign_correct2.csv",
+    "maps": "/home/data/5M00/",
+    "patches": "/home/data/ign_5m/",
+    "id_name": "X_key",
+    "latitude": "Latitude",
+    "longitude": "Longitude"
+  },
+  "jean-zay": {
+    "archive": "/gpfsddn2/dataset/IGN/ign-url-list-5m/",
+    "occurrences": "/gpfswork/rech/fqg/uid61lx/data/occurrences/full_ign.csv",
+    "maps": "/gpfswork/rech/fqg/uid61lx/data/ign_5m_maps/",
+    "patches": "/gpfsssd/scratch/rech/fqg/uid61lx/data/ign_5m_patches/",
+    "id_name": "X_key",
+    "latitude": "Latitude",
+    "longitude": "Longitude"
+  }
+}

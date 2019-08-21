@@ -1,38 +1,74 @@
 import os
 import numpy as np
-from pyproj import Proj, transform
 import matplotlib.pyplot as plt
 import datetime
+from engine.path import list_files
+from engine.logging.logs import print_logs, print_info, print_errors
+from pyproj import Transformer, Proj
+import time as ti
 
-class Tuile(object):
+
+class ExtractionError(Exception):
     """
-    Objet contenant les informations d'une tuile/une image
+    Exception raised when any problem during the extraction of a patch
+    """
+    def __init__(self, x, y, error_type=1, identifier=None, message=''):
+        """
+        :param identifier:
+        :param error_type:
+        :param x:
+        :param y:
+        :param error_type: 1 = partially outside of the area; 2 = center outside of the area;
+                           3 = on the area but out of data coverage
+        """
+        super().__init__(message)
+        self.x = x,
+        self.y = y
+        self.error_type = error_type,
+        if identifier is not None:
+            self.identifier = identifier
+        else:
+            self.identifier = "NA"
 
-    liste attributs :
-    - imaqe_name : le chemin d'accès depuis la raçine à la tuile correspondante
-    - decomposed_name : le chemin d'accès sous forme de liste (des dossier et su fichier)*
-    - departement : le département présent sur la vue aérienne
-    - date : la date de la vue aérienne
-    - x_min/x_max : les minimum/maximum est-ouest (croissant vers l'est)
-    - y_min/y_max : les minimum/maximum nord-sud (croissant vers le nord)
+
+# resolutions of the IGN maps
+resolution_details = {
+    '5M00': (10000, 2000),
+    '0M50': (5000, 10000)
+}
+
+
+class Tile(object):
+    """
+    Contains infos about a tile/an image
+
+    list of attributes:
+    - image_name : the absolute path to the corresponding tile,
+    - decomposed_name : the path in the form of a list of directories up to the file itself,
+    - department : the french department visible on the tile,
+    - date : the date of the view,
+    - x_min/x_max : minimum and maximum latitude wise,
+    - y_min/y_max : minimum and maximum longitude wise.
     """
     def __init__(self, image_name):
         self.image_name = image_name
         self.decomposed_name = image_name.split("/")
         data_value = self.decomposed_name[-1].split("-", 6)
         self.department = data_value[0]
-        self.x_min = int(data_value[2]) * 1000
-        self.y_max = int(data_value[3]) * 1000
+        self.y_min = int(data_value[2]) * 1000
+        self.y_max = None
+        self.x_max = int(data_value[3]) * 1000
+        self.x_min = None
         self.date = str("".join(self.decomposed_name[-3].split("_")[-1].split("-")[0:2]))
 
-    def setYmin(self,y_min):
-        self.y_min = y_min
+    def set_x_min(self, x_min):
+        self.x_min = x_min
 
-    def setXmax(self,x_max):
-        self.x_max = x_max
+    def set_y_max(self, y_max):
+        self.y_max = y_max
 
     def __str__(self):
-        return "Tuile("+str(self.department) + "_" + str(self.x_min) + "_" + str(self.y_max) + "_" + str(self.date)+")"
+        return 'Tile({}_{}_{}_{})'.format(self.department, self.y_min, self.x_max, self.date)
 
     def __repr__(self):
         return self.__str__()
@@ -41,191 +77,164 @@ class Tuile(object):
 class IGNImageManager(object):
 
     """
-    Objet permetant la gestion des image IGN
+    Manages IGN images
 
     liste attibuts :
-    - imdir : le chemin d'accès au dossier contenant toutes les miages de la zones détude. Les images doivent toutes être du même type (RVB/IR et et même résolution)
-    - list_im : la liste des Tuiles de toutes la zone d'étude
-    - min_x/max_x : les minimum/maximum est-ouest (croissant vers l'est) couvert par la zone détude
-    - min_y/max_y : les minimum/maximum nord-sud (croissant vers le nord) couvert par la zone détude
+    - imdir : le chemin d'accès au dossier contenant toutes les miages de la zones détude. Les images doivent toutes
+    être du même type (RVB/IR et et même résolution)
+    - list_tile : la liste des tiles de toutes la zone d'étude
+    - min_x/max_x : les minimum/maximum nord-sud (croissant vers le nord) couvert par la zone détude
+    - min_y/max_y : les minimum/maximum est-ouest (croissant vers l'est) couvert par la zone détude
     - image_resolution : résolution des images en m/pixels
     - image_type : le type d'image, RVB ou IR
     - image_encoding : l'encodage des images
     - image_projection : la projection utilisée pour les images (normalement LA93)
-    - image_range : le rang de valeurs de projection couvert par une tuile
-    - image_size : le nb de pixels en largeur et longeur d'une tuile
-    - carto : matrice contenant les tuiles ordonnées par leur position relative
+    - image_range : le rang de valeurs de projection couvert par une tile
+    - image_size : le nb de pixels en largeur et longeur d'une tile
+    - carto : matrice contenant les tiles ordonnées par leur position relative
     """
 
-    def __init__(self, imdir):
-        self.error_extract_file = '/gpfsssd/scratch/rech/fqg/uid61lx/data/ign_5m_patches/error.csv'
-        self.nb_errors = 0
-        self.error_cache = []
-        self.error_cache_size = 1000
+    def __init__(self, image_dir, max_cache=1000, in_proj='epsg:4326'):
+        self.image_dir = image_dir
+        
+        # config geographic projections
+        self.in_proj, self.ign_proj = Proj(init=in_proj), Proj(init='epsg:2154')
 
-        self.white_percent_allowed = 20
+        # self.transformer_in_out = Transformer.from_proj(in_proj, out_proj)
+        self.transformer = Transformer.from_proj(self.in_proj, self.ign_proj)
 
-        self.imdir = imdir
-
+        # configure cache of tiles
         self.cache_dic = {}
         self.cache_list = []
-        self.max_cahe = 1000
 
-        construction_list = os.listdir(self.imdir)
-        terminated = False
-        while not terminated:
-            terminated = True
-            for i, file in enumerate(construction_list):
-                if os.path.isdir(self.imdir+file):
-                    folder = file+"/"
-                    adding_list = [folder + s for s in os.listdir(self.imdir+folder)]
-                    construction_list.remove(file)
-                    construction_list.extend(adding_list)
-                    terminated = False
-        self.list_im = []
-        init = False
-        for item in construction_list:
-            if item.endswith(".jp2") or item.endswith(".tif"):
-                tuile = Tuile(self.imdir+item)
-                if not init:
-                    init = True
-                    self.min_x = tuile.x_min
-                    self.max_x = tuile.x_min
-                    self.min_y = tuile.y_max
-                    self.max_y = tuile.y_max
-                else:
-                    if tuile.x_min < self.min_x:
-                        self.min_x = tuile.x_min
-                    elif tuile.x_min > self.max_x:
-                        self.max_x = tuile.x_min
-                    if tuile.y_max < self.min_y:
-                        self.min_y = tuile.y_max
-                    elif tuile.y_max > self.max_y:
-                        self.max_y = tuile.y_max
-                self.list_im.append(tuile)
-        print(str(len(self.list_im)) + ' tuiles loaded...')
-        for item in self.list_im:
-            if item.image_name.endswith(".jp2") or item.image_name.endswith(".tif"):
-                infos_images = item.decomposed_name[-2].split("_")
-                self.image_resolution = infos_images[2]
-                self.image_type = infos_images[1]
-                self.image_encoding = infos_images[3]
-                self.image_projection = infos_images[4]
-                break
+        self.max_cache = max_cache
+        
+        # get all files in the folder image directory
+        files = list_files(self.image_dir)
+        
+        # construct tile object for all tile images in the list of files
+        self.list_tile, \
+            self.min_x, \
+            self.max_x, \
+            self.min_y, \
+            self.max_y = \
+            self.get_tile_list(files, get_bounds=True)
 
-        if self.image_resolution == "5M00":
-            self.image_range = 10000
-            self.image_size = 2000
-        elif self.image_resolution == "0M50":
-            self.image_range = 5000
-            self.image_size = 10000
-        self.max_x = self.max_x + self.image_range
-        self.min_y = self.min_y - self.image_range
+        print_info('{} tiles were found!'.format(len(self.list_tile)))
+        
+        # use the first tile in the list to get images information
+        # the information are contained in the last folder's name
+        info_images = self.list_tile[0].decomposed_name[-2].split("_")
+        self.image_resolution = info_images[2]
+        self.image_type = info_images[1]
+        self.image_encoding = info_images[3]
+        self.image_projection = info_images[4]
+
+        # size and range of images depends on the ign dataset
+        global resolution_details
+        self.image_range, self.image_size = resolution_details[self.image_resolution]
+
+        # configure the spatial area containing all tiles
+        self.max_y = self.max_y + self.image_range
+        self.min_x = self.min_x - self.image_range
 
         self.x_size = int((self.max_x-self.min_x)/self.image_range)
         self.y_size = int((self.max_y-self.min_y)/self.image_range)
 
-        self.carto = np.empty((self.x_size, self.y_size), dtype=object)
+        # create spatial matrix to order and place tiles relatively to their spatial position
+        self.map = np.empty((self.x_size, self.y_size), dtype=object)
 
-        for tuile in self.list_im:
-            tuile.setXmax(tuile.x_min+self.image_range)
-            tuile.setYmin(tuile.y_max-self.image_range)
-            pos_x, pos_y = self.convertToIndex(tuile.x_min, tuile.y_max)
-            if type(self.carto[pos_x,pos_y]) != Tuile or int(self.carto[pos_x,pos_y].date)<int(tuile.date):
-                self.carto[pos_x,pos_y] = tuile
+        # fill the cartographic matrix with all tiles
+        for tile in self.list_tile:
+            tile.set_y_max(tile.y_min+self.image_range)
+            tile.set_x_min(tile.x_max-self.image_range)
+            pos_x, pos_y = self.position_to_tile_index(tile.x_max, tile.y_min)
+            if type(self.map[pos_x, pos_y]) is not Tile or int(self.map[pos_x, pos_y].date) < int(tile.date):
+                # if 2 tiles cover the same area we keep the most recent one
+                self.map[pos_x, pos_y] = tile
 
-    def init_error_file(self):
-        currentDT = datetime.datetime.now()
-        with open(self.error_extract_file, "a") as myfile:
-            myfile.write(str(currentDT) + "\nOcc_id;Error_type;Latitude;Longitude\n")
+    @staticmethod
+    def get_tile_list(files_list, get_bounds):
+        """
+        returns the list of tiles object from a list of files.
+        If some files do not correspond to tiles, they are ignored
+        :param files_list:
+        :param get_bounds:
+        :return:
+        """
+        list_tile = []
+        min_y = None
+        max_y = None
+        min_x = None
+        max_x = None
+        for i, item in enumerate(files_list):
+            if item.endswith(".jp2") or item.endswith(".tif"):
+                tile = Tile(item)
+                if min_y is None or tile.y_min < min_y:
+                    min_y = tile.y_min
+                elif max_y is None or tile.y_min > max_y:
+                    max_y = tile.y_min
+                if min_x is None or tile.x_max < min_x:
+                    min_x = tile.x_max
+                elif max_x is None or tile.x_max > max_x:
+                    max_x = tile.x_max
+                list_tile.append(tile)
 
-    def getImdir(self):
-        return self.imdir
-
-    def getImList(self):
-        return self.list_im
-
-    def convertToIndex(self,x_in,y_in):
-        x_out = int((x_in-self.min_x)/self.image_range)
-        y_out = int((self.max_y-y_in)/self.image_range)
-        return x_out,y_out
-
-    def getImageAtLocation(self,lat,long):
-        inProj = Proj(init='epsg:4326')
-        outProj = Proj(init='epsg:2154')
-        x1, y1 = long, lat
-        x2, y2 = transform(inProj, outProj, x1, y1)
-        # x2,y2 = int(x2),int(y2)
-        x, y = self.convertToIndex(x2, y2)
-        if x<0 or x>self.x_size-1 or y<0 or y>self.y_size-1 or type(self.carto[x,y])!=Tuile:
-            print("hors de la zone d'étude")
-            return
-        return self.carto[x,y]
-
-    def readImage(self, pos):
-        if pos in self.cache_dic:
-            im = self.cache_dic[pos]
+        if get_bounds:
+            return list_tile, min_x, max_x, min_y, max_y
         else:
-            im = plt.imread(self.carto[pos[0],pos[1]].image_name)
-            if len(self.cache_list)>=self.max_cahe:
+            return list_tile
+
+    def position_to_tile_index(self, x_in, y_in):
+        x_out = int((self.max_x - x_in) / self.image_range)
+        y_out = int((y_in-self.min_y)/self.image_range)
+        return x_out, y_out
+
+    def is_not_tile(self, x, y):
+        if x < 0 or x > self.x_size - 1 or y < 0 or y > self.y_size - 1 or type(self.map[x, y]) is not Tile:
+            return True
+        return False
+
+    def get_image_at_location(self, x_lat, y_long):
+        y2, x2 = self.transformer.transform(y_long, x_lat)
+        # x2,y2 = int(x2),int(y2)
+        print(x2, y2)
+        x, y = self.position_to_tile_index(x2, y2)
+        print(x, y)
+        if x < 0 or x > self.x_size-1 or y < 0 or y > self.y_size-1 or type(self.map[x, y]) is not Tile:
+            print_errors("Outside study zone...", do_exit=True)
+        return self.map[x, y]
+
+    def read_tile(self, pos):
+        if pos in self.cache_dic:
+            im_tile = self.cache_dic[pos]
+        else:
+            im_tile = plt.imread(self.map[pos[0], pos[1]].image_name)
+            if len(self.cache_list) >= self.max_cache:
                 self.cache_dic.pop(self.cache_list[0])
                 self.cache_list.pop(0)
                 self.cache_list.append(pos)
-                self.cache_dic[pos] = im
+                self.cache_dic[pos] = im_tile
             else:
                 self.cache_list.append(pos)
-                self.cache_dic[pos] = im
-        return im
+                self.cache_dic[pos] = im_tile
+        return im_tile
 
-    def extractPatchLatLong(self, lat, long, size, step, id=-1):
-        inProj = Proj(init='epsg:4326')
-        outProj = Proj(init='epsg:2154')
-        x1, y1 = long, lat
-        x2, y2 = transform(inProj, outProj, x1, y1)
-        return self.extractPatch(x2, y2, size, step, id)
+    def extract_patch(self, latitude, longitude, size, step, identifier=-1, white_percent_allowed=20):
+        y, x = self.transformer.transform(longitude, latitude)
+        return self.extract_patch_lambert93(x, y, size, step, identifier, white_percent_allowed=white_percent_allowed)
 
-    def erreur_extract(self, x2, y2, type=1, id=-1):
-        """
-        :param x2:
-        :param y2:
-        :param type: 1 = partially outside of the area; 2 = center outside of the area; 3 = on the area but out of data coverage
-        :param id:
-        :return:
-        """
-        inProj = Proj(init='epsg:2154')
-        outProj = Proj(init='epsg:4326')
-        x1, y1 = x2, y2
-        long, lat = transform(inProj, outProj, x1, y1)
-        if type == 2:
-            occurence = str(id) + ";T;" + str(lat) + ";" + str(long)
-        elif type == 1:
-            occurence = str(id) + ";P;" + str(lat) + ";" + str(long)
-        elif type == 3:
-            occurence = str(id) + ";I;" + str(lat) + ";" + str(long)
-        self.error_cache.append(occurence)
-        self.nb_errors += 1
-        if len(self.error_cache) >= self.error_cache_size:
-            self.write_errors()
+    def extract_patch_lambert93(self, x_lamb, y_lamb, size, step, identifier=-1,
+                                white_percent_allowed=20, verbose=False):
+        x, y = self.position_to_tile_index(x_lamb, y_lamb)
 
-    def write_errors(self):
-        with open(self.error_extract_file, "a") as myfile:
-            for occurence in self.error_cache:
-                myfile.write(occurence + "\n")
-        self.error_cache = []
+        if self.is_not_tile(x, y):
+            raise ExtractionError(x_lamb, y_lamb, error_type=2, identifier=identifier)
 
-    def extractPatch(self, x2, y2, size, step, id=-1):
-        if step*size > self.image_size:
-            print("sortie demandée trop grande")
-            return
-        x,y = self.convertToIndex(x2,y2)
-        if x<0 or x>self.x_size-1 or y<0 or y>self.y_size-1 or type(self.carto[x,y])!=Tuile:
-            self.erreur_extract(x2, y2, type=2, id=id)
-            return
+        # im = self.read_tile((x, y))
 
-        im = self.readImage((x,y))
-
-        pixel_x = int((x2-self.carto[x,y].x_min) * self.image_size / float(self.image_range))
-        pixel_y = int((self.carto[x,y].y_max-y2) * self.image_size / float(self.image_range))
+        pixel_y = int((y_lamb - self.map[x, y].y_min) * self.image_size / float(self.image_range))
+        pixel_x = int((self.map[x, y].x_max - x_lamb) * self.image_size / float(self.image_range))
 
         modulo = size % 2
         half_size = int(size / 2)
@@ -235,121 +244,208 @@ class IGNImageManager(object):
         y_min = pixel_y - half_size * step
         y_max = pixel_y + half_size * step + modulo
 
-        direction = 0
+        center_image_pos_x, center_image_pos_y = 0, 0
+        aggregation_size_x, aggregation_size_y = 1, 1
 
-        if x_min < 0:
+        while x_min < 0 or x_max >= self.image_size*aggregation_size_x or\
+                y_min < 0 or y_max >= self.image_size*aggregation_size_y:
+            if x_min < 0:
+                x_max = x_max + self.image_size
+                x_min = x_min + self.image_size
+                aggregation_size_x += 1
+                center_image_pos_x += 1
+            if y_min < 0:
+                y_max = y_max + self.image_size
+                y_min = y_min + self.image_size
+                aggregation_size_y += 1
+                center_image_pos_y += 1
+            if x_max >= self.image_size*aggregation_size_x:
+                aggregation_size_x += 1
+            if y_max >= self.image_size*aggregation_size_y:
+                aggregation_size_y += 1
 
-            x_max = x_max + self.image_size
-            x_min = x_min + self.image_size
-            direction = -1
-            if x-1<0 or type(self.carto[x-1,y])!=Tuile:
-                self.erreur_extract(x2, y2, id=id)
-                return
-            im2_name = self.carto[x-1,y].image_name
-            im2 = self.readImage((x-1,y))
-            im = np.concatenate((im2, im), axis=1)
+        if verbose:
+            print("number of tiles to load", aggregation_size_x*aggregation_size_y)
 
-        elif x_max > self.image_size - 1:
+        list_im = []
+        for i in range(aggregation_size_x):
+            for j in range(aggregation_size_y):
+                relative_x = i - center_image_pos_x
+                relative_y = j - center_image_pos_y
+                if self.is_not_tile(x + relative_x, y + relative_y):
+                    raise ExtractionError(x_lamb, y_lamb, error_type=1, identifier=identifier)
+                list_im.append(((x + relative_x, y + relative_y),
+                               (self.image_size*i, self.image_size*(i+1), self.image_size*j, self.image_size*(j+1))))
 
-            direction = 1
-            if x+1>self.x_size-1 or type(self.carto[x+1,y])!=Tuile:
-                self.erreur_extract(x2, y2, id=id)
-                return
-            im2_name = self.carto[x+1,y].image_name
-            im2 = self.readImage((x+1,y))
-            im = np.concatenate((im, im2), axis=1)
+        aggregation_im = np.ndarray((self.image_size*aggregation_size_x, self.image_size*aggregation_size_y, 3),
+                                    dtype=int)
 
-        if y_min < 0:
+        for im_tile in list_im:
+            aggregation_im[im_tile[1][0]:im_tile[1][1], im_tile[1][2]:im_tile[1][3]]\
+                = self.read_tile((im_tile[0][0], im_tile[0][1]))
 
-            y_max = y_max + self.image_size
-            y_min = y_min + self.image_size
+        patch = aggregation_im[x_min:x_max:step, y_min:y_max:step, :]
 
-            if direction == 0:
-                if y - 1 < 0 or type(self.carto[x, y - 1]) != Tuile:
-                    self.erreur_extract(x2, y2, id=id)
-                    return
-                im2_name = self.carto[x,y-1].image_name
-                im2 = self.readImage((x,y-1))
-                im = np.concatenate((im2, im), axis=0)
+        if (np.sum(np.all(patch == 255, axis=2))/(patch.shape[0]*patch.shape[1]))*100 > white_percent_allowed:
+            raise ExtractionError(x_lamb, y_lamb, error_type=3, identifier=identifier)
+        return patch
 
-            elif direction == 1:
-                if y - 1 < 0 or type(self.carto[x, y-1]) != Tuile or x+1>self.x_size-1 or type(self.carto[x+1,y-1]) != Tuile:
-                    self.erreur_extract(x2, y2, id=id)
-                    return
-                im3_name = self.carto[x+1,y-1].image_name
-                im4_name = self.carto[x,y-1].image_name
-                im3 = self.readImage((x+1,y-1))
-                im4 = self.readImage((x,y-1))
-                im2 = np.concatenate((im4, im3), axis=1)
-                im = np.concatenate((im2, im), axis=0)
+    def extract_patches(self, long_lat_df, destination_directory, size=64, step=1, error_extract_folder=None,
+                        error_cache_size=1000, white_percent_allowed=20, check_file=True):
+        """
+        The main extraction method for multiple extractions
+        :param long_lat_df:
+        :param destination_directory:
+        :param size:
+        :param step:
+        :param error_extract_folder:
+        :param error_cache_size:
+        :param white_percent_allowed:
+        :param check_file:
+        """
 
-            elif direction == -1:
-                if y - 1 < 0 or type(self.carto[x, y-1]) != Tuile or x-1<0 or type(self.carto[x-1,y-1]) != Tuile:
-                    self.erreur_extract(x2, y2, id=id)
-                    return
-                im3_name = self.carto[x-1,y-1].image_name
-                im4_name = self.carto[x,y-1].image_name
-                im3 = self.readImage((x-1,y-1))
-                im4 = self.readImage((x,y-1))
-                im2 = np.concatenate((im3, im4), axis=1)
-                im = np.concatenate((im2, im), axis=0)
+        if not os.path.exists(destination_directory):
+            os.makedirs(destination_directory)
 
-        elif y_max > self.image_size - 1:
+        error_manager = _ErrorManager(self.in_proj,
+                                      self.ign_proj,
+                                      destination_directory if error_extract_folder is None else error_extract_folder,
+                                      cache_size=error_cache_size
+                                      )
 
-            if direction == 0:
-                if y+1 > self.image_size-1 or type(self.carto[x, y + 1]) != Tuile:
-                    self.erreur_extract(x2, y2, id=id)
-                    return
-                im2_name = self.carto[x,y+1].image_name
-                im2 = self.readImage((x,y+1))
-                im = np.concatenate((im, im2), axis=0)
+        total = long_lat_df.shape[0]
+        start = datetime.datetime.now()
+        extract_time = 0
 
-            elif direction == 1:
-                if y+1>self.image_size or type(self.carto[x, y+1]) != Tuile or x+1>self.x_size-1 or type(self.carto[x+1,y+1]) != Tuile:
-                    self.erreur_extract(x2, y2, id=id)
-                    return
-                im3_name = self.carto[x+1,y+1].image_name
-                im4_name = self.carto[x,y+1].image_name
-                im3 = self.readImage((x+1,y+1))
-                im4 = self.readImage((x,y+1))
-                im2 = np.concatenate((im4, im3), axis=1)
-                im = np.concatenate((im, im2), axis=0)
+        for idx, row in enumerate(long_lat_df.iterrows()):
+            longitude, latitude = row[1][0], row[1][1]
 
-            elif direction == -1:
-                if y + 1 > self.image_size or type(self.carto[x, y+1]) != Tuile or x-1<0 or type(self.carto[x-1,y+1]) != Tuile:
-                    self.erreur_extract(x2, y2, id=id)
-                    return
-                im3_name = self.carto[x-1,y+1].image_name
-                im4_name = self.carto[x,y+1].image_name
-                im3 = self.readImage((x-1,y+1))
-                im4 = self.readImage((x,y+1))
-                im2 = np.concatenate((im3, im4), axis=1)
-                im = np.concatenate((im, im2), axis=0)
+            if idx % 100000 == 99999:
+                _print_details(idx+1, total, start, extract_time, latitude, longitude, len(error_manager))
 
-        rep = im[y_min:y_max:step, x_min:x_max:step, :]
-        if (np.sum(np.all(rep == 255, axis=2))/(rep.shape[0]*rep.shape[1]))*100 > self.white_percent_allowed:
-            self.erreur_extract(x2, y2, type=3, id=id)
-            return
-        return rep
+            patch_id = int(row[1][2])
+
+            # constructing path with hierarchical structure
+            path = _write_directory(destination_directory, str(patch_id)[-2:], str(patch_id)[-4:-2])
+
+            patch_path = os.path.join(path, str(patch_id) + ".npy")
+
+            # if file exists pursue extraction
+            if os.path.isfile(patch_path) and check_file:
+                continue
+
+            t1 = ti.time()
+            t2 = 0
+            try:
+                patch = self.extract_patch(latitude, longitude, size, step, identifier=int(patch_id),
+                                           white_percent_allowed=white_percent_allowed)
+            except ExtractionError as err:
+                t2 = ti.time()
+                error_manager.append(err)
+            else:
+                t2 = ti.time()
+                np.save(patch_path, patch)
+            finally:
+                delta = t2 - t1
+                extract_time += delta
+
+        error_manager.write_errors()
+
+    # TODO : code to produce tiff
+    """
+    def create_tiff(self):
+        copy_carto = np.transpose(self.carto)
+        raster = np.zeros((copy_carto.shape[0]*self.image_size, copy_carto.shape[1]*self.image_size, 2), dtype=np.uint8)
+        print(raster.shape)
+        for row in progressbar.progressbar(copy_carto):
+            for tuile in row:
+                if tuile is not None:
+                    raster[tuile.pos_y:tuile.pos_y+self.image_size, tuile.pos_x:tuile.pos_x+self.image_size]\
+                        = self.readImage((tuile.pos_x, tuile.pos_y))[:, :, :1]
+    """
+
+
+class _ErrorManager(object):
+    def __init__(self, in_proj, out_proj, path, cache_size=1000):
+        # setting up the transformer
+        self.transformer_out_in = Transformer.from_proj(out_proj, in_proj)
+
+        # setting up the destination file
+        current_datetime = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        error_extract_file = path + current_datetime + '_errors.csv'
+        with open(error_extract_file, "w") as file:
+            file.write(str(current_datetime) + "Occ_id;Error_type;Latitude;Longitude\n")
+        self.file = error_extract_file
+
+        # setting up the error cache
+        self.error_cache = []
+        self.total_size = 0
+
+        # the maximum number of elements in the cache
+        self.cache_size = cache_size
+
+    def __len__(self):
+        return self.total_size
+
+    def append(self, error):
+        """
+        :param error:
+        :return:
+        """
+        longitude, latitude = self.transformer_out_in.transform(error.y, error.x)
+
+        self.error_cache.append('{};{};{};{}'.format(error.identifier, error.error_type, latitude, longitude))
+        self.total_size += 1
+        if len(self.error_cache) >= self.cache_size:
+            self.write_errors()
+
+    def write_errors(self):
+        with open(self.file, "a") as file:
+            for err in self.error_cache:
+                file.write(err + "\n")
+        self.error_cache = []
+
+
+def _write_directory(root, *args):
+    path = root
+    for d in args:
+        path = os.path.join(path, d)
+        if not os.path.exists(path):
+            os.makedirs(path)
+    return path
+
+
+def _print_details(idx, total, start, extract_time, latitude, longitude, nb_errors):
+    time = datetime.datetime.now()
+    print_logs('\n{}/{}'.format(idx, total))
+    p = ((idx - 1) / total) * 100
+    print_logs('%.2f' % p)
+    delta = (time - start).total_seconds()
+    estimation = (delta * total) / idx
+    date_estimation = start + datetime.timedelta(seconds=estimation)
+    print_logs('mean extraction time: {}'.format(extract_time / idx))
+    print_logs('Actual position: {}, Errors: {}'.format((latitude, longitude), nb_errors))
+    print_logs('Time: {}, ETA: {}'.format(datetime.timedelta(seconds=delta), date_estimation))
+
 
 if __name__ == "__main__":
-    #im_manager = IGNImageManager("/data/ign/5M00/")
-    #im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/BDORTHO_2-0_IRC-0M50_JP2-E080_LAMB93_D011_2015-01-01/")
-    #im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/BDORTHO_2-0_RVB-0M50_JP2-E080_LAMB93_D011_2015-01-01_old")
-    #im_manager = IGNImageManager("/home/data/5M00/")
-    im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/5M00/")
+    # im_manager = IGNImageManager("/data/ign/5M00/")
+    # im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/BDORTHO_2-0_IRC-0M50_JP2-E080_LAMB93_D011_2015-01-01/")
+    # im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/BDORTHO_2-0_RVB-0M50_JP2-E080_LAMB93_D011_2015-01-01_old")
+    # im_manager = IGNImageManager("/home/data/5M00/")
+    # im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/5M00/")  # "/home/bdeneu/Desktop/IGN/5M00/"
+    im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/0M50/")
 
-    print(im_manager.carto)
+    print(im_manager.map)
 
-    lat, long = 43.473090, 4.544300
+    lat, long = 43.238676, 2.381339
 
+    im = im_manager.get_image_at_location(lat, long)
+    print(im.department, im.date, im.image_name)
 
-    im = im_manager.getImageAtLocation(lat, long)
-    print(im.department,im.date,im.image_name)
+    print(im_manager.map.shape)
 
-    print(im_manager.carto.shape)
-
-    im = im_manager.extractPatchLatLong(lat, long, 64, 1)
+    im = im_manager.extract_patch(lat, long, 64, 1)
     print(im)
     plt.imshow(im)
     plt.show()

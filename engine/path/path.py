@@ -40,6 +40,15 @@ def output_path(filename, validation_id=None, have_validation=False):
     return os.path.join(current_path, folder_list[-1])
 
 
+def list_files(path):
+    """
+    return a list of files after analysing recursively a folder.
+    :param path:
+    :return:
+    """
+    return [os.path.join(dp, f) for dp, dn, fn in os.walk(os.path.expanduser(path)) for f in fn]
+
+
 def _sub_folders_from_path(path):
     """
     divide a path in its sub folder
