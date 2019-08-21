@@ -120,7 +120,7 @@ class IGNImageManager(object):
             self.max_y = \
             self.get_tile_list(files, get_bounds=True)
 
-        print_info('{} tiles were loaded!'.format(len(self.list_tile)))
+        print_info('{} tiles were found!'.format(len(self.list_tile)))
         
         # use the first tile in the list to get images information
         # the information are contained in the last folder's name
@@ -320,8 +320,8 @@ class IGNImageManager(object):
         for idx, row in enumerate(long_lat_df.iterrows()):
             longitude, latitude = row[1][0], row[1][1]
 
-            if (idx - 1) % 100000 == 99999:
-                _print_details(idx, total, start, extract_time, latitude, longitude, len(error_manager))
+            if idx % 100000 == 99999:
+                _print_details(idx+1, total, start, extract_time, latitude, longitude, len(error_manager))
 
             patch_id = int(row[1][2])
 
@@ -421,7 +421,7 @@ def _print_details(idx, total, start, extract_time, latitude, longitude, nb_erro
     p = ((idx - 1) / total) * 100
     print_logs('%.2f' % p)
     delta = (time - start).total_seconds()
-    estimation = (delta * total) / (idx + 1)
+    estimation = (delta * total) / idx
     date_estimation = start + datetime.timedelta(seconds=estimation)
     print_logs('mean extraction time: {}'.format(extract_time / idx))
     print_logs('Actual position: {}, Errors: {}'.format((latitude, longitude), nb_errors))
