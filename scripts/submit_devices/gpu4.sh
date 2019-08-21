@@ -44,6 +44,6 @@ then
     fi
     exit 1;
 fi
-command="python ${python_file}${options}"
+command="python3.7 ${python_file}${options}"
 echo "${command};";
 ${command}
