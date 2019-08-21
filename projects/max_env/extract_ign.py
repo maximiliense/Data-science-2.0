@@ -9,7 +9,7 @@ if get_parameters('check_only', False):
 else:
     if get_parameters('uncompress', True):
         # uncompress the IGN maps
-        extract_7z()
+        extract_7z(source='full_ign')
 
     # extract patches from a dataset and the IGN maps
     extract_patch('full_ign', offset=get_parameters('offset', 0))
