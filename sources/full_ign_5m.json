@@ -9,7 +9,7 @@
   "jean-zay": {
     "occurrences": "/gpfswork/rech/fqg/uid61lx/data/occurrences/full_ign_5m.csv",
     "rasters": "/gpfswork/rech/fqg/uid61lx/data/rasters/rasters_ign/",
-    "patches": "/gpfsssd/scratch/rech/fqg/uid61lx/data/ign_5m_patches/",
+    "patches": "/gpfsdsstore/scratch/rech/fqg/uid61lx/data/ign_5m_patches/",
     "id_name": "X_key",
     "label_name": "glc19SpId"
   }
