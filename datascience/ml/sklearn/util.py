@@ -20,13 +20,13 @@ def load_or_create(model_class, *args, **kwargs):
     return model
 
 
-def load_model(ext=''):
-    path = output_path('model.skl')
+def load_model(model_name='model'):
+    path = output_path('{}.skl'.format(model_name))
     print_debug('Loading SKL model ' + path)
     return joblib.load(path)
 
 
-def save_model(model):
-    path = output_path('model.skl')
+def save_model(model, model_name='model'):
+    path = output_path('{}.skl'.format(model_name))
     print_debug('Saving SKL model ' + path)
     return joblib.dump(model, path)
