@@ -11,7 +11,11 @@ usage(){
 	echo "  -h, --help$small_indentation show this help message and exit";
 }
 
+# contains findPython that help finding the correct interpreter
+rootDir=$(dirname $0);
+source ${rootDir}/../utilities/python.sh;
 
+# parameters
 python_file=NULL;
 project_path=".";
 
@@ -40,10 +44,11 @@ then
     usage;
     if [[ "${python_file}" != NULL ]];
     then
-        python ${python_file} -h | sed  '1,12d;$d';
+        $(findPython) ${python_file} -h | sed  '1,12d;$d';
     fi
     exit 1;
 fi
-command="python3.7 ${python_file}${options}"
-echo "${command};";
+command="$(findPython) ${python_file}${options}"
+echo "Submitting command: ${command};";
+echo;
 ${command}
