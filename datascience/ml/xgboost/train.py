@@ -2,6 +2,7 @@ import xgboost as xgb
 import numpy as np
 from datascience.ml.evaluation import validate, export_results
 from datascience.ml.xgboost.util import save_model, load_model
+from engine.flags import duplicated
 from engine.parameters import special_parameters
 from engine.logging import print_logs, print_h1, print_notif, print_errors
 from engine.core import module
@@ -11,6 +12,7 @@ from engine.parameters.special_parameters import validation_only
 
 
 @module
+@duplicated
 def fit(train, test, export=False, training_params=None, export_params=None, **kwargs):
     if not use_gpu():
         print_errors('XGBoost can only be executed on a GPU for the moment', do_exit=True)
