@@ -1,20 +1,13 @@
 import xgboost as xgb
 import numpy as np
-import ast
-
 from datascience.ml.evaluation import validate, export_results
+from datascience.ml.xgboost.util import save_model, load_model
 from engine.parameters import special_parameters
-from engine.flags import incorrect_structure
 from engine.logging import print_logs, print_h1, print_notif
 from engine.core import module
 
-# TODO separate load/save from fit... like for pytorch and sklearn
-from engine.path import output_path
-
 
 @module
-@incorrect_structure(details='There should be a load and save functions, a load model module. This code should'
-                             ' refer to the existing load function.')
 def fit(train, test, validation_only=False, export=False, training_params=None, export_params=None):
     training_params = {} if training_params is None else training_params
     export_params = {} if export_params is None else export_params
@@ -31,9 +24,8 @@ def fit(train, test, validation_only=False, export=False, training_params=None, 
         dtrain = xgb.DMatrix(X, label=y)
 
         params = {'objective': 'multi:softprob', 'max_depth': 2, 'seed': 4242, 'silent': 0, 'eval_metric': 'merror',
-                  'num_class': 4520, 'num_boost_round': 360, 'early_stopping_rounds': 10, 'gpu_id': 3,
-                  'verbose_eval': 1, 'updater': 'grow_gpu', 'predictor': 'gpu_predictor', 'tree_method': 'gpu_hist'}
-        params['nthread'] = 4
+                  'num_class': 6823, 'num_boost_round': 360, 'early_stopping_rounds': 10, 'verbose_eval': 1,
+                  'updater': 'grow_gpu', 'predictor': 'gpu_predictor', 'tree_method': 'gpu_hist', 'nthread': 4}
 
         evallist = [(dtest, 'eval'), (dtrain, 'train')]
 
@@ -51,21 +43,10 @@ def fit(train, test, validation_only=False, export=False, training_params=None, 
         )
 
         print_logs("Save model...")
-        complement = {'best_iteration': bst.best_ntree_limit}
-        with open(output_path("model_complement.txt"), "w") as file:
-            file.write(str(complement))
-        bst.save_model(output_path("model"))
-        bst.dump_model(output_path("model_dump"))
+        save_model(bst)
 
     else:
-        print_logs("load model " + special_parameters.output_path("_model"))
-        bst = xgb.Booster()
-        bst.load_model(output_path("model"))
-        with open(output_path("model_complement.txt"), "r") as file:
-            st = file.read()
-            complement = ast.literal_eval(st)
-        if 'best_iteration' in complement:
-            bst.best_ntree_limit = complement['best_iteration']
+        bst = load_model()
 
     print_h1('Validation/Export: ' + special_parameters.setup_name)
     predictions = bst.predict(dtest, ntree_limit=bst.best_ntree_limit)
