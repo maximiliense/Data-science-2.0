@@ -4,7 +4,7 @@ from datascience.data.loader import occurrence_loader
 from datascience.data.datasets import EnvironmentalDataset
 from datascience.ml.xgboost import fit
 from engine.parameters.special_parameters import validation_only
-from datascience.data.model_selection import train_test_split_stratified
+from datascience.model_selection import train_test_split_stratified
 
 # loading dataset
 train, _, test = occurrence_loader(
