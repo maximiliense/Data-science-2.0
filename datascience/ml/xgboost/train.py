@@ -3,16 +3,22 @@ import numpy as np
 from datascience.ml.evaluation import validate, export_results
 from datascience.ml.xgboost.util import save_model, load_model
 from engine.parameters import special_parameters
-from engine.logging import print_logs, print_h1, print_notif
+from engine.logging import print_logs, print_h1, print_notif, print_errors
 from engine.core import module
+from engine.logging.verbosity import debug, verbose
+from engine.hardware import use_gpu, first_device
+from engine.parameters.special_parameters import validation_only
 
 
 @module
-def fit(train, test, validation_only=False, export=False, training_params=None, export_params=None):
+def fit(train, test, export=False, training_params=None, export_params=None, **kwargs):
+    if not use_gpu():
+        print_errors('XGBoost can only be executed on a GPU for the moment', do_exit=True)
+
     training_params = {} if training_params is None else training_params
     export_params = {} if export_params is None else export_params
 
-    dtest = xgb.DMatrix(np.asarray(test.get_vectors()), label=np.asarray(test.labels))
+    d_test = xgb.DMatrix(np.asarray(test.get_vectors()), label=np.asarray(test.labels))
 
     if not validation_only:
         print_h1('Training: ' + special_parameters.setup_name)
@@ -21,25 +27,30 @@ def fit(train, test, validation_only=False, export=False, training_params=None, 
         X = np.asarray(train.get_vectors())
         y = np.asarray(train.labels)
 
-        dtrain = xgb.DMatrix(X, label=y)
+        d_train = xgb.DMatrix(X, label=y)
 
-        params = {'objective': 'multi:softprob', 'max_depth': 2, 'seed': 4242, 'silent': 0, 'eval_metric': 'merror',
-                  'num_class': 6823, 'num_boost_round': 360, 'early_stopping_rounds': 10, 'verbose_eval': 1,
-                  'updater': 'grow_gpu', 'predictor': 'gpu_predictor', 'tree_method': 'gpu_hist', 'nthread': 4}
+        if debug:
+            verbosity = 3
+        elif verbose:
+            verbosity = 2
+        else:
+            verbosity = 0
 
-        evallist = [(dtest, 'eval'), (dtrain, 'train')]
+        gpu_id = first_device().index
+
+        kwargs['verbosity'] = verbosity
+        kwargs['gpu_id'] = gpu_id
+
+        eval_list = [(d_test, 'eval'), (d_train, 'train')]
 
         print_logs("fit model...")
 
         bst = xgb.train(
-            params,
-            dtrain,
-            num_boost_round=params["num_boost_round"],
-            verbose_eval=params["verbose_eval"],
-            # feval=evaluator.evaluate,
-            evals=evallist,
-            # early_stopping_rounds=params["early_stopping_rounds"]
-            # callbacks=[save_after_it]
+            kwargs,
+            d_train,
+            num_boost_round=kwargs["num_boost_round"],
+            verbose_eval=kwargs["verbose_eval"],
+            evals=eval_list
         )
 
         print_logs("Save model...")
@@ -49,7 +60,7 @@ def fit(train, test, validation_only=False, export=False, training_params=None, 
         bst = load_model()
 
     print_h1('Validation/Export: ' + special_parameters.setup_name)
-    predictions = bst.predict(dtest, ntree_limit=bst.best_ntree_limit)
+    predictions = bst.predict(d_test, ntree_limit=bst.best_ntree_limit)
     res = validate(
         predictions, np.array(test.labels), training_params['metrics'] if 'metrics' in training_params else tuple(),
         final=True
