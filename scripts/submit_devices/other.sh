@@ -42,7 +42,7 @@ then
     usage;
     if [[ "${python_file}" != NULL ]];
     then
-        $(findPython) "${python_file}" -h | sed  '1,12d;$d';
+        $(findPython) "${python_file}" -h | sed  '1,11d;$d';
     fi
     exit 1;
 fi
