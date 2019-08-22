@@ -1,4 +1,4 @@
-from engine.parameters.special_parameters import setup_name
+from engine.parameters.special_parameters import setup_name, validation_only
 from engine.logging.logs import print_h1, print_logs, print_notif
 from datascience.ml.evaluation import validate, export_results
 from datascience.ml.sklearn.util import save_model
@@ -7,7 +7,7 @@ import numpy as np
 
 
 @module
-def fit(model, train, test, validation_only=False, export=False,
+def fit(model, train, test, export=False,
         training_params=None, export_params=None):
     training_params = {} if training_params is None else training_params
     export_params = {} if export_params is None else export_params
@@ -26,7 +26,8 @@ def fit(model, train, test, validation_only=False, export=False,
     print_h1('Validation/Export: ' + setup_name)
     predictions = clf.predict_proba(np.array(test.get_vectors()))
     res = validate(
-        predictions, np.array(test.labels), training_params['metrics'] if 'metrics' in training_params else tuple()
+        predictions, np.array(test.labels), training_params['metrics'] if 'metrics' in training_params else tuple(),
+        final=True
     )
     print_notif(res, end='')
     if export:
