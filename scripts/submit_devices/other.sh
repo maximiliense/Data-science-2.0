@@ -8,13 +8,15 @@ usage(){
 	echo "optional arguments:";
 	small_indentation="         ";
 	echo "  -h, --help$small_indentation show this help message and exit";
-	echo "  --py-version$small_indentation python version (default: 3.7)";
 }
 
 
+# contains findPython that help finding the correct interpreter
+rootDir=$(dirname $0);
+source ${rootDir}/../utilities/python.sh;
+
+# parameters
 python_file=NULL;
-# project_path=".";
-python_version="3.7"
 
 options="";
 help=false;
@@ -22,10 +24,6 @@ help=false;
 # setting options
 while [[ "$1" != "" ]]; do
     case $1 in
-
-        --py-version )            shift
-                                python_version=$1;
-                                ;;
         -h | --help )           help=true;
                                 ;;
         * )                     if [[ "$python_file" = NULL ]];
@@ -34,7 +32,6 @@ while [[ "$1" != "" ]]; do
                                 else
                                     options="$options $1";
                                 fi
-
     esac
     shift
 done
@@ -45,10 +42,11 @@ then
     usage;
     if [[ "${python_file}" != NULL ]];
     then
-        python"${python_version} ${python_file}" -h | sed  '1,12d;$d';
+        $(findPython) "${python_file}" -h | sed  '1,12d;$d';
     fi
     exit 1;
 fi
-command="python${python_version} ${python_file}${options}"
-echo "${command};";
+command="$(findPython) ${python_file}${options}";
+echo "Submitting command: ${command};";
+echo;
 ${command}
