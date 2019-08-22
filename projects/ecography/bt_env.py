@@ -2,7 +2,7 @@ from datascience.ml.metrics.metrics import ValidationAccuracyMultipleBySpecies, 
 from datascience.ml.metrics.metrics import ValidationAccuracyRangeBySpecies, ValidationAccuracyForAllSpecies
 from datascience.data.loader import occurrence_loader
 from datascience.data.datasets import EnvironmentalDataset
-from datascience.ml.xgboost import fit
+from datascience.ml.xgboost.train import fit
 from engine.parameters.special_parameters import validation_only
 from datascience.model_selection import train_test_split_stratified
 
