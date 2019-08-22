@@ -31,7 +31,7 @@ def fit(train, test, validation_only=False, export=False, training_params=None, 
         dtrain = xgb.DMatrix(X, label=y)
 
         params = {'objective': 'multi:softprob', 'max_depth': 2, 'seed': 4242, 'silent': 0, 'eval_metric': 'merror',
-                  'num_class': 6823, 'num_boost_round': 360, 'early_stopping_rounds': 10,
+                  'num_class': 4520, 'num_boost_round': 360, 'early_stopping_rounds': 10, 'gpu_id': 3,
                   'verbose_eval': 1, 'updater': 'grow_gpu', 'predictor': 'gpu_predictor', 'tree_method': 'gpu_hist'}
         params['nthread'] = 4
 
