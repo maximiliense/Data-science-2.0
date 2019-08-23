@@ -2,18 +2,19 @@ import xgboost as xgb
 import numpy as np
 from datascience.ml.evaluation import validate, export_results
 from datascience.ml.xgboost.util import save_model, load_model
-from engine.flags import duplicated
 from engine.parameters import special_parameters
 from engine.logging import print_info, print_h1, print_notification, print_errors
 from engine.core import module
 from engine.logging.verbosity import verbose_level
 from engine.hardware import use_gpu, first_device
 from engine.parameters.special_parameters import validation_only
+from engine.flags import deprecated, duplicated
 
 
 @module
+@deprecated(comment='The fonction is not working yet, please use the fit function in xgboost instead of xgboost_skl')
 @duplicated
-def fit(train, test, export=False, training_params=None, export_params=None, **kwargs):
+def fit(model, train, test, num_boost_round=360, verbose_eval=1, export=False, training_params=None, export_params=None, **kwargs):
     if not use_gpu():
         print_errors('XGBoost can only be executed on a GPU for the moment', do_exit=True)
 
@@ -43,11 +44,13 @@ def fit(train, test, export=False, training_params=None, export_params=None, **k
         bst = xgb.train(
             kwargs,
             d_train,
-            num_boost_round=kwargs["num_boost_round"],
-            verbose_eval=kwargs["verbose_eval"],
-            evals=eval_list
+            num_boost_round=num_boost_round,
+            verbose_eval=verbose_eval,
+            evals=eval_list,
+            xgb_model=model
         )
 
+        print_info("Save model...")
         save_model(bst)
 
     else:

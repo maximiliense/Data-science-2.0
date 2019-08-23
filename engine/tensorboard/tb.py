@@ -1,7 +1,7 @@
 from torch.utils.tensorboard import SummaryWriter
 from engine.parameters import special_parameters
 
-from engine.logging.logs import print_logs
+from engine.logging.logs import print_info
 
 import torch
 import torchvision
@@ -13,7 +13,7 @@ scalar_step = {}
 
 
 def initialize_tensorboard():
-    print_logs('Initializing tensorboard at {}'.format(special_parameters.tensorboard_path))
+    print_info('Initializing tensorboard at {}'.format(special_parameters.tensorboard_path))
     special_parameters.tensorboard_writer = SummaryWriter(
         log_dir=os.path.join(special_parameters.tensorboard_path, special_parameters.experiment_name)
     )

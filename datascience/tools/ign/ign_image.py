@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import datetime
 from engine.path import list_files
-from engine.logging.logs import print_logs, print_info, print_errors
+from engine.logging.logs import print_info, print_info, print_errors
 from pyproj import Transformer, Proj
 import time as ti
 
@@ -417,15 +417,15 @@ def _write_directory(root, *args):
 
 def _print_details(idx, total, start, extract_time, latitude, longitude, nb_errors):
     time = datetime.datetime.now()
-    print_logs('\n{}/{}'.format(idx, total))
+    print_info('\n{}/{}'.format(idx, total))
     p = ((idx - 1) / total) * 100
-    print_logs('%.2f' % p)
+    print_info('%.2f' % p)
     delta = (time - start).total_seconds()
     estimation = (delta * total) / idx
     date_estimation = start + datetime.timedelta(seconds=estimation)
-    print_logs('mean extraction time: {}'.format(extract_time / idx))
-    print_logs('Actual position: {}, Errors: {}'.format((latitude, longitude), nb_errors))
-    print_logs('Time: {}, ETA: {}'.format(datetime.timedelta(seconds=delta), date_estimation))
+    print_info('mean extraction time: {}'.format(extract_time / idx))
+    print_info('Actual position: {}, Errors: {}'.format((latitude, longitude), nb_errors))
+    print_info('Time: {}, ETA: {}'.format(datetime.timedelta(seconds=delta), date_estimation))
 
 
 if __name__ == "__main__":

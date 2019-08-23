@@ -1,7 +1,7 @@
 import time
 
 from engine.path.path import add_config_elements
-from engine.logging import print_logs, print_durations, format_dict_and_tuple
+from engine.logging import print_info, print_durations, format_dict_and_tuple
 from engine.parameters import hyper_parameters as hp
 from engine.util.merge_dict import merge
 
@@ -13,7 +13,7 @@ def module(func):
     """
     def wrapper(*args, **kwargs):
         start = time.time()
-        print_logs('[Executing ' + func.__name__ + ']')
+        print_info('[Executing ' + func.__name__ + ']')
 
         # check changeable parameters (command line and more)
         if func.__name__ in hp.overriding_parameters():
@@ -24,11 +24,11 @@ def module(func):
         if len(args) > 0 or len(kwargs) > 0:
             add_config_elements('[' + func.__name__ + ']')
         if len(args) > 0:
-            print_logs('Args: '+format_dict_and_tuple(args))
+            print_info('Args: ' + format_dict_and_tuple(args))
             add_config_elements('Args: ' + format_dict_and_tuple(args))
 
         if len(kwargs) > 0:
-            print_logs('Kwargs: ' + format_dict_and_tuple(kwargs))
+            print_info('Kwargs: ' + format_dict_and_tuple(kwargs))
             add_config_elements('Kwargs: ' + format_dict_and_tuple(kwargs))
 
         results = func(*args, **kwargs)

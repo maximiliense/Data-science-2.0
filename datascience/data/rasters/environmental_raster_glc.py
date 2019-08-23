@@ -248,7 +248,7 @@ class PatchExtractor(object):
         """
         # you may want to add rasters one by one if specific configuration are required on a per raster
         # basis
-        print_debug('Adding: '+raster_name, end='')
+        print_debug('Adding: ' + raster_name, end='')
         params = {**raster_metadata[raster_name]}
         for k in kwargs.keys():
             if kwargs[k] != 'default':

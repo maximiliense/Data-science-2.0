@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 
 from datascience.visu.util.util import plt, save_fig_direct_call
 from engine.hardware import use_gpu
-from engine.logging import print_logs
+from engine.logging import print_info
 from engine.path import output_path
 
 
@@ -151,7 +151,7 @@ def save_loss(losses, ylabel='Loss'):
 
 def load_loss(name):
     path = output_path(name + '.logs')
-    print_logs('Loading loss at ' + path)
+    print_info('Loading loss at ' + path)
     if os.path.exists(path):
         with open(path) as f:
             loss = json.load(f)

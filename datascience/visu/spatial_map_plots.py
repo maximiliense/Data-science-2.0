@@ -3,7 +3,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib
 import random
 import numpy as np
-from engine.logging import print_logs
+from engine.logging import print_info
 from datascience.visu.util import plt, get_figure, save_fig
 
 
@@ -13,7 +13,7 @@ def plot_on_map(activations, map_ids, n_cols, n_rows, figsize, log_scale, random
         activations = activations + 1.0
         activations = np.log(activations)
 
-    print_logs("construct array activation map...")
+    print_info("construct array activation map...")
     pos = []
     max_x = 0
     max_y = 0
@@ -32,7 +32,7 @@ def plot_on_map(activations, map_ids, n_cols, n_rows, figsize, log_scale, random
     act_map = np.ndarray((nb, size, size))
     act_map[:] = np.nan
 
-    print_logs("select neurons to print...")
+    print_info("select neurons to print...")
     if random_selection:
         list_select = random.sample(list(range(activations.shape[1])), nb)
     elif len(selected) > 0:
@@ -40,7 +40,7 @@ def plot_on_map(activations, map_ids, n_cols, n_rows, figsize, log_scale, random
     else:
         list_select = list(range(nb))
 
-    print_logs("fill activation map array...")
+    print_info("fill activation map array...")
     for k, act in enumerate(activations):
         for idx, j in enumerate(list_select):
             x, y = pos[k][0], pos[k][1]
@@ -76,7 +76,7 @@ def plot_on_map(activations, map_ids, n_cols, n_rows, figsize, log_scale, random
     fig.subplots_adjust(wspace=0.05)
     fig.tight_layout(pad=0.05)
 
-    print_logs("make figure...")
+    print_info("make figure...")
     for j in range(nb):
         if mean_size != 1:
             height, width = act_map[j].shape

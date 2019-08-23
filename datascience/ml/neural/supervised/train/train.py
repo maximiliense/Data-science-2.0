@@ -11,7 +11,7 @@ from engine.parameters import special_parameters
 from engine.path import output_path
 from engine.util.log_email import send_email
 from engine.util.log_file import save_file
-from engine.logging import print_errors, print_h1, print_info, print_h2, print_notif
+from engine.logging import print_errors, print_h1, print_info, print_h2, print_notification
 from engine.util.merge_dict import merge_smooth
 from engine.tensorboard import add_scalar
 from engine.core import module
@@ -139,7 +139,7 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
 
                 res = '\n[validation_id:' + validation_id + ']\n' + validate(predictions, labels, **validation_params)
 
-                print_notif(res)
+                print_notification(res)
 
                 if special_parameters.mail == 2:
                     send_email('Results for XP ' + special_parameters.setup_name + ' (epoch: ' + str(epoch + 1) + ')',
@@ -174,7 +174,7 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
 
         res = validate(predictions, labels, **validation_params, final=True)
 
-        print_notif(res, end='')
+        print_notification(res, end='')
 
         if special_parameters.mail >= 1:
             send_email('Final results for XP ' + special_parameters.setup_name, res)

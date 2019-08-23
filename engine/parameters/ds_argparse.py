@@ -2,7 +2,7 @@ import argparse
 from argparse import RawTextHelpFormatter
 from pathlib import Path
 
-from engine.logging.logs import print_notif, print_debug
+from engine.logging.logs import print_notification, print_info
 
 from engine.parameters import special_parameters
 
@@ -74,10 +74,8 @@ def get_argparse():
                        help='Change the destination of the exported files. By default the data are exported in the '
                             'experiment folder (default:None).')
 
-    group.add_argument('-v', '--verbose', dest='verbose', action='store_true', default=False,
-                       help='Activate the verbose mode (default: False).')
-    group.add_argument('-d', '--debug', dest='debug', action='store_true', default=False,
-                       help='Activate the debug mode (default: False). Debug + Verbose is a higher level of verbosity.')
+    group.add_argument('-v', '--verbose', dest='verbose', action='store', default=0, const=2, nargs='?', type=int,
+                       help='Verbosity (0: silent, 1: warnings, 2: info, 3: debug')
 
     group.add_argument('--style', dest='style', type=str, default='dark_background',
                        help='Change the plots style (default: dark_background)')
@@ -101,7 +99,7 @@ def check_general_config(param_list):
             c_name = c.replace('.json', '')
             if c_name in list_rood_dir:
 
-                print_debug('[Using config: ' + c_name + ']')
+                print_info('[Using config: ' + c_name + ']')
                 param_list.general_config = c_name
         return False
     else:
@@ -112,12 +110,12 @@ def ask_general_config_default(param_list):
     if special_parameters.interactive_cluster:
         a = None
         while a not in ('', 'y', 'Y', 'n', 'N'):
-            print_notif('Make config ' + param_list.general_config + ' as default: [Y/n]? ', end='')
+            print_notification('Make config ' + param_list.general_config + ' as default: [Y/n]? ', end='')
             a = input()
         if a in ('', 'y', 'Y'):
             config_name = param_list.general_config.replace('.json', '').replace('configs/', '')
             Path(config_name).touch()
-            print_debug('[Config ' + config_name + ' now default]')
+            print_info('[Config ' + config_name + ' now default]')
 
 
 def process_other_options(args):

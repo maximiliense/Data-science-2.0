@@ -3,7 +3,7 @@ import torch
 from torch.autograd import Variable
 from engine.hardware import use_gpu, first_device, all_devices, device_description
 from engine.path import output_path
-from engine.logging import print_debug, print_logs
+from engine.logging import print_info
 
 
 def one_input(x):
@@ -34,7 +34,7 @@ def save_model(model, path):
     :param path:
     :return:
     """
-    print_debug('Saving model: ' + path)
+    print_info('Saving model: ' + path)
     if type(model) is torch.nn.DataParallel:
         torch.save(model.module.state_dict(), path)
     else:
@@ -67,7 +67,7 @@ def load_or_create(model_class, from_scratch=True, model_params={}, p_input=one_
     else:  # recover from breakpoint
         path = output_path('models/model.torch', have_validation=True)
 
-        print_logs('Loading model: ' + path)
+        print_info('Loading model: ' + path)
         model = load_model(path, model_class, model_params=model_params)
 
     # configure usage on GPU
@@ -78,7 +78,7 @@ def load_or_create(model_class, from_scratch=True, model_params={}, p_input=one_
     model.p_label = p_label
 
     # print info about devices
-    print_logs('Device(s)): ' + str(device_description()))
+    print_info('Device(s)): ' + str(device_description()))
 
     return model
 

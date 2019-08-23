@@ -4,7 +4,7 @@ from torch.nn import Linear, BatchNorm1d, Conv2d, BatchNorm2d
 
 from datascience.ml.neural.models import fully_connected
 from datascience.visu.util import plt
-from engine.logging import print_info, print_errors, print_logs
+from engine.logging import print_info, print_errors, print_info
 from engine.core import module
 
 
@@ -440,7 +440,7 @@ def compute_neural_directions(model, X, absolute_value, threshold, min_activatio
 
     vectors = [[] for _ in range(len(final_layers))]
     n_act = min(min_activations, len(activations))
-    print_logs("n_act: %d" % n_act)
+    print_info("n_act: %d" % n_act)
     for i in range(n_act):
 
         la = None

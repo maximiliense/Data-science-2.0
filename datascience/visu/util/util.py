@@ -1,6 +1,6 @@
 import matplotlib
 matplotlib.use('Agg')
-from engine.logging import print_logs
+from engine.logging import print_info
 from engine.parameters.special_parameters import plt_style
 from engine.path import output_path
 import matplotlib.pyplot
@@ -51,7 +51,7 @@ def show_fig():
 
 def _save_fig(path_name, figure):
 
-    print_logs('Saving figure at: ' + path_name)
+    print_info('Saving figure at: ' + path_name)
     figure.savefig(path_name)
 
 

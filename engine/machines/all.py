@@ -2,7 +2,7 @@ import socket
 
 from engine.machines.special_clusters import clusters
 from engine.parameters import special_parameters
-from engine.logging import print_debug
+from engine.logging import print_info
 
 
 def detect_machine():
@@ -18,4 +18,4 @@ def detect_machine():
                 break
     if not found_machine:
         special_parameters.machine = 'unknown'
-    print_debug('The machine was identified as ' + special_parameters.machine)
+    print_info('The machine was identified as ' + special_parameters.machine)

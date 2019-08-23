@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from engine.logging import is_debug, is_verbose
+from engine.logging import is_debug
 
 
 class InceptionEnvCoocs(nn.Module):
@@ -164,7 +164,7 @@ class InceptionEnvCoocs(nn.Module):
         return x
 
     def __repr__(self):
-        if is_verbose() and is_debug():
+        if is_debug():
             return super(InceptionEnvCoocs, self).__repr__()
         return '(Environmental and co-occurrences Inception)'
 

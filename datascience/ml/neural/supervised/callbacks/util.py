@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from engine.logging import print_logs
+from engine.logging import print_info
 
 
 def init_callbacks(cbs, val_modulo, max_cb, dataset, model_z):
@@ -26,7 +26,7 @@ class Callback(ABC):
         self.model = None
 
     def initial_call(self, modulo, nb_calls, dataset, model):
-        print_logs('Init Callback: ' + str(self))
+        print_info('Init Callback: ' + str(self))
         self.modulo = modulo
         self.nb_calls = nb_calls
         self.dataset = dataset
