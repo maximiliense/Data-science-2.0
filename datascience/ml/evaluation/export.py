@@ -9,7 +9,7 @@ from datascience.data.util.index import get_index
 from engine.path import output_path
 from engine.parameters import special_parameters
 from engine.core import module
-from engine.logging import print_statistics, print_logs
+from engine.logging import print_statistics, print_info
 
 import numpy as np
 
@@ -97,7 +97,7 @@ def export_bigdata(model, test, batch_size, buffer_size, size):
     indexed_labels = get_index(index_path)
 
     with open(export_path, 'w') as f:
-        print_logs('Exporting predictions at ' + export_path)
+        print_info('Exporting predictions at ' + export_path)
         f.write('id,class_id,rank,proba\n')  # header
 
         warnings.simplefilter('ignore')  # warning because old import in progressbar

@@ -2,7 +2,7 @@ import os
 import sys
 
 from engine.parameters import special_parameters
-from engine.logging import print_debug
+from engine.logging import print_info
 
 
 def output_directory():
@@ -70,7 +70,7 @@ def _sub_folders_from_path(path):
 
 def export_config():
     path = output_path('config.txt')
-    print_debug('Writing config at: ' + path)
+    print_info('Writing config at: ' + path)
     with open(path, 'a') as f:
         f.write(' '.join(sys.argv) + '\n')
 

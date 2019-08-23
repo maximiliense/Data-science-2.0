@@ -4,7 +4,7 @@ import pandas as pd
 import progressbar
 import os
 
-from engine.logging import print_errors, print_logs
+from engine.logging import print_errors, print_info
 from engine.path import output_path
 from engine.core import module
 
@@ -42,14 +42,14 @@ def check_extraction(source, save_errors=True, save_filtered=True, id_name='X_ke
 
     if nb_errors > 0:
         # summary of the error
-        print_logs(str(nb_errors) + ' errors found during the check...')
+        print_info(str(nb_errors) + ' errors found during the check...')
 
         if save_errors:
             # filter the dataframe using the errors
             df_errors = df[df[id_name].isin(errors)]
 
             error_path = output_path('_errors.csv')
-            print_logs('Saving error file at: ' + error_path)
+            print_info('Saving error file at: ' + error_path)
 
             # save dataframe to the error file
             df_errors.to_csv(error_path, header=True, index=False, sep=';')
@@ -57,7 +57,7 @@ def check_extraction(source, save_errors=True, save_filtered=True, id_name='X_ke
             # filter the dataframe keeping the non errors
             df_filtered = df[~df[id_name].isin(errors)]
             filtered_path = r['occurrences'] + '.tmp'
-            print_logs('Saving filtered dataset at: ' + filtered_path)
+            print_info('Saving filtered dataset at: ' + filtered_path)
             df_filtered.to_csv(filtered_path, header=True, index=False, sep=';')
     else:
-        print_logs('No error has been found!')
+        print_info('No error has been found!')

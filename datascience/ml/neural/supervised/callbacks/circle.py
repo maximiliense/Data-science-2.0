@@ -3,7 +3,7 @@ import numpy as np
 
 from datascience.ml.neural.supervised.callbacks.util import Callback
 from datascience.visu.util.util import plt, get_figure, delete_figure
-from engine.logging import print_logs
+from engine.logging import print_info
 from engine.path import output_path
 
 
@@ -75,7 +75,7 @@ class CircleCallback(Callback):
 
         anim = FuncAnimation(fig, self.update, frames=np.arange(0, len(self.parameters)), interval=200)
         path = output_path('circle.gif')
-        print_logs('Saving GIF at ' + path)
+        print_info('Saving GIF at ' + path)
         anim.save(path, dpi=80, writer='imagemagick')
         delete_figure('circle')
 

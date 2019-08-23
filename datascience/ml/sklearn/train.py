@@ -1,5 +1,5 @@
 from engine.parameters.special_parameters import setup_name, validation_only
-from engine.logging.logs import print_h1, print_logs, print_notif
+from engine.logging.logs import print_h1, print_info, print_notification
 from datascience.ml.evaluation import validate, export_results
 from datascience.ml.sklearn.util import save_model
 from engine.core import module
@@ -14,11 +14,11 @@ def fit(model, train, test, export=False,
     clf = model
     if not validation_only:
         print_h1('Training: ' + setup_name)
-        print_logs("get vectors...")
+        print_info("get vectors...")
         X = np.array(train.get_vectors())
         y = np.array(train.labels)
 
-        print_logs("fit model...")
+        print_info("fit model...")
 
         clf.fit(X, y)
 
@@ -29,6 +29,6 @@ def fit(model, train, test, export=False,
         predictions, np.array(test.labels), training_params['metrics'] if 'metrics' in training_params else tuple(),
         final=True
     )
-    print_notif(res, end='')
+    print_notification(res, end='')
     if export:
         export_results(test, predictions, **export_params)

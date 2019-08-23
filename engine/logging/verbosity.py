@@ -1,22 +1,26 @@
-verbose = False
-debug = False
+_verbose = 0
 
 
 def is_debug():
-    global debug
-    return debug
+    global _verbose
+    return _verbose >= 3
 
 
-def is_verbose():
-    global verbose
-    return verbose
+def verbose_level():
+    global _verbose
+    return _verbose
 
 
-def set_debug(deb):
-    global debug
-    debug = deb
+def is_info():
+    global _verbose
+    return _verbose >= 2
+
+
+def is_warning():
+    global _verbose
+    return _verbose >= 1
 
 
 def set_verbose(verb):
-    global verbose
-    verbose = verb
+    global _verbose
+    _verbose = verb

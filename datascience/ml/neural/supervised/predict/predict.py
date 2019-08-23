@@ -2,7 +2,7 @@ import numpy as np
 import torch
 
 from engine.tensorboard import add_scalar
-from engine.logging import print_debug
+from engine.logging import print_info
 
 
 def predict(model, loader, loss, export=False, filters=tuple(), validation_size=10000, compute_loss=False):
@@ -52,7 +52,7 @@ def predict(model, loader, loss, export=False, filters=tuple(), validation_size=
                 break
         running_loss /= (idx + 1)  # normalizing the loss
         if compute_loss:
-            print_debug('Validation loss: '+str(running_loss))
+            print_info('Validation loss: ' + str(running_loss))
             add_scalar('Loss/Validation', running_loss)
         predictions, labels = np.asarray(y_preds), np.asarray(y_labels)
 

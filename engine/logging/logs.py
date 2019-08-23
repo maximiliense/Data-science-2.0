@@ -1,23 +1,48 @@
-# from engine.util import special_parameters
 import sys
 
 import traceback
 from torch import nn
 from torch.nn import DataParallel
 
-from engine.logging.verbosity import is_debug, is_verbose
+from engine.logging.verbosity import is_debug, is_warning, is_info
 from engine.util.console.print_colors import color
 from inspect import isclass, getmodule
 
 
-def print_info(log, end='\n'):
+def print_warning(log, end='\n'):
     """
-    normal print
+    print logs if warning or more
     :param end:
     :param log:
     :return:
     """
-    print(log, end=end)
+    if is_warning():
+        print(color.BROWN + log + color.END, end=end)
+        sys.stdout.flush()
+
+
+def print_info(log, end='\n'):
+    """
+    print logs if info or more
+    :param end:
+    :param log:
+    :return:
+    """
+    if is_info():
+        print(color.RED + log + color.END, end=end)
+        sys.stdout.flush()
+
+
+def print_debug(log, end='\n'):
+    """
+    print logs if debug or more
+    :param end:
+    :param log:
+    :return:
+    """
+    if is_debug():
+        print(color.RED + color.BOLD + log + color.END, end=end)
+        sys.stdout.flush()
 
 
 def print_statistics(log, end='\n'):
@@ -30,7 +55,7 @@ def print_statistics(log, end='\n'):
     print(color.YELLOW + log + color.END, end=end)
 
 
-def print_notif(log, end='\n'):
+def print_notification(log, end='\n'):
     """
 
     :param log:
@@ -59,18 +84,6 @@ def print_h1(log, end='\n'):
     print(color.GREEN + '\n' + '*' * 10 + ' ' + log + ' ' + '*' * 10 + '\n' + color.END, end=end)
 
 
-def print_logs(log, end='\n'):
-    """
-    print logs if verbose
-    :param end:
-    :param log:
-    :return:
-    """
-    if is_debug() or is_verbose():
-        print(color.RED + log + color.END, end=end)
-        sys.stdout.flush()
-
-
 def print_durations(duration, text='duration', end='\n'):
 
     h = str(int(duration // 3600)).zfill(2)
@@ -78,31 +91,7 @@ def print_durations(duration, text='duration', end='\n'):
     m = str(int(duration // 60)).zfill(2)
     duration %= 60
     s = str(int(duration // 1)).zfill(2)
-    print_logs('[' + text + ': %s:%s:%s]' % (h, m, s), end=end)
-
-
-def print_debug(log, end='\n'):
-    """
-    print logs if verbose
-    :param end:
-    :param log:
-    :return:
-    """
-    if is_debug():
-        print(color.RED + log + color.END, end=end)
-        sys.stdout.flush()
-
-
-def print_debug_verbose(log, end='\n'):
-    """
-    print logs if verbose
-    :param end:
-    :param log:
-    :return:
-    """
-    if is_verbose() and is_debug():
-        print(color.RED + log + color.END, end=end)
-        sys.stdout.flush()
+    print_info('[' + text + ': %s:%s:%s]' % (h, m, s), end=end)
 
 
 def print_errors(log, end='\n', do_exit=False):

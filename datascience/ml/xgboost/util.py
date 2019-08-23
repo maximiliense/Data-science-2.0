@@ -1,16 +1,15 @@
-from engine.core import module
-from engine.hardware import use_gpu, first_device
-from engine.parameters.special_parameters import from_scratch, nb_workers
 from engine.path.path import output_path
-from engine.logging.verbosity import debug, verbose
-from engine.logging.logs import print_debug, print_errors, print_logs
-from sklearn.externals import joblib
+from engine.logging.logs import print_info
 import xgboost as xgb
 import ast
 
 
-def load_model():
-    print_logs("load model " + output_path("_model"))
+def load_model(model_name='model.xgb'):
+    """
+    Loading a model
+    :return:
+    """
+    print_info("Loading model: " + output_path(model_name))
     bst = xgb.Booster()
     bst.load_model(output_path("model"))
     with open(output_path("model_complement.txt"), "r") as file:
@@ -21,9 +20,12 @@ def load_model():
     return bst
 
 
-def save_model(model):
+def save_model(model, model_name='model.xgb'):
+    print_info("Saving model: " + output_path(model_name))
+
     complement = {'best_iteration': model.best_ntree_limit}
     with open(output_path("model_complement.txt"), "w") as file:
         file.write(str(complement))
-    model.save_model(output_path("model"))
-    model.dump_model(output_path("model_dump"))
+
+    model.save_model(output_path(model_name))
+    model.dump_model(output_path('dump_' + model_name))
