@@ -1,4 +1,4 @@
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as mplt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib
 import random
@@ -8,10 +8,15 @@ from datascience.visu.util import plt, get_figure, save_fig
 
 
 def plot_on_map(activations, map_ids, n_cols, n_rows, figsize, log_scale, random_selection, mean_size, selected=tuple(),
-                output="activations"):
+                legend=None, output="activations", style="grey", exp_scale=False, cmap=None):
     if log_scale:
+        print_info("apply log...")
         activations = activations + 1.0
         activations = np.log(activations)
+    elif exp_scale:
+        print_info("apply exp...")
+        p = np.full(activations.shape, 1.2)
+        activations = np.power(p, activations)
 
     print_info("construct array activation map...")
     pos = []
@@ -52,7 +57,7 @@ def plot_on_map(activations, map_ids, n_cols, n_rows, figsize, log_scale, random
     fig.subplots_adjust(wspace=0.5)
     plt.tight_layout(pad=1.5)
 
-    print_logs("make figure...")
+    print_info("make figure...")
     for j in range(nb):
         if mean_size != 1:
             height, width = act_map[j].shape
@@ -71,28 +76,44 @@ def plot_on_map(activations, map_ids, n_cols, n_rows, figsize, log_scale, random
         fig.colorbar(im, cax=cax)
     """
 
+    if legend is None:
+        legend = list(map(str, list_select))
+
+    COLOR = 'black'
+    mplt.rcParams['text.color'] = COLOR
+    mplt.rcParams['axes.labelcolor'] = COLOR
+    mplt.rcParams['xtick.color'] = COLOR
+    mplt.rcParams['ytick.color'] = COLOR
+
     plt(output, figsize=(n_cols * figsize * 1.2, n_rows * figsize))
     fig = get_figure(output)
     fig.subplots_adjust(wspace=0.05)
-    fig.tight_layout(pad=0.05)
 
     print_info("make figure...")
     for j in range(nb):
         if mean_size != 1:
             height, width = act_map[j].shape
-            act_map_j = np.ma.average(np.split(np.ma.average(np.split(act_map[j], width // mean_size, axis=1),
+            act_map_j = np.nanmean(np.split(np.nanmean(np.split(act_map[j], width // mean_size, axis=1),
                                                              axis=2), height // mean_size, axis=1), axis=2)
         else:
             act_map_j = act_map[j]
 
         masked_array = np.ma.array(act_map_j, mask=np.isnan(act_map_j))
-        cmap = matplotlib.cm.inferno
-        cmap.set_bad('grey', 1.)
+        if cmap is None:
+            if style == "grey":
+                cmap = matplotlib.cm.inferno
+                cmap.set_bad('grey', 1.)
+            elif style == "white":
+                cmap = matplotlib.cm.inferno
+                cmap.set_bad('white', 1.)
         ax = plt(output).subplot(n_rows, n_cols, j + 1)
         im = plt(output).imshow(masked_array, cmap=cmap, interpolation='none')
-        plt(output).title(str(list_select[j]), fontsize=24)
+        plt(output).title(legend[j], fontsize=12)
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="5%", pad=0.05)
         plt(output).colorbar(im, cax=cax)
+
+    fig.tight_layout(pad=0.05)
+    fig.patch.set_alpha(0.0)
 
     save_fig(figure_name=output, extension='png')
