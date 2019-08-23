@@ -1,7 +1,7 @@
 from engine.core import module
 from engine.parameters.special_parameters import from_scratch, nb_workers
 from engine.path.path import output_path
-from engine.logging.verbosity import is_debug, is_verbose
+from engine.logging.verbosity import is_debug
 from engine.logging.logs import print_info
 from sklearn.externals import joblib
 
@@ -12,7 +12,7 @@ def load_or_create(model_class, model_name='model', *args, **kwargs):
         print_info('Creating SKL Model')
 
         model = model_class(
-            *args, **kwargs, verbose=2 if is_debug() and is_verbose() else 0, n_jobs=nb_workers
+            *args, **kwargs, verbose=2 if is_debug() else 0, n_jobs=nb_workers
         )
 
     else:
