@@ -1,6 +1,6 @@
 from datascience.data.synthetize import create_dataset
 from datascience.ml.neural.models import load_create_nn, FullyConnected
-from datascience.visu import save_fig
+from datascience.visu.util import save_fig
 from datascience.visu.deep_test_plots import plot_dataset, plot_activation_rate, plot_decision_boundary, \
     plot_gradient_field
 
