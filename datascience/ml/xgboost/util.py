@@ -28,4 +28,3 @@ def save_model(model, model_name='model.xgb'):
         file.write(str(complement))
 
     model.save_model(output_path(model_name))
-    model.dump_model(output_path('dump_' + model_name))
