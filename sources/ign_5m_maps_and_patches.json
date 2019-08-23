@@ -12,7 +12,7 @@
     "archive": "/gpfsddn2/dataset/IGN/ign-url-list-5m/",
     "occurrences": "/gpfswork/rech/fqg/uid61lx/data/occurrences/full_ign.csv",
     "maps": "/gpfswork/rech/fqg/uid61lx/data/ign_5m_maps/",
-    "patches": "/gpfsssd/scratch/rech/fqg/uid61lx/data/ign_5m_patches/",
+    "patches": "/gpfsdsstore/scratch/rech/fqg/uid61lx/data/ign_5m_patches/",
     "id_name": "X_key",
     "latitude": "Latitude",
     "longitude": "Longitude"
