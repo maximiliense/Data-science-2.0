@@ -15,7 +15,7 @@ import warnings
 import pandas as pd
 
 from datascience.visu.util.util import plt, get_figure
-from engine.logging.logs import print_info
+from engine.logging.logs import print_debug
 
 MIN_ALLOWED_VALUE = -10000
 EPS = 1
@@ -248,7 +248,7 @@ class PatchExtractor(object):
         """
         # you may want to add rasters one by one if specific configuration are required on a per raster
         # basis
-        print_info('Adding: ' + raster_name, end='')
+        print_debug('Adding: ' + raster_name, end='')
         params = {**raster_metadata[raster_name]}
         for k in kwargs.keys():
             if kwargs[k] != 'default':
@@ -256,16 +256,16 @@ class PatchExtractor(object):
         try:
             r = Raster(self.root_path + '/' + raster_name, size=self.size, **params)
             self.rasters.append(r)
-            print_info('')
+            print_debug('')
         except rasterio.errors.RasterioIOError:
-            print_info(' (not available...)')
+            print_debug(' (not available...)')
 
     def clean(self):
         """
         Remove all rasters from the extractor.
         """
 
-        print_info('Removing all rasters...')
+        print_debug('Removing all rasters...')
         self.rasters = []
 
     def __getitem__(self, item, cancel_one_hot=False):
