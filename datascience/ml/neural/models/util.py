@@ -3,7 +3,9 @@ import torch
 from torch.autograd import Variable
 from engine.hardware import use_gpu, first_device, all_devices, device_description
 from engine.path import output_path
-from engine.logging import print_info
+from engine.logging import print_info, print_errors
+
+import os
 
 
 def one_input(x):
@@ -68,7 +70,10 @@ def load_or_create(model_class, from_scratch=True, model_params={}, p_input=one_
         path = output_path('models/model.torch', have_validation=True)
 
         print_info('Loading model: ' + path)
-        model = load_model(path, model_class, model_params=model_params)
+        if os.path.isfile(path):
+            model = load_model(path, model_class, model_params=model_params)
+        else:
+            print_errors('{} does not exist'.format(path), do_exit=True)
 
     # configure usage on GPU
     if use_gpu():

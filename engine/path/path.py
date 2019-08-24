@@ -89,7 +89,7 @@ def export_epoch(epoch):
     """
     path = output_path('last_epoch.txt')
     with open(path, 'w') as f:
-        f.write(epoch)
+        f.write(str(epoch))
 
 
 def load_last_epoch():
