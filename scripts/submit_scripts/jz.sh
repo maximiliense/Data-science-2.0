@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+nb_gpus=1;
+
 usage(){
     indentation="                           ";
 	echo "Usage: submit python_file [-h] [-g NB_GPUS] [-c NB_CORES] [-d ROOT_DIR]";
@@ -13,7 +15,7 @@ usage(){
 	echo "optional arguments:";
 	small_indentation="         ";
 	echo "$small_indentation -h, --help$small_indentation show this help message and exit";
-	echo "$small_indentation -g, --gpus$small_indentation set the required number of GPUs";
+	echo "$small_indentation -g, --gpus$small_indentation set the required number of GPUs (default: ${nb_gpus})";
 	echo "$small_indentation -c, --cores$small_indentation set the required number of cores";
 	echo "$small_indentation -n, --nodes$small_indentation set the required number of nodes";
 	echo "$small_indentation --dir$small_indentation set the the root directory in which the script will be saved";
@@ -27,7 +29,7 @@ usage(){
 execute() {
     nb_cores=1;
     nb_workers=NULL;
-    nb_gpus=1;
+
     script_dir=".";
     walltime="00:10:00";
     name=NULL;
