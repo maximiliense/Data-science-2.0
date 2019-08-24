@@ -10,7 +10,7 @@ script_dir=".";
 out="$HOME";
 
 usage(){
-    indentation="                           ";
+    indentation="                          ";
 	echo "Usage: submit python_file [-h] [-g NB_GPUS] [-c NB_CORES] [-d ROOT_DIR]";
 	echo "$indentation[-w WALLTIME] [-n NAME] [--host HOST]";
 
