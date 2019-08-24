@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
 
+# default values
+nb_gpus=1;
+nb_cores=1;
 
+host=NULL;
+min_memory=64000
+
+walltime=10;
+
+script_dir=".";
+out="$HOME";
 
 usage(){
   indentation="                           ";
@@ -15,28 +25,21 @@ usage(){
 	echo "optional arguments:";
 	small_indentation="         ";
 	echo "$small_indentation -h, --help$small_indentation show this help message and exit";
-	echo "$small_indentation -g, --gpus$small_indentation set the required number of GPUs";
-	echo "$small_indentation -c, --cores$small_indentation set the required number of cores to register";
-	echo "$small_indentation --dir$small_indentation set the the root directory in which the script will be saved";
-	echo "$small_indentation -o --out$small_indentation where to save OAR files";
-	echo "$small_indentation -w, --wt$small_indentation set the job walltime";
-	echo "$small_indentation -n, --name$small_indentation set the experiment name (or python_file by default)";
-	echo "$small_indentation --host$small_indentation set the required host (any by default)";
-	echo "$small_indentation -m, --mem$small_indentation set the minimum amount of required memory (default: 90000)";
+	echo "$small_indentation -g, --gpus$small_indentation set the required number of GPUs (default: ${nb_gpus})";
+	echo "$small_indentation -c, --cores$small_indentation set the required number of cores to register (default: ${nb_cores})";
+	echo "$small_indentation --dir$small_indentation OAR scripts dir (default: ${script_dir})";
+	echo "$small_indentation -o --out$small_indentation OAR logs dir (default: ${out})";
+	echo "$small_indentation -w, --wt$small_indentation set the job walltime (default: ${walltime})";
+	echo "$small_indentation -n, --name$small_indentation experiment name (default: \$python_file)";
+	echo "$small_indentation --host$small_indentation set the required host (default: None)";
+	echo "$small_indentation -m, --mem$small_indentation min amount of memory (default: ${min_memory})";
 	echo "$small_indentation --[data science 2.0 options]";
 	exit 1
 }
 
-    execute() {
-    nb_cores=1;
-    nb_gpus=1;
-    script_dir=".";
-    walltime=10;
+execute() {
     name=NULL;
     python_file=NULL;
-    min_memory=64000
-    host=NULL;
-    out="$HOME";
 
     project_path="$HOME/Data-science-2.0";
 

@@ -25,7 +25,7 @@ usage(){
 	echo "$small_indentation -g, --gpus$small_indentation  set the required number of GPUs (default: ${nb_gpus})";
 	echo "$small_indentation -c, --cores$small_indentation set the required number of cores (default: ${nb_cores})";
 	# echo "$small_indentation -n, --nodes$small_indentation set the required number of nodes";
-	echo "$small_indentation --dir$small_indentation       SLURM file dir (default: ${script_dir}";
+	echo "$small_indentation --dir$small_indentation       SLURM scripts dir (default: ${script_dir}";
 	echo "$small_indentation -o --out$small_indentation    SLURM logs dir (default: ${out}";
 	echo "$small_indentation -w, --wt$small_indentation    set the job walltime (default: ${walltime})";
 	echo "$small_indentation -n, --name$small_indentation  set the experiment name (default: \$python_file)";

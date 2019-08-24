@@ -7,7 +7,7 @@ usage(){
 	echo "";
 	echo "optional arguments:";
 	small_indentation="         ";
-	echo "  -h, --help$small_indentation show this help message and exit";
+	echo "  -h, --help$small_indentation   show this help message and exit";
 }
 
 execute() {
