@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 
+# default values
 nb_gpus=1;
+nb_cores=1;
+
+walltime="00:10:00";
+
+script_dir=".";
+out="$HOME";
 
 usage(){
     indentation="                           ";
@@ -14,30 +21,25 @@ usage(){
 
 	echo "optional arguments:";
 	small_indentation="         ";
-	echo "$small_indentation -h, --help$small_indentation show this help message and exit";
-	echo "$small_indentation -g, --gpus$small_indentation set the required number of GPUs (default: ${nb_gpus})";
-	echo "$small_indentation -c, --cores$small_indentation set the required number of cores";
-	echo "$small_indentation -n, --nodes$small_indentation set the required number of nodes";
-	echo "$small_indentation --dir$small_indentation set the the root directory in which the script will be saved";
-	echo "$small_indentation -o --out$small_indentation where to save SLURM files";
-	echo "$small_indentation -w, --wt$small_indentation set the job walltime";
-	echo "$small_indentation -n, --name$small_indentation set the experiment name (or \$python_file by default)";
+	echo "$small_indentation -h, --help$small_indentation  show this help message and exit";
+	echo "$small_indentation -g, --gpus$small_indentation  set the required number of GPUs (default: ${nb_gpus})";
+	echo "$small_indentation -c, --cores$small_indentation set the required number of cores (default: ${nb_cores})";
+	# echo "$small_indentation -n, --nodes$small_indentation set the required number of nodes";
+	echo "$small_indentation --dir$small_indentation SLURM file dir (default: ${script_dir}";
+	echo "$small_indentation -o --out$small_indentation SLURM logs dir (default: ${out}";
+	echo "$small_indentation -w, --wt$small_indentation set the job walltime (default: ${walltime})";
+	echo "$small_indentation -n, --name$small_indentation set the experiment name (default: \$python_file)";
+	echo "$small_indentation --dev$small_indentation run on the dev partition";
 	echo "$small_indentation --[data science 2.0 options]";
 	exit 1
 }
 
 execute() {
-    nb_cores=1;
-    nb_workers=NULL;
-
-    script_dir=".";
-    walltime="00:10:00";
     name=NULL;
+
     python_file=NULL;
 
     dev=false;
-
-    out="$HOME";
 
     project_path="~/Data-science-2.0";
 
