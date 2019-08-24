@@ -79,3 +79,28 @@ def add_config_elements(element):
     path = output_path('config.txt')
     with open(path, 'a') as f:
         f.write(element + '\n')
+
+
+def export_epoch(epoch):
+    """
+    save the last epoch index
+    :param epoch:
+    :return:
+    """
+    path = output_path('last_epoch.txt')
+    with open(path, 'w') as f:
+        f.write(epoch)
+
+
+def load_last_epoch():
+    """
+    return the last epoch index
+    :return:
+    """
+    path = output_path('last_epoch.txt')
+    if os.path.isfile(path):
+        with open(path, 'r') as f:
+            last_epoch = f.read()
+        return int(last_epoch) + 1
+    else:
+        return 1

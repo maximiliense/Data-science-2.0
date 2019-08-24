@@ -9,6 +9,7 @@ from datascience.ml.neural.supervised.predict import predict
 from datascience.ml.evaluation import validate, export_results
 from engine.parameters import special_parameters
 from engine.path import output_path
+from engine.path.path import export_epoch
 from engine.util.log_email import send_email
 from engine.util.log_file import save_file
 from engine.logging import print_errors, print_h1, print_info, print_h2, print_notification
@@ -85,7 +86,8 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
         for epoch in range(max_iterations):
             if epoch < first_epoch:
                 continue
-
+            # saving epoch to enable restart
+            export_epoch(epoch)
             model_z.train()
 
             # printing new epoch

@@ -27,6 +27,9 @@ def get_argparse():
     group.add_argument('-e', '--epoch', dest='epoch', type=int, default=1,
                        help='Starts the training at the given epoch (default: 1)')
 
+    group.add_argument('-r', '--restart', dest='restart', action='store_true', default=False,
+                       help='restart at last epoch (default: False)')
+
     group.add_argument('-l', '--load-model', dest='load_model', action='store_true', default=None,
                        help='Load model from previous execution (default: Auto).')
 

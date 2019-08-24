@@ -1,6 +1,6 @@
 from engine.machines import detect_machine, check_interactive_cluster
 from engine.parameters.ds_argparse import ask_general_config_default
-from engine.path.path import export_config, output_directory
+from engine.path.path import export_config, output_directory, load_last_epoch
 from engine.logging.verbosity import set_verbose, is_info
 
 
@@ -72,9 +72,6 @@ def configure_engine():
     special_parameters.first_epoch = args.epoch
     special_parameters.validation_id = args.validation_id
 
-    load_model = (args.epoch != 1 or args.validation_only or args.export)
-    special_parameters.from_scratch = not args.load_model if args.load_model is not None else not load_model
-
     config_name = hp.check_config(args)
     hp.check_parameters(args)
     default_name = os.path.split(sys.argv[0])[-1].replace('.py', '')
@@ -110,11 +107,19 @@ def configure_engine():
     start_dt = get_start_datetime()
 
     print_info('Starting datetime: ' + start_dt.strftime('%Y-%m-%d %H:%M:%S'))
+
+    # configuring experiment
+    load_model = (args.epoch != 1 or args.validation_only or args.export or args.restart)
+    special_parameters.from_scratch = not args.load_model if args.load_model is not None else not load_model
+
     if not special_parameters.from_scratch:
         _, special_parameters.experiment_name = last_experiment(special_parameters.output_name)
         # special_parameters.output_name = name
         if special_parameters.experiment_name is None:
             print_errors('No previous experiment named ' + special_parameters.output_name, do_exit=True)
+
+        if args.restart:
+            args.epoch = load_last_epoch()
     else:
         special_parameters.experiment_name = special_parameters.output_name + '_' + start_dt.strftime('%Y%m%d%H%M%S')
 
