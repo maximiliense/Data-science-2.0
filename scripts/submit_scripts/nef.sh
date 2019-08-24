@@ -24,15 +24,15 @@ usage(){
 
 	echo "optional arguments:";
 	small_indentation="         ";
-	echo "$small_indentation -h, --help$small_indentation show this help message and exit";
-	echo "$small_indentation -g, --gpus$small_indentation set the required number of GPUs (default: ${nb_gpus})";
+	echo "$small_indentation -h, --help$small_indentation  show this help message and exit";
+	echo "$small_indentation -g, --gpus$small_indentation  set the required number of GPUs (default: ${nb_gpus})";
 	echo "$small_indentation -c, --cores$small_indentation set the required number of cores to register (default: ${nb_cores})";
-	echo "$small_indentation --dir$small_indentation OAR scripts dir (default: ${script_dir})";
-	echo "$small_indentation -o --out$small_indentation OAR logs dir (default: ${out})";
-	echo "$small_indentation -w, --wt$small_indentation set the job walltime (default: ${walltime})";
-	echo "$small_indentation -n, --name$small_indentation experiment name (default: \$python_file)";
-	echo "$small_indentation --host$small_indentation set the required host (default: None)";
-	echo "$small_indentation -m, --mem$small_indentation min amount of memory (default: ${min_memory})";
+	echo "$small_indentation --dir$small_indentation       OAR scripts dir (default: ${script_dir})";
+	echo "$small_indentation -o --out$small_indentation    OAR logs dir (default: ${out})";
+	echo "$small_indentation -w, --wt$small_indentation    set the job walltime (default: ${walltime})";
+	echo "$small_indentation -n, --name$small_indentation  experiment name (default: \$python_file)";
+	echo "$small_indentation --host$small_indentation      set the required host (default: None)";
+	echo "$small_indentation -m, --mem$small_indentation   min amount of memory (default: ${min_memory})";
 	echo "$small_indentation --[data science 2.0 options]";
 	exit 1
 }
