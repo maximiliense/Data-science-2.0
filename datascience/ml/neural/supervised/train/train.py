@@ -115,7 +115,7 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
                 # print math
                 running_loss += loss_value.item()
                 if idx % log_modulo == log_modulo - 1:  # print every log_modulo mini-batches
-                    print_info('[%d, %5d] loss: %.5f' % (epoch + 1, idx + 1, running_loss / log_modulo))
+                    print('[%d, %5d] loss: %.5f' % (epoch + 1, idx + 1, running_loss / log_modulo))
 
                     # tensorboard support
                     add_scalar('Loss/train', running_loss / log_modulo)
