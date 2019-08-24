@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 usage(){
-	echo "Usage: scripts/list_jobs.sh [-h] [-j job_id] [-u user]";
+	echo "Usage: list [-h] [-j job_id] [-u user]";
 	echo "";
 	echo "List jobs on Jean Zay.";
 	echo "";

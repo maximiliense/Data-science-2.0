@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 usage(){
-	echo "Usage: scripts/kill_jobs.sh job_id [-h]";
+	echo "Usage: kill job_id [-h]";
 	echo "";
 	echo "Kill a job on Jean Zay.";
 	echo "";
