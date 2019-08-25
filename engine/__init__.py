@@ -1,3 +1,4 @@
+from engine.logging import print_debug
 from engine.machines import detect_machine, check_interactive_cluster
 from engine.parameters.ds_argparse import ask_general_config_default
 from engine.path.path import export_config, output_directory, load_last_epoch
@@ -120,6 +121,7 @@ def configure_engine():
 
         if args.restart:
             special_parameters.first_epoch = load_last_epoch()
+            print_debug('Restarting experiment at last epoch: {}'.format(special_parameters.first_epoch))
     else:
         special_parameters.experiment_name = special_parameters.output_name + '_' + start_dt.strftime('%Y%m%d%H%M%S')
 
