@@ -1,7 +1,7 @@
 import os
 import json
 
-from engine.logging import print_errors, print_info
+from engine.logging import print_errors, print_debug
 
 
 def get_index(index_path):
@@ -13,13 +13,13 @@ def get_index(index_path):
     global previous_index_path
     global previous_indexed_labels
     if 'previous_index_path' in globals() and index_path == previous_index_path:
-        print_info('Labels index in cache')
+        print_debug('Labels index in cache')
         return previous_indexed_labels
 
     # check if labels have been indexed
     if os.path.isfile(index_path):
         # if model is validation
-        print_info('Loading labels index ' + index_path)
+        print_debug('Loading labels index ' + index_path)
         with open(index_path) as f:
             indexed_labels = json.load(f)
         indexed_labels = {int(k): int(v) for k, v in indexed_labels.items()}
@@ -66,7 +66,7 @@ def save_reversed_index(path, index, column=0):
     :param column:
     :return:
     """
-    print_info('Saving index at ' + path)
+    print_debug('Saving index at ' + path)
     reversed_index = reverse_indexing(index, column)
     _json = json.dumps(reversed_index)
     f = open(path, "w")
