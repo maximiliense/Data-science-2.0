@@ -69,7 +69,7 @@ def configure_engine():
     special_parameters.nb_workers = args.nb_workers
     special_parameters.nb_nodes = args.nb_nodes
 
-    special_parameters.first_epoch = args.epoch
+    special_parameters.first_epoch = args.epoch - 1  # to be user friendly, we start at 1
     special_parameters.validation_id = args.validation_id
 
     config_name = hp.check_config(args)
@@ -119,7 +119,7 @@ def configure_engine():
             print_errors('No previous experiment named ' + special_parameters.output_name, do_exit=True)
 
         if args.restart:
-            args.epoch = load_last_epoch()
+            special_parameters.first_epoch = load_last_epoch()
     else:
         special_parameters.experiment_name = special_parameters.output_name + '_' + start_dt.strftime('%Y%m%d%H%M%S')
 

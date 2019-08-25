@@ -101,6 +101,6 @@ def load_last_epoch():
     if os.path.isfile(path):
         with open(path, 'r') as f:
             last_epoch = f.read()
-        return int(last_epoch) + 1
+        return int(last_epoch)
     else:
         return 1

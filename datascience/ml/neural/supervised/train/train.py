@@ -50,7 +50,7 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
     loss = training_params.pop('loss')
     log_modulo = training_params.pop('log_modulo')
     val_modulo = training_params.pop('val_modulo')
-    first_epoch = training_params.pop('first_epoch') - 1
+    first_epoch = training_params.pop('first_epoch')
 
     # callbacks for ml tests
     vcallback = validation_params.pop('vcallback') if 'vcallback' in validation_params else None
