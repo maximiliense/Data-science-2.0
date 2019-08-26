@@ -103,4 +103,4 @@ def load_last_epoch():
             last_epoch = f.read()
         return int(last_epoch)
     else:
-        return 1
+        return 0
