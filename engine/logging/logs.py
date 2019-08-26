@@ -170,7 +170,7 @@ def _object_str(el):
             el = el.module
         repr_filename = el.__repr__.__code__.co_filename
         base_repr_filename = getmodule(el.__class__.__base__).__file__
-        if repr_filename == base_repr_filename and (not is_verbose() or not is_debug()):
+        if repr_filename == base_repr_filename and not is_debug():
             return 'model(' + el.__class__.__name__ + ')'
         else:
             return repr(el)
