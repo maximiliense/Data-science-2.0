@@ -4,6 +4,8 @@ import traceback
 from torch import nn
 from torch.nn import DataParallel
 
+import numpy as np
+
 from engine.logging.verbosity import is_debug, is_warning, is_info
 from engine.util.console.print_colors import color
 from inspect import isclass, getmodule
@@ -162,7 +164,11 @@ def _format_tuple(d, t=0, tab='  '):
 
 
 def _object_str(el):
-
+    """
+    private method that manages print given the verbosity
+    :param el: the object to print
+    :return: the correct string
+    """
     if isclass(el):
         return el.__name__
     elif isinstance(el, nn.Module):
@@ -174,5 +180,10 @@ def _object_str(el):
             return 'model(' + el.__class__.__name__ + ')'
         else:
             return repr(el)
+    elif isinstance(el, np.ndarray):
+        if is_debug():
+            return repr(el)
+        else:
+            return 'array(' + str(el.shape) + ')'
     else:
         return repr(el)

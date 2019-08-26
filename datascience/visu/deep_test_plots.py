@@ -8,22 +8,14 @@ from engine.logging import print_info, print_errors, print_info
 from engine.core import module
 
 
-def plot(dataset, label, separator, clf=None, x_min=-0.5, x_max=0.55, y_min=-1, y_max=1.6,
-         step_x=0.00125, step_y=0.00625):
-    plt('plot_', figsize=(16, 14))
-    if clf is not None:
-        # mesh
-        xx, yy = np.meshgrid(np.arange(x_min, x_max, step_x), np.arange(y_min, y_max, step_y))
-        data = torch.from_numpy(np.c_[xx.ravel(), yy.ravel()]).float()
+@module
+def plot_decision_boundary_and_all(dataset, labels, model):
+    ax = plot_dataset.func(dataset, labels)
+    plot_activation_rate.func(dataset, labels, model, ax=ax)
 
-        Z = clf(data)
-        Z = Z.argmax(dim=1)
-        # Z = (Z > 0.5).int()
-        Z = Z.reshape(xx.shape)
-        ax = plt.gca()
-        out = ax.contourf(xx, yy, Z,cmap=plt.cm.coolwarm, alpha=0.3)
-    plt('plot_').plot(separator[0, :], separator[1, :])
-    plt('plot_').scatter(dataset[:, 0], dataset[:, 1], cmap=plt.cm.coolwarm, c=np.array(label))
+    plot_decision_boundary.func(dataset, labels, model, ax=ax)
+
+    plot_gradient_field.func(dataset, labels, model, ax=ax)
 
 
 @module
@@ -51,10 +43,6 @@ def plot_decision_boundary(X, y, model, figure_name='pdb', ax=None):
 
 
 @module
-def plot_dataset_module(X, y, ax=None, figure_name='plot_dataset', **kwargs):
-    return plot_dataset(X, y, ax, figure_name, **kwargs)
-
-
 def plot_dataset(X, y, ax=None, figure_name='plot_dataset', **kwargs):
     if ax is None:
         ax = plt(figure_name).gca()
