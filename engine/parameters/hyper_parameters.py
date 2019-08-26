@@ -8,8 +8,11 @@ from engine.logging.logs import print_errors
 
 parameters = {
     'dropout': 'load_create_nn.model_params.dropout',
+    'do': 'load_create_nn.model_params.dropout',
     'batch_size': 'fit.training_params.batch_size',
+    'bs': 'fit.training_params.batch_size',
     'lr': 'fit.training_params.lr',
+    'learning_rate': 'fit.training_params.lr',
     'architecture': 'load_create_nn.model_params.architecture',
     'last_sigmoid': 'load_create_nn.model_params.last_sigmoid',
     'source': 'occurrence_loader.source',
