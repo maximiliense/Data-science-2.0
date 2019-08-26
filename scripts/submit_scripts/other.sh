@@ -8,6 +8,7 @@ usage(){
 	echo "optional arguments:";
 	small_indentation="         ";
 	echo "  -h, --help$small_indentation   show this help message and exit";
+	echo "  --no-screen$small_indentation  run job without screen.";
 }
 
 execute() {
@@ -18,11 +19,15 @@ execute() {
     # parameters
     python_file=NULL;
 
+    runScreen=true
+
     options="";
     help=false;
     # setting options
     while [[ "$1" != "" ]]; do
         case $1 in
+            --no-screen )           runScreen=false;
+                                    ;;
             -h | --help )           help=true;
                                     ;;
             * )                     if [[ "$python_file" = NULL ]];
@@ -34,7 +39,6 @@ execute() {
         esac
         shift
     done
-
     # testing if need to print usage...
     if [[ ${help} = true ]] || [[ "${python_file}" = NULL ]];
     then
@@ -47,6 +51,11 @@ execute() {
     fi
     command="$(findPython) ${python_file}${options}";
     echo "Submitting command: ${command};";
-    echo;
-    ${command}
+    if [[ ${runScreen} = true ]];
+    then
+        screen -dm bash -c "${command}";
+        echo "Job submitted in a screen.";
+    else
+        ${command}
+    fi
 }
