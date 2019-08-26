@@ -57,8 +57,9 @@ def recursive_clean(path, regex, disp_only=True):
                 file_path = os.path.join(path, file)
                 memory_size = os.stat(file_path).st_size
                 total += memory_size
-                print('rm ' + file_path + ' (' + _size(memory_size) + ')')
 
                 if not disp_only:
                     os.remove(file_path)
+                    print('rm ', end='')
+                print(file_path + ' (' + _size(memory_size) + ')')
     return total

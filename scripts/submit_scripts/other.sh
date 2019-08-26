@@ -28,6 +28,9 @@ execute() {
         case $1 in
             --no-screen )           runScreen=false;
                                     ;;
+            --show | --clean )      runScreen=False;  # if clean or show.. The user wants direct output...
+                                    options="$options $1";
+                                    ;;
             -h | --help )           help=true;
                                     ;;
             * )                     if [[ "$python_file" = NULL ]];
@@ -50,12 +53,14 @@ execute() {
         exit 1;
     fi
     command="$(findPython) ${python_file}${options}";
-    echo "Submitting command: ${command};";
+
     if [[ ${runScreen} = true ]];
     then
+        echo "Submitting command: ${command};";
         screen -dm bash -c "${command}";
         echo "Job submitted in a screen.";
     else
+        echo "Executing command: ${command};";
         ${command}
     fi
 }
