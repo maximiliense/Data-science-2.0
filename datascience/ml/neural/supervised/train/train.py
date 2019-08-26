@@ -9,6 +9,7 @@ from datascience.ml.neural.supervised.predict import predict
 from datascience.ml.evaluation import validate, export_results
 from engine.parameters import special_parameters
 from engine.path import output_path
+from engine.path.path import export_epoch
 from engine.util.log_email import send_email
 from engine.util.log_file import save_file
 from engine.logging import print_errors, print_h1, print_info, print_h2, print_notification
@@ -49,7 +50,7 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
     loss = training_params.pop('loss')
     log_modulo = training_params.pop('log_modulo')
     val_modulo = training_params.pop('val_modulo')
-    first_epoch = training_params.pop('first_epoch') - 1
+    first_epoch = training_params.pop('first_epoch')
 
     # callbacks for ml tests
     vcallback = validation_params.pop('vcallback') if 'vcallback' in validation_params else None
@@ -85,7 +86,8 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
         for epoch in range(max_iterations):
             if epoch < first_epoch:
                 continue
-
+            # saving epoch to enable restart
+            export_epoch(epoch)
             model_z.train()
 
             # printing new epoch
@@ -113,7 +115,7 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
                 # print math
                 running_loss += loss_value.item()
                 if idx % log_modulo == log_modulo - 1:  # print every log_modulo mini-batches
-                    print_info('[%d, %5d] loss: %.5f' % (epoch + 1, idx + 1, running_loss / log_modulo))
+                    print('[%d, %5d] loss: %.5f' % (epoch + 1, idx + 1, running_loss / log_modulo))
 
                     # tensorboard support
                     add_scalar('Loss/train', running_loss / log_modulo)

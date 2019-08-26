@@ -22,6 +22,8 @@ validation_id = None
 validation_only = False
 export = False
 
+first_epoch = 0
+
 from_scratch = True
 
 machine = 'auto'
