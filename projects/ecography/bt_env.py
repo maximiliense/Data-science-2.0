@@ -18,5 +18,5 @@ training_params = {
 }
 fit(train=train, test=test, training_params=training_params,
     objective='multi:softprob', max_depth=2, seed=4242, eval_metric='merror', num_class=4520,
-    num_boost_round=360, early_stopping_rounds=10, verbose_eval=1,updater='grow_gpu',
+    num_boost_round=360, early_stopping_rounds=10, verbose_eval=1, updater='grow_gpu',
     predictor='gpu_predictor', tree_method='gpu_hist')
