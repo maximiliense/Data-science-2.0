@@ -43,7 +43,9 @@ def print_topk_range_plot(list_models, path="/home/bdeneu/results/"):
 
 if __name__ == "__main__":
     list_models = []
-    list_models.append(ModelPrint("CNN", "inception_normal_do07_result_range_top100_by_species.npy", "g", "-"))
-    list_models.append(ModelPrint("RF", "rf_env_d12_result_range_top100_by_species.npy", "r", "-"))
+    list_models.append(ModelPrint("CNN", "inception_normal_do06_result_range_top100_by_species.npy", "g", "-"))
+    list_models.append(ModelPrint("DNN", "inception_constant_do05_result_range_top100_by_species.npy", "k", "-"))
+    list_models.append(ModelPrint("CNN-structure", "inception_structure_do06_result_range_top100_by_species.npy", "y", "-"))
+    list_models.append(ModelPrint("RF", "rf_env_d17_result_range_top100_by_species.npy", "r", "-"))
     list_models.append(ModelPrint("BT", "bt_env_result_range_top100_by_species.npy", "b", "-"))
     print_topk_range_plot(list_models)

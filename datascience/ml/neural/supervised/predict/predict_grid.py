@@ -1,7 +1,7 @@
 import numpy as np
 from engine.logging.logs import print_info
 from datascience.ml.neural.models.util import set_model_last_layer, set_model_logit
-import progressbar
+from progressbar import progressbar
 import torch
 from engine.parameters import special_parameters
 
@@ -22,7 +22,7 @@ def predict_grid(model, grid_points, batch_size=32, features_activation=False, l
     # predictions for all points on the grid. The output is the last layer.
     print_info("get activations for all points...")
     list_activations = []
-    for batch in progressbar.progressbar(data_loader):
+    for batch in progressbar(data_loader):
         list_activations.append(model(batch[0]).detach().cpu().numpy())
     activations = np.concatenate(list_activations)
     # activations = np.concatenate([model(batch[0]).detach().cpu().numpy() for batch in data_loader])

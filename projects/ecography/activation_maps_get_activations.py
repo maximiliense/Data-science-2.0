@@ -10,7 +10,7 @@ from datascience.tools.activations_map.actiavtion_maps import get_species_neuron
 from projects.ecography.configs.inception import model_params
 
 # loading/creating model
-model = load_create_nn(model_class=InceptionEnv, model_params=model_params)
+model = load_create_nn(model_class=InceptionEnv, model_params=model_params, from_scratch=False)
 
 # loading dataset
 _, _, grid_points = occurrence_loader(EnvironmentalDataset, source='grid_occs_1km', id_name='id',
