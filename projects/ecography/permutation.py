@@ -1,12 +1,12 @@
 from datascience.data.transforms.transformations import permutation
 
 params = {
-    'LoadCreateNN': {
+    'load_create_nn': {
         'model_params': {
             'dropout': 0.7
         }
     },
-    'LoaderModule': {
+    'occurrence_loader': {
         'transform': permutation
     }
 }

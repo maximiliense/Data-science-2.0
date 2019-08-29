@@ -1,12 +1,12 @@
 from datascience.data.transforms.transformations import normalize
 
 params = {
-    'LoadCreateNN': {
+    'load_create_nn': {
         'model_params': {
             'dropout': 0.8
         }
     },
-    'LoaderModule': {
+    'occurrence_loader': {
         'transform': normalize
     }
 }
