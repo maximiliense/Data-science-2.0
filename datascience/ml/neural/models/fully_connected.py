@@ -1,9 +1,11 @@
+import sys
+
 import torch.nn as nn
 import ast
 import torch.nn.functional as F
 
 
-def fully_connected_relu(in_f, out_f, relu=True, batchnorm=True, bias=True):
+def fc_layer(in_f, out_f, relu=True, batchnorm=True, bias=True):
     if batchnorm:
         return nn.Sequential(
             nn.Linear(in_f, out_f, bias=bias),
@@ -25,29 +27,35 @@ class FullyConnected(nn.Module):
         if type(architecture) is str:
             architecture = ast.literal_eval(architecture)
         self.last_sigmoid = last_sigmoid
-        layer_size = [n_input] + [i for i in architecture]
+        layer_size = [n_input] + [i for i in architecture] + [n_labels]
+        self.length = len(architecture) + 1
 
         layers = [
-            fully_connected_relu(in_f, out_f, relu, batchnorm, bias) for in_f, out_f in zip(layer_size, layer_size[1:])
+            fc_layer(in_f, out_f, relu, batchnorm, bias) for in_f, out_f in zip(layer_size, layer_size[1:])
         ]
         self.layers = nn.Sequential(*layers)
-
-        self.linear_layer = nn.Linear(layer_size[-1], n_labels)
 
         self.n_input = n_input
         self.n_labels = n_labels
         self.dropout = dropout
         self.hidden_layer = hidden_layer
 
-    def forward(self, x):
-        x = self.layers(x)
-        if not self.hidden_layer:
-            x = self.linear_layer(x)
+    def __len__(self):
+        return self.length
 
-            x = F.dropout(x, p=self.dropout, training=self.training)
+    def forward(self, x, layer=sys.maxsize):
+        last_relu = layer == sys.maxsize
+        i = 0
 
-            if self.last_sigmoid and not self.training:
-                x = F.softmax(x, dim=-1)
+        while i < layer and i < len(self):
+            seq = self.layers[i]
+            for s in range(len(seq)):
+                if last_relu or i != layer - 1 or type(seq[s]) is not nn.ReLU:
+                    x = seq[s](x)
+            i += 1
+
+        if self.last_sigmoid and not self.training:
+            x = F.softmax(x, dim=-1)
 
         return x
 

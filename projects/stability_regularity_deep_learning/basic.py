@@ -15,8 +15,8 @@ else:
 
 model_params = {
     'im_shape': train[0][0].shape,
-    'conv_layers': (100,),
-    'linear_layers': tuple()
+    'conv_layers': (100, 100),
+    'linear_layers': (64,)
 }
 
 model = load_create_nn(model_class=CustomizableCNN, model_params=model_params)

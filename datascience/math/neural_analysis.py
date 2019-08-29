@@ -44,7 +44,6 @@ def compute_filters(model, data, nb_filters=100, include_logit=False):
     _optimizable(model, False)
 
     filters = []
-
     for layer in range(1, len(model_instance) + include_logit):
         output = model(batch, layer=layer)
         layer_filters = []
