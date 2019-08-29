@@ -1,6 +1,6 @@
 from datascience.data.transforms.transformations import normalize
 
-params = {
+config = {
     'load_create_nn': {
         'model_params': {
             'dropout': 0.8

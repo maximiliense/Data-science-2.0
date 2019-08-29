@@ -1,6 +1,6 @@
 from datascience.data.transforms.transformations import random_rotation
 
-params = {
+config = {
     'load_create_nn': {
         'model_params': {
             'dropout': 0.7
