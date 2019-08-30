@@ -75,10 +75,11 @@ class StatCallback(Callback):
 
 
 class NewStatCallback(Callback):
-    def __init__(self):
+    def __init__(self, dataset=None):
         super().__init__()
         self.dir_variances = None
         self.shape = 100
+        self.dataset = dataset
 
     def initial_call(self, modulo, nb_calls, dataset, model):
         """

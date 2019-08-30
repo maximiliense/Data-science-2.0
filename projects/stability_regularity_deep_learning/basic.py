@@ -15,8 +15,8 @@ else:
 
 model_params = {
     'im_shape': train[0][0].shape,
-    'conv_layers': (100, 100),
-    'linear_layers': (64,)
+    'conv_layers': (150, 150),
+    'linear_layers': (128, 128)
 }
 
 model = load_create_nn(model_class=CustomizableCNN, model_params=model_params)
@@ -32,7 +32,7 @@ training_params = {
 
 validation_params = {
     'metrics': (ValidationAccuracy(1),),
-    'vcallback': (NewStatCallback(),)
+    'vcallback': (NewStatCallback(train),)
 }
 
 fit(

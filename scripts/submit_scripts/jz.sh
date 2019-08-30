@@ -29,6 +29,7 @@ usage(){
 	echo "$small_indentation -o --out$small_indentation    SLURM logs dir (default: ${out}";
 	echo "$small_indentation -w, --wt$small_indentation    set the job walltime (default: ${walltime})";
 	echo "$small_indentation -n, --name$small_indentation  set the experiment name (default: \$python_file)";
+    echo "$small_indentation --resubmit$small_indentation  number of time the job should be resubmitted (default: 0)";
 	echo "$small_indentation --dev$small_indentation       run on the dev partition";
 	echo "$small_indentation --[data science 2.0 options]";
 	exit 1
@@ -38,6 +39,7 @@ execute() {
     name=NULL;
 
     python_file=NULL;
+    reSubmission=0
 
     dev=false;
 
@@ -47,6 +49,9 @@ execute() {
 
     while [[ "$1" != "" ]]; do
         case $1 in
+            --resubmit )            shift
+                                    reSubmission=$1;
+                                    ;;
             -g | --gpu )            shift
                                     nb_gpus=$1;
                                     ;;
@@ -150,9 +155,20 @@ execute() {
     echo "echo \"\$core\";" >> ${script_dir}/${setup_name}${name}.slurm
     echo "\$core;" >> ${script_dir}/${setup_name}${name}.slurm
 
+    # first job
     echo "sbatch ${script_dir}/${setup_name}${name}.slurm";
-    sbatch ${script_dir}/${setup_name}${name}.slurm
+    JOB_ID=`sbatch ${script_dir}/${setup_name}${name}.slurm | cut -d " " -f 4`
 
+    # resubmit successive jobs
+    if [[ ${reSubmission} -gt 0 ]];
+    then
+        for i in {1..${reSubmission}};
+        do
+            # if afterok is not good, afterany
+            echo "sbatch --dependency=afterok:${JOB_ID} ${script_dir}/${setup_name}${name}.slurm";
+            JOB_ID=`sbatch --dependency=afterok:${JOB_ID} ${script_dir}/${setup_name}${name}.slurm | cut -d " " -f 4`;
+        done;
+    fi
     # chargement des modules
 
     # salloc --ntasks=1 --threads-per-core=1 --gres=gpu:1 --partition=gpu_dev --time=00:05:00
