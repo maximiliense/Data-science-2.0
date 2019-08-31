@@ -31,8 +31,7 @@ class VCallback(Callback):
     def __call__(self, validation_id):
         ax = plt('VCallback').subplot(self.nb_calls + 2, 1, validation_id + 1)
         plot_dataset(self.dataset.dataset, self.dataset.labels, ax=ax, figure_name='VCallback')
-        plot_decision_boundary(self.dataset.dataset, self.dataset.labels, self.model, ax=ax,
-                               figure_name='VCallback')
+        plot_decision_boundary(self.model, ax=ax, figure_name='VCallback')
         plot_activation_rate(self.dataset.dataset, self.dataset.labels, self.model, ax=ax,
                              figure_name='VCallback')
         plot_gradient_field(self.dataset.dataset, self.dataset.labels, self.model, ax=ax, normalized=True,

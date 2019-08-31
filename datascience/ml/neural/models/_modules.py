@@ -6,6 +6,15 @@ from engine.logging import print_info
 
 @module
 def load_create_nn(model_class, from_scratch=None, model_params={}, p_input=one_input, p_label=one_label):
+    """
+    Load an existing neural network or create a new one with using framework configuration.
+    :param model_class: the type of model
+    :param from_scratch: a boolean, if None, the framework decides if the model should be created or loaded
+    :param model_params: parameters to configure the model such as dropout
+    :param p_input: specific transform on the input. For instance to manage multi-input
+    :param p_label: transformation for the output, for instance for multi task learning
+    :return: the model or a DataParallel object if running on GPUs
+    """
     if from_scratch is None and hasattr(special_parameters, 'from_scratch'):
         from_scratch = special_parameters.from_scratch
     return load_or_create(model_class, from_scratch, model_params, p_input=p_input, p_label=p_label)

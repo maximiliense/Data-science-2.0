@@ -85,7 +85,7 @@ if hasattr(special_parameters, 'circle_all'):
     ax = plot_dataset(train.dataset, train.labels)
     plot_activation_rate(train.dataset, train.labels, model, ax=ax)
 
-    plot_decision_boundary(train.dataset, train.labels, model, ax=ax)
+    plot_decision_boundary(model, ax=ax)
 
     plot_gradient_field(train.dataset, train.labels, model, ax=ax)
 

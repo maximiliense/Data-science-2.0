@@ -3,7 +3,7 @@ from datascience.ml.neural.supervised import fit
 from datascience.ml.neural.models import load_create_nn, FullyConnected
 
 
-from datascience.visu.deep_test_plots import plot_decision_boundary_and_all
+from datascience.visu.deep_test_plots import plot_db_partitions_gradients
 from datascience.visu.util.util import save_fig
 
 # constructing the dataset
@@ -33,6 +33,6 @@ fit(
 )
 
 # plot results
-plot_decision_boundary_and_all(train.dataset, train.labels, model)
+plot_db_partitions_gradients(train.dataset, train.labels, model)
 
 save_fig()
