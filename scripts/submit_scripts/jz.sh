@@ -164,9 +164,8 @@ execute() {
     then
         for i in {1..${reSubmission}};
         do
-            # if afterok is not good, afterany
-            echo "sbatch --dependency=afterok:${JOB_ID} ${script_dir}/${setup_name}${name}.slurm";
-            JOB_ID=`sbatch --dependency=afterok:${JOB_ID} ${script_dir}/${setup_name}${name}.slurm | cut -d " " -f 4`;
+            echo "sbatch --dependency=afterany:${JOB_ID} ${script_dir}/${setup_name}${name}.slurm";
+            JOB_ID=`sbatch --dependency=afterany:${JOB_ID} ${script_dir}/${setup_name}${name}.slurm | cut -d " " -f 4`;
         done;
     fi
     # chargement des modules
