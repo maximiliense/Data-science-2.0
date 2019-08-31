@@ -86,6 +86,7 @@ def check_parameters(args):
         for k, v in params.items():
             k_split = k.split('.')
             c_param = _overriding_parameters
+            k2 = None
             for i, k2 in enumerate(k_split):
                 if i < len(k_split) - 1:
                     if k2 not in c_param:
@@ -111,6 +112,19 @@ def _check_config(config, params):
             params[k] = v
 
 
+def _find_config_attribute(module):
+    """
+    find the configuration in a module
+    :param module:
+    :return: the configuration's dictionary
+    """
+    configuration = None
+    for attribute in dir(module):
+        if 'param' in attribute or 'config' in attribute:
+            configuration = getattr(module, attribute, None)
+    return configuration
+
+
 def check_config(args):
     global _overriding_parameters
     if args.config is not None:
@@ -119,8 +133,9 @@ def check_config(args):
             path = os.path.join(os.path.dirname(sys.argv[0]), config)
             if os.path.isfile(path + '.py'):
                 imported_file = __import__(path.replace('/', '.'), globals(), locals(), ['config'])
-                if hasattr(imported_file, 'config'):
-                    _check_config(imported_file.config, _overriding_parameters)
+                configuration = _find_config_attribute(imported_file)
+                if configuration is not None:
+                    _check_config(configuration, _overriding_parameters)
             else:
                 print_errors(config + ' does not exist', do_exit=True)
         return config
