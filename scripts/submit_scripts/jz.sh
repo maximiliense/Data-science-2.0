@@ -180,11 +180,9 @@ createScript() {
     if [[ "${JOB_ID}" = NULL ]];
     then
         echo "sbatch ${script_dir}/${setup_name}${actualName}.slurm";
-        JOB_ID=12;
         JOB_ID=`sbatch ${script_dir}/${setup_name}${actualName}.slurm | cut -d " " -f 4`
     else
         echo "sbatch --dependency=afterany:${JOB_ID} ${script_dir}/${setup_name}${actualName}.slurm";
-        JOB_ID=$((JOB_ID+1));
         JOB_ID=`sbatch --dependency=afterany:${JOB_ID} ${script_dir}/${setup_name}${actualName}.slurm | cut -d " " -f 4`;
     fi
 }
