@@ -116,7 +116,6 @@ execute() {
         actualWalltime=${walltime};
         actualName="$name";
         createScript;
-        echo ${JOB_ID};
     else
         i=1;
         while [[ ${walltime} -gt 0 ]]
