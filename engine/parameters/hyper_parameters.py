@@ -122,6 +122,7 @@ def _find_config_attribute(module):
     for attribute in dir(module):
         if 'param' in attribute or 'config' in attribute:
             configuration = getattr(module, attribute, None)
+            break
     return configuration
 
 
