@@ -83,6 +83,8 @@ def get_argparse():
     group.add_argument('--style', dest='style', type=str, default='dark_background',
                        help='Change the plots style (default: dark_background)')
     group.add_argument('-m', '--more', nargs='+', help='Additional attributes for special_parameters', required=False)
+    group.add_argument('-la', '--list-aliases', dest='list_aliases', action='store_true', default=False,
+                       help='List parameters aliases.', required=False)
 
     # group.add_argument('--mode', dest='mode', type=str, default=None)
 

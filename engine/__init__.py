@@ -1,6 +1,7 @@
 from engine.logging import print_debug
 from engine.machines import detect_machine, check_interactive_cluster
 from engine.parameters.ds_argparse import ask_general_config_default
+from engine.parameters.hyper_parameters import list_aliases
 from engine.path.path import export_config, output_directory, load_last_epoch
 from engine.logging.verbosity import set_verbose, is_info
 
@@ -63,6 +64,9 @@ def configure_engine():
 
     if args.clean or args.show:
         clean(special_parameters.homex, args.output_name, disp_only=args.show)
+        exit()
+    if args.list_aliases:
+        list_aliases()
         exit()
 
     # hardware

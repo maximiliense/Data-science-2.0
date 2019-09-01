@@ -140,3 +140,14 @@ def check_config(args):
             else:
                 print_errors(config + ' does not exist', do_exit=True)
         return config
+
+
+def list_aliases():
+    """
+    list possible aliases
+    """
+    for k, v in parameters.items():
+        if len(k) > 7:
+            print('{}\t->\t {}'.format(k, v))
+        else:
+            print('{}\t\t->\t {}'.format(k, v))
