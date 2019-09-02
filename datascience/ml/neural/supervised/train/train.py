@@ -84,11 +84,9 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
         # one log per epoch if value is -1
         log_modulo = epoch_size if log_modulo == -1 else log_modulo
         for epoch in range(max_iterations):
-            if epoch > 0:
-                # end of epoch (beginning of the next one) update of learning rate scheduler
-                scheduler.step()
 
             if epoch < first_epoch:
+                scheduler.step(epoch)
                 continue
             # saving epoch to enable restart
             export_epoch(epoch)
@@ -128,6 +126,9 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
 
             # train_loader.data.reverse = not train_loader.data.reverse  # This is to check
             # the oscillating loss probably due to SGD and momentum...
+
+            # end of epoch update of learning rate scheduler
+            scheduler.step(epoch)
 
             # saving the model and the current loss after each epoch
             save_model(model_z, model_path)
