@@ -4,12 +4,11 @@ import torch
 import torch.optim as optimizer
 from torch.optim.lr_scheduler import MultiStepLR
 
-from datascience.ml.neural.models.util import save_model
 from datascience.ml.neural.supervised.callbacks import init_callbacks, run_callbacks, finish_callbacks
 from datascience.ml.neural.loss import CELoss, load_loss, save_loss
 from datascience.ml.neural.supervised.predict import predict
 from datascience.ml.evaluation import validate, export_results
-from datascience.ml.neural.supervised.train.checkpoints import create_optimizer, save_checkpoint
+from datascience.ml.neural.checkpoints.checkpoints import create_optimizer, save_checkpoint
 from engine.parameters import special_parameters
 from engine.path import output_path
 from engine.path.path import export_epoch

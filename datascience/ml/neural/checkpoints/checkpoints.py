@@ -83,7 +83,11 @@ def _load_model(model):
     global _checkpoint
     if _checkpoint is None:
         _load_checkpoint()
-    model.load_state_dict(_checkpoint['model_state_dict'])
+
+    if 'model_state_dict' in _checkpoint:
+        model.load_state_dict(_checkpoint['model_state_dict'])
+    else:
+        model.load_state_dict(_checkpoint)
 
 
 def _load_checkpoint():

@@ -3,7 +3,7 @@ from datascience.ml.metrics import ValidationAccuracy
 from datascience.ml.neural.supervised import fit
 from datascience.ml.neural.models.cnn import CustomizableCNN
 from datascience.ml.neural.supervised.callbacks.callbacks import NewStatCallback
-from datascience.ml.neural.supervised.train.checkpoints import create_model
+from datascience.ml.neural.checkpoints import create_model
 from engine.parameters import get_parameters
 
 # load MNIST or CIFAR10

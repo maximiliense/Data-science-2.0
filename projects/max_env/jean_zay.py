@@ -2,7 +2,7 @@ from datascience.ml.neural.models import InceptionEnv
 from datascience.data.loader import occurrence_loader
 from datascience.data.datasets import EnvironmentalIGNDataset
 from datascience.ml.neural.supervised import fit
-from datascience.ml.neural.supervised.train.checkpoints import create_model
+from datascience.ml.neural.checkpoints import create_model
 from projects.max_env.configs.inception import training_params, validation_params, model_params, optim_params
 
 # creating environmental inception (more channels than classical inception)

@@ -2,10 +2,7 @@ from datascience.data.synthetize.create_dataset import create_dataset
 from datascience.ml.neural.supervised import fit
 from datascience.ml.neural.models import FullyConnected
 from datascience.ml.neural.supervised.callbacks.callbacks import NewStatCallback
-from datascience.ml.neural.supervised.train.checkpoints import create_model
-
-from datascience.visu.deep_test_plots import plot_db_partitions_gradients
-from datascience.visu.util.util import save_fig
+from datascience.ml.neural.checkpoints import create_model
 
 # constructing the dataset
 train, test = create_dataset(param_train=(250, 250), poly=True)

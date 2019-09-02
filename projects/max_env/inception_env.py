@@ -1,4 +1,4 @@
-from datascience.ml.neural.supervised.train.checkpoints import create_model
+from datascience.ml.neural.checkpoints import create_model
 from projects.max_env.configs.inception import training_params, validation_params, model_params, optim_params
 from datascience.ml.neural.models import InceptionEnv
 from datascience.data.loader import occurrence_loader
