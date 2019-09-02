@@ -1,6 +1,6 @@
 from datascience.data.synthetize.create_dataset import create_dataset
 from datascience.ml.neural.supervised import fit
-from datascience.ml.neural.models import load_create_nn, FullyConnected
+from datascience.ml.neural.models import FullyConnected
 from datascience.ml.neural.supervised.train.checkpoints import create_model
 
 from datascience.visu.deep_test_plots import plot_db_partitions_gradients
