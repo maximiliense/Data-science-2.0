@@ -1,3 +1,5 @@
+import warnings
+
 import torch
 import torch.optim as optimizer
 from torch.optim.lr_scheduler import MultiStepLR
@@ -75,8 +77,8 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
 
         loss_val_logs = [] if first_epoch < 1 else load_loss('validation_loss')
 
-        sgd = optim(model_z.parameters(), lr=lr, **optim_params)
-        scheduler = MultiStepLR(sgd, milestones=list(iterations), gamma=gamma)
+        opt = optim(model_z.parameters(), lr=lr, **optim_params)
+        scheduler = MultiStepLR(opt, milestones=list(iterations), gamma=gamma)
 
         # number of batches in the ml
         epoch_size = len(train_loader)
@@ -86,7 +88,8 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
         for epoch in range(max_iterations):
 
             if epoch < first_epoch:
-                scheduler.step(epoch)
+                # opt.step()
+                _skip_step(scheduler)
                 continue
             # saving epoch to enable restart
             export_epoch(epoch)
@@ -107,12 +110,12 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
                 labels = model_z.p_label(labels)
 
                 # zero the parameter gradients
-                sgd.zero_grad()
+                opt.zero_grad()
                 outputs = model_z(inputs)
                 loss_value = loss(outputs, labels)
                 loss_value.backward()
 
-                sgd.step()
+                opt.step()
 
                 # print math
                 running_loss += loss_value.item()
@@ -128,7 +131,7 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
             # the oscillating loss probably due to SGD and momentum...
 
             # end of epoch update of learning rate scheduler
-            scheduler.step(epoch)
+            scheduler.step()
 
             # saving the model and the current loss after each epoch
             save_model(model_z, model_path)
@@ -232,7 +235,8 @@ def _configure(training_params, predict_params, validation_params, export_params
     return training_params, predict_params, validation_params, export_params, optim_params
 
 
-def _dataset_setup(train, test, val=None, batch_size=32, bs_test=None, train_shuffle=True, test_shuffle=False, **kwargs):
+def _dataset_setup(train, test, val=None, batch_size=32, bs_test=None,
+                   train_shuffle=True, test_shuffle=False, **kwargs):
     # ignore kwargs
     locals().update(kwargs)
     if val is None:
@@ -264,3 +268,9 @@ def _dataset_setup(train, test, val=None, batch_size=32, bs_test=None, train_shu
         return train_loader, test_loader, val_loader
     else:
         return train, test, val
+
+
+def _skip_step(lr_scheduler):
+    warnings.filterwarnings("ignore")
+    lr_scheduler.step()
+    warnings.filterwarnings("default")
