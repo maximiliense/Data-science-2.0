@@ -9,6 +9,7 @@ from datascience.ml.neural.supervised.callbacks import init_callbacks, run_callb
 from datascience.ml.neural.loss import CELoss, load_loss, save_loss
 from datascience.ml.neural.supervised.predict import predict
 from datascience.ml.evaluation import validate, export_results
+from datascience.ml.neural.supervised.train.checkpoints import create_optimizer, save_checkpoint
 from engine.parameters import special_parameters
 from engine.path import output_path
 from engine.path.path import export_epoch
@@ -46,7 +47,6 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
 
     # training parameters
     optim = optim_params.pop('optimizer')
-    lr = training_params.pop('lr')
     iterations = training_params.pop('iterations')
     gamma = training_params.pop('gamma')
     loss = training_params.pop('loss')
@@ -71,13 +71,12 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
 
         print_h1('Training: ' + special_parameters.setup_name)
 
-        model_path = output_path('models/model.torch')
-
         loss_logs = [] if first_epoch < 1 else load_loss('train_loss')
 
         loss_val_logs = [] if first_epoch < 1 else load_loss('validation_loss')
 
-        opt = optim(model_z.parameters(), lr=lr, **optim_params)
+        opt = create_optimizer(model_z.parameters(), optim, optim_params)
+
         scheduler = MultiStepLR(opt, milestones=list(iterations), gamma=gamma)
 
         # number of batches in the ml
@@ -134,7 +133,7 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
             scheduler.step()
 
             # saving the model and the current loss after each epoch
-            save_model(model_z, model_path)
+            save_checkpoint(model_z, optimizer=opt)
 
             # validation of the model
             if epoch % val_modulo == val_modulo - 1:
@@ -157,9 +156,8 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
                     save_file(validation_path, 'Results for XP ' + special_parameters.setup_name +
                               ' (epoch: ' + str(epoch + 1) + ')', res)
 
-                # save model used for validation
-                mvp = output_path('models/model.torch', validation_id=validation_id)
-                save_model(model_z, mvp)
+                # checkpoint
+                save_checkpoint(model_z, optimizer=opt, validation_id=validation_id)
 
                 # callback
                 if vcallback is not None:
@@ -274,3 +272,5 @@ def _skip_step(lr_scheduler):
     warnings.filterwarnings("ignore")
     lr_scheduler.step()
     warnings.filterwarnings("default")
+
+

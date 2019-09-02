@@ -29,65 +29,6 @@ def one_label(l):
     return Variable(l.cuda()) if use_gpu() else Variable(l)
 
 
-def save_model(model, path):
-    """
-    save the model parameters on disk
-    :param model:
-    :param path:
-    :return:
-    """
-    print_info('Saving model: ' + path)
-    if type(model) is torch.nn.DataParallel:
-        torch.save(model.module.state_dict(), path)
-    else:
-        torch.save(model.state_dict(), path)
-
-
-def load_model(path, model=None, model_params={}):
-    """
-    load the model parameters from disk
-    :param model_params:
-    :param model:
-    :param path:
-    :return:
-    """
-    model_sd = torch.load(path)
-    model = model(**model_params)
-    model.load_state_dict(model_sd)
-    return model
-
-
-def load_or_create(model_class, from_scratch=True, model_params={}, p_input=one_input, p_label=one_label):
-
-    # update class to dynamically manage the input
-    # not necessarily useful in pytorch 1.2
-    # model_class.forward = decorated_forward(model_class.forward, p_input)
-
-    # Constructing the model
-    if from_scratch:
-        model = model_class(**model_params)
-    else:  # recover from breakpoint
-        path = output_path('models/model.torch', have_validation=True)
-
-        print_info('Loading model: ' + path)
-        if os.path.isfile(path):
-            model = load_model(path, model_class, model_params=model_params)
-        else:
-            print_errors('{} does not exist'.format(path), do_exit=True)
-
-    # configure usage on GPU
-    if use_gpu():
-        model.to(first_device())
-        model = torch.nn.DataParallel(model, device_ids=all_devices())
-
-    model.p_label = p_label
-
-    # print info about devices
-    print_info('Device(s)): ' + str(device_description()))
-
-    return model
-
-
 def decorated_forward(fn, p_input):
     def new_forward(self, _input):
         return fn(self, *p_input(_input))

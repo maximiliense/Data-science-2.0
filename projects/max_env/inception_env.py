@@ -1,4 +1,4 @@
-from projects.max_env.configs.inception import training_params, validation_params, model_params
+from projects.max_env.configs.inception import training_params, validation_params, model_params, optim_params
 from datascience.ml.neural.models import load_create_nn, InceptionEnv
 from datascience.data.loader import occurrence_loader
 from datascience.data.datasets import EnvironmentalDataset
@@ -13,4 +13,5 @@ model = load_create_nn(model_class=InceptionEnv, model_params=model_params)
 # loading dataset
 train, val, test = occurrence_loader(EnvironmentalDataset, source='glc19_fulldataset')
 
-fit(model, train=train, val=val, test=test, training_params=training_params, validation_params=validation_params)
+fit(model, train=train, val=val, test=test, training_params=training_params,
+    validation_params=validation_params, optim_params=optim_params)

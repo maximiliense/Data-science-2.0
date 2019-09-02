@@ -29,7 +29,8 @@ validation_params = {
 }
 
 optim_params = {
-    'momentum': 0.0
+    'momentum': 0.0,
+    'lr': 0.1,
 }
 
 fit(
