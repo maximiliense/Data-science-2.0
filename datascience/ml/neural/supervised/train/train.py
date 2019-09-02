@@ -34,11 +34,11 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
     :param model_z: the model that should be trained
     """
     # configuration
-    training_params, predict_params, validation_params, export_params, optim_params = configure(
+    training_params, predict_params, validation_params, export_params, optim_params = _configure(
         training_params, predict_params, validation_params, export_params, optim_params
     )
 
-    train_loader, test_loader, val_loader = dataset_setup(train, test, val, **training_params)
+    train_loader, test_loader, val_loader = _dataset_setup(train, test, val, **training_params)
 
     validation_path = output_path('validation.txt')
 
@@ -84,6 +84,10 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
         # one log per epoch if value is -1
         log_modulo = epoch_size if log_modulo == -1 else log_modulo
         for epoch in range(max_iterations):
+            if epoch > 0:
+                # end of epoch (beginning of the next one) update of learning rate scheduler
+                scheduler.step()
+
             if epoch < first_epoch:
                 continue
             # saving epoch to enable restart
@@ -121,8 +125,7 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
                     add_scalar('Loss/train', running_loss / log_modulo)
                     loss_logs.append(running_loss / log_modulo)
                     running_loss = 0.0
-            # end of epoch update of learning rate scheduler
-            scheduler.step()
+
             # train_loader.data.reverse = not train_loader.data.reverse  # This is to check
             # the oscillating loss probably due to SGD and momentum...
 
@@ -191,7 +194,7 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
     return predictions
 
 
-def configure(training_params, predict_params, validation_params, export_params, optim_params):
+def _configure(training_params, predict_params, validation_params, export_params, optim_params):
     """
     configure default parameters
     :param training_params:
@@ -228,7 +231,7 @@ def configure(training_params, predict_params, validation_params, export_params,
     return training_params, predict_params, validation_params, export_params, optim_params
 
 
-def dataset_setup(train, test, val=None, batch_size=32, bs_test=None, train_shuffle=True, test_shuffle=False, **kwargs):
+def _dataset_setup(train, test, val=None, batch_size=32, bs_test=None, train_shuffle=True, test_shuffle=False, **kwargs):
     # ignore kwargs
     locals().update(kwargs)
     if val is None:
