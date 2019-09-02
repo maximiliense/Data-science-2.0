@@ -14,7 +14,7 @@ from engine.path import output_path
 from engine.path.path import export_epoch
 from engine.util.log_email import send_email
 from engine.util.log_file import save_file
-from engine.logging import print_errors, print_h1, print_info, print_h2, print_notification
+from engine.logging import print_errors, print_h1, print_h2, print_notification
 from engine.util.merge_dict import merge_smooth
 from engine.tensorboard import add_scalar
 from engine.core import module
