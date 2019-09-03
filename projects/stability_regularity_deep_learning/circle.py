@@ -6,10 +6,10 @@ from datascience.ml.neural.supervised import fit
 from datascience.ml.neural.models import FullyConnected
 
 # creating dataset
-from datascience.ml.neural.loss.loss import CELoss
+from datascience.ml.neural.loss import CELoss
 import numpy as np
 
-from datascience.ml.neural.checkpoints.checkpoints import create_model
+from datascience.ml.neural.checkpoints import create_model
 from datascience.visu.deep_test_plots import plot_decision_boundary, plot_dataset, plot_gradient_field, \
     plot_activation_rate
 from datascience.visu.util.util import plt, save_fig
