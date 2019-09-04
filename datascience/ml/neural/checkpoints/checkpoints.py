@@ -11,27 +11,29 @@ from engine.parameters.special_parameters import from_scratch
 from engine.path import output_path
 
 
-_checkpoint_path = 'models/model.torch'
+_checkpoint_path = 'models/{}.torch'
 
 _model = None
 _optimizer = None
 
-_checkpoint = None
+_checkpoint = {}
 
 
 @module
-def create_model(model_class, model_params, p_label=one_label):
+def create_model(model_class, model_params, model_name='model', p_label=one_label):
     """
     create and eventually load model
+    :param model_name:
     :param model_class:
     :param model_params:
+    :param model_name:
     :param p_label:
     :return:
     """
     model = model_class(**model_params)
 
     if not from_scratch:  # recover from checkpoint
-        _load_model(model)
+        _load_model(model, model_name)
 
     # configure usage on GPU
     if use_gpu():
@@ -46,9 +48,10 @@ def create_model(model_class, model_params, p_label=one_label):
     return model
 
 
-def create_optimizer(parameters, optimizer_class, optim_params):
+def create_optimizer(parameters, optimizer_class, optim_params, model_name='model'):
     """
     create and eventually load optimizer
+    :param model_name:
     :param parameters:
     :param optimizer_class:
     :param optim_params:
@@ -56,59 +59,61 @@ def create_optimizer(parameters, optimizer_class, optim_params):
     """
     opt = optimizer_class(parameters, **optim_params)
     if not from_scratch:
-        _load_optimizer(opt)
+        _load_optimizer(opt, model_name)
     return opt
 
 
-def _load_optimizer(optimizer):
+def _load_optimizer(optimizer, model_name):
     """
     load checkpoint
     :param optimizer:
     :return:
     """
     global _checkpoint
-    if _checkpoint is None:
-        _load_checkpoint()
+    if model_name not in _checkpoint:
+        _load_checkpoint(model_name)
 
-    if 'optimizer_state_dict' in _checkpoint:
-        optimizer.load_state_dict(_checkpoint['optimizer_state_dict'])
+    if 'optimizer_state_dict' in _checkpoint[model_name]:
+        optimizer.load_state_dict(_checkpoint[model_name]['optimizer_state_dict'])
 
 
-def _load_model(model):
+def _load_model(model, model_name):
     """
     load checkpoint
     :param model:
+    :param model_name:
     :return:
     """
     global _checkpoint
-    if _checkpoint is None:
-        _load_checkpoint()
+    if model_name not in _checkpoint:
+        _load_checkpoint(model_name)
 
-    if 'model_state_dict' in _checkpoint:
-        model.load_state_dict(_checkpoint['model_state_dict'])
+    if 'model_state_dict' in _checkpoint[model_name]:
+        model.load_state_dict(_checkpoint[model_name]['model_state_dict'])
     else:
-        model.load_state_dict(_checkpoint)
+        model.load_state_dict(_checkpoint[model_name])
 
 
-def _load_checkpoint():
-    path = output_path(_checkpoint_path, have_validation=True)
+def _load_checkpoint(model_name):
+    path = output_path(_checkpoint_path.format(model_name), have_validation=True)
 
     global _checkpoint
     if not os.path.isfile(path):
         print_errors('{} does not exist'.format(path), do_exit=True)
     print_info('Loading checkpoint from ' + path)
-    _checkpoint = torch.load(path)
+    _checkpoint[model_name] = torch.load(path)
 
 
-def save_checkpoint(model, optimizer=None, validation_id=None):
+def save_checkpoint(model, optimizer=None, model_name='model', validation_id=None):
     """
     save checkpoint (optimizer and model)
+    :param model_name:
     :param validation_id:
     :param model:
     :param optimizer:
     :return:
     """
-    path = output_path(_checkpoint_path, validation_id=validation_id, have_validation=True)
+    path = output_path(_checkpoint_path.format(model_name), validation_id=validation_id, have_validation=True)
 
     print_info('Saving checkpoint: ' + path)
 
