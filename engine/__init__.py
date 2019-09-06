@@ -105,10 +105,6 @@ def configure_engine():
     if not args.serious:
         print_welcome_message()
 
-    # tensorboard
-    if special_parameters.tensorboard:
-        initialize_tensorboard()
-
     start_dt = get_start_datetime()
 
     print_info('Starting datetime: ' + start_dt.strftime('%Y-%m-%d %H:%M:%S'))
@@ -131,6 +127,10 @@ def configure_engine():
 
     if not is_info():
         print('Output directory: ' + output_directory() + '\n')
+
+    # tensorboard
+    if special_parameters.tensorboard:
+        initialize_tensorboard()
 
     export_config()
     atexit.register(exit_handler)

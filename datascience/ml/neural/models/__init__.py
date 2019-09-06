@@ -5,5 +5,3 @@ from .inception_env_coocs import InceptionEnvCoocs
 from .nn_coocs import NNCoocs
 from .inception import Inception3
 from .cnn import CNN
-# previous version compatibility
-from ..checkpoints import create_model as load_create_nn
