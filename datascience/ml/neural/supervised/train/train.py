@@ -14,7 +14,7 @@ from engine.path import output_path
 from engine.path.path import export_epoch
 from engine.util.log_email import send_email
 from engine.util.log_file import save_file
-from engine.logging import print_errors, print_h1, print_h2, print_notification
+from engine.logging import print_h1, print_h2, print_notification
 from engine.util.merge_dict import merge_smooth
 from engine.tensorboard import add_scalar
 from engine.core import module
@@ -62,12 +62,10 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
         init_callbacks(vcallback, val_modulo, max(iterations) // val_modulo, train_loader.dataset, model_z)
     validation_only = special_parameters.validation_only
     export = special_parameters.export
-    if not (validation_only or export or len(iterations) == 0 or train_loader is None):
-        max_iterations = max(iterations)
-        if first_epoch >= max_iterations:
-            print_errors('you can\'t start from epoch ' + str(first_epoch + 1))
-            exit()
+    do_train = not (validation_only or export or len(iterations) == 0 or train_loader is None)
+    max_iterations = max(iterations)
 
+    if do_train and first_epoch < max(iterations):
         print_h1('Training: ' + special_parameters.setup_name)
 
         loss_logs = [] if first_epoch < 1 else load_loss('train_loss')
@@ -83,6 +81,8 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
 
         # one log per epoch if value is -1
         log_modulo = epoch_size if log_modulo == -1 else log_modulo
+
+        epoch = 0
         for epoch in range(max_iterations):
 
             if epoch < first_epoch:
@@ -129,7 +129,7 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
             # the oscillating loss probably due to SGD and momentum...
 
             # end of epoch update of learning rate scheduler
-            scheduler.step()
+            scheduler.step(epoch + 1)
 
             # saving the model and the current loss after each epoch
             save_checkpoint(model_z, optimizer=opt)
@@ -170,6 +170,9 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
                 },
                 ylabel=str(loss)
             )
+
+        # saving last epoch
+        export_epoch(epoch + 1)  # if --restart is set, the train will not be executed
 
     # final validation
     print_h1('Validation/Export: ' + special_parameters.setup_name)
@@ -271,5 +274,3 @@ def _skip_step(lr_scheduler):
     warnings.filterwarnings("ignore")
     lr_scheduler.step()
     warnings.filterwarnings("default")
-
-
