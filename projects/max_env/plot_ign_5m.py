@@ -33,6 +33,6 @@ patch = patch[:-3] + [np.transpose(np.stack(patch[-3:], axis=0), (1, 2, 0))]
 
 print_logs('Printing patch at ' + str(train.dataset[idx]))
 
-pplot_patch(patch, header=train.named_dimensions())
+pplot_patch(patch, header=train.named_dimensions)
 
 save_fig()
