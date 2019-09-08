@@ -4,10 +4,9 @@ from datascience.visu.util import save_fig
 from datascience.visu.patch import pplot_patch
 import numpy as np
 
-# loading dataset
-from engine.util.console import print_logs
 
 # with option --more idx=12 to change the index from the command line...
+from engine.logging import print_info
 from engine.parameters.special_parameters import get_parameters
 
 
@@ -31,7 +30,7 @@ patch = [l.int() for l in patch]
 
 patch = patch[:-3] + [np.transpose(np.stack(patch[-3:], axis=0), (1, 2, 0))]
 
-print_logs('Printing patch at ' + str(train.dataset[idx]))
+print_info('Printing patch at ' + str(train.dataset[idx]))
 
 pplot_patch(patch, header=train.named_dimensions)
 
