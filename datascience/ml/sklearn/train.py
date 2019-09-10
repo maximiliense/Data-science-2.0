@@ -24,7 +24,10 @@ def fit(model, train, test, export=False,
 
         save_model(clf)
     print_h1('Validation/Export: ' + setup_name)
-    predictions = clf.predict_proba(np.array(test.get_vectors()))
+    restricted_predictions = clf.predict_proba(np.array(test.get_vectors()))
+    nb_classes = max(clf.classes_)
+    predictions = np.zeros((restricted_predictions.shape[0], nb_classes))
+    predictions[:, clf.classes_] = restricted_predictions
     res = validate(
         predictions, np.array(test.labels), training_params['metrics'] if 'metrics' in training_params else tuple(),
         final=True

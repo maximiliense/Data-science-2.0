@@ -9,7 +9,7 @@ from sklearn.ensemble.forest import RandomForestClassifier
 
 # loading dataset
 train, _, test = occurrence_loader(
-    EnvironmentalDataset, source='gbif_taxref', splitter=train_test_split_stratified, validation_size=0, size_patch=1
+    EnvironmentalDataset, source='gbif_taxref', validation_size=0, size_patch=1
 )
 
 model = load_or_create(RandomForestClassifier, n_estimators=100, max_depth=12)
