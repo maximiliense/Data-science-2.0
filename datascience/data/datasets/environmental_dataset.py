@@ -34,7 +34,10 @@ class EnvironmentalDataset(Dataset):
             return self.dataset[idx], self.labels[idx]
 
     def numpy(self):
-        return np.array([self[i][0] for i in range(len(self))]), self.labels
+        """
+        :return: a numpy dataset of 1D vectors
+        """
+        return np.array([torch.flatten(self[i][0]).numpy() for i in range(len(self))]), self.labels
 
     @deprecated()
     def get_vectors(self):

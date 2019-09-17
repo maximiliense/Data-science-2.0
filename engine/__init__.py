@@ -1,4 +1,4 @@
-from engine.logging import print_debug
+from engine.logging import print_debug, is_warning
 from engine.machines import detect_machine, check_interactive_cluster
 from engine.parameters.ds_argparse import ask_general_config_default
 from engine.parameters.hyper_parameters import list_aliases
@@ -102,7 +102,7 @@ def configure_engine():
 
     print_h1('Hello ' + getpass.getuser() + '!')
 
-    if not args.serious:
+    if not args.serious and is_warning():
         print_welcome_message()
 
     start_dt = get_start_datetime()
