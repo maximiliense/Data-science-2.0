@@ -1,7 +1,7 @@
 from datascience.data.rasters.environmental_raster_glc import PatchExtractor
 from datascience.data.util.source_management import check_source
 from engine.core import module
-
+from engine.logging import print_statistics
 
 from engine.parameters import special_parameters
 from datascience.visu.util import plt, get_figure
@@ -36,7 +36,7 @@ def raster_characteristics(source):
     extractor = PatchExtractor(rasters)
     extractor.add_all()
 
-    print(extractor)
+    print_statistics(str(extractor))
 
 
 @module

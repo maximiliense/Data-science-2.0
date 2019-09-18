@@ -276,12 +276,12 @@ class PatchExtractor(object):
         for r in self.rasters:
             result += '-' * 50 + '\n'
             result += 'title: ' + r.name + '\n'
-            result += '\t x_min' + r.x_min + '\n'
-            result += '\t y_min' + r.y_min + '\n'
-            result += '\t x_resolution' + r.x_resolution + '\n'
-            result += '\t y_resolution' + r.y_resolution + '\n'
-            result += '\t n_rows' + r.n_rows + '\n'
-            result += '\t n_cols' + r.n_cols + '\n'
+            result += '\t x_min: ' + str(r.x_min) + '\n'
+            result += '\t y_min: ' + str(r.y_min) + '\n'
+            result += '\t x_resolution: ' + str(r.x_resolution) + '\n'
+            result += '\t y_resolution: ' + str(r.y_resolution) + '\n'
+            result += '\t n_rows: ' + str(r.n_rows) + '\n'
+            result += '\t n_cols: ' + str(r.n_cols) + '\n'
 
         return result
 
