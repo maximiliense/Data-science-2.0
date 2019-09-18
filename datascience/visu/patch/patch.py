@@ -25,10 +25,25 @@ def pplot(latitude, longitude, source, resolution=1.):
 
 
 @module
+def raster_characteristics(source):
+    """
+    print infos about the rasters
+    :param source:
+    :return:
+    """
+    r = check_source(source)
+    rasters = r['rasters']
+    extractor = PatchExtractor(rasters)
+    extractor.add_all()
+
+    print(extractor)
+
+
+@module
 def pplot_patch(patch, resolution=1., return_fig=True, header=None):
     """
     plot a patch that has already been extracted
-    :param titles:
+    :param header:
     :param patch:
     :param resolution:
     :param return_fig:

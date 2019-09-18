@@ -268,6 +268,23 @@ class PatchExtractor(object):
         print_debug('Removing all rasters...')
         self.rasters = []
 
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self):
+        result = ''
+        for r in self.rasters:
+            result += '-' * 50 + '\n'
+            result += 'title: ' + r.name + '\n'
+            result += '\t x_min' + r.x_min + '\n'
+            result += '\t y_min' + r.y_min + '\n'
+            result += '\t x_resolution' + r.x_resolution + '\n'
+            result += '\t y_resolution' + r.y_resolution + '\n'
+            result += '\t n_rows' + r.n_rows + '\n'
+            result += '\t n_cols' + r.n_cols + '\n'
+
+        return result
+
     def __getitem__(self, item, cancel_one_hot=False):
         """
         :param item: the GPS location (latitude, longitude)
