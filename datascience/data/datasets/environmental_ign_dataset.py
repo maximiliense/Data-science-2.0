@@ -44,6 +44,7 @@ class EnvironmentalIGNDataset(Dataset):
             tensor = self.transform(tensor).copy()
         return torch.from_numpy(tensor).float(), self.labels[idx]
 
+    @property
     def named_dimensions(self):
         return [r.name for r in self.extractor.rasters] + ['IGN']
 

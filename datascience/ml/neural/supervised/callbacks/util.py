@@ -29,7 +29,8 @@ class Callback(ABC):
         print_info('Init Callback: ' + str(self))
         self.modulo = modulo
         self.nb_calls = nb_calls
-        self.dataset = dataset
+        if self.dataset is None:
+            self.dataset = dataset
         self.model = model
 
     @abstractmethod

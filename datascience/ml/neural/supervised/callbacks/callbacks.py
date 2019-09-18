@@ -10,6 +10,7 @@ from datascience.visu.util import plt, get_figure
 from sklearn.decomposition import PCA
 
 from datascience.visu.util.util import save_fig_direct_call
+from engine.logging import print_warning, DataParallel
 
 
 class VCallback(Callback):
@@ -30,8 +31,7 @@ class VCallback(Callback):
     def __call__(self, validation_id):
         ax = plt('VCallback').subplot(self.nb_calls + 2, 1, validation_id + 1)
         plot_dataset(self.dataset.dataset, self.dataset.labels, ax=ax, figure_name='VCallback')
-        plot_decision_boundary(self.dataset.dataset, self.dataset.labels, self.model, ax=ax,
-                               figure_name='VCallback')
+        plot_decision_boundary(self.model, ax=ax, figure_name='VCallback')
         plot_activation_rate(self.dataset.dataset, self.dataset.labels, self.model, ax=ax,
                              figure_name='VCallback')
         plot_gradient_field(self.dataset.dataset, self.dataset.labels, self.model, ax=ax, normalized=True,
@@ -74,9 +74,11 @@ class StatCallback(Callback):
 
 
 class NewStatCallback(Callback):
-    def __init__(self):
+    def __init__(self, dataset=None):
         super().__init__()
         self.dir_variances = None
+        self.shape = 100
+        self.dataset = dataset
 
     def initial_call(self, modulo, nb_calls, dataset, model):
         """
@@ -89,7 +91,9 @@ class NewStatCallback(Callback):
         """
         super().initial_call(modulo, nb_calls, dataset, model)
         self.dir_variances = []
-        for _ in model.modules():
+        self.shape = self.dataset[0][0].shape[0] if len(self.dataset[0][0].shape) == 1 else 100
+        model_instance = model.module if type(model) is DataParallel else model
+        for _ in range(len(model_instance)):
             self.dir_variances.append([])
 
     def last_call(self):
@@ -110,14 +114,15 @@ class NewStatCallback(Callback):
         # we iterate over each layer
         for l, layer in enumerate(directions):
             vectors = layer - np.mean(layer, axis=0)
-
-            pca_dir = PCA(n_components=100)
+            pca_dir = PCA(n_components=self.shape)
             pca_dir.fit(vectors)
 
             var = -np.log(pca_dir.explained_variance_ratio_[0])
             self.dir_variances[l].append(var)
-            print("Layer %d: var = %f" % (l, var))
-            print("Norm 0: %d / %d = %f" % (np.mean(np.linalg.norm(layer,0,axis=1)), vectors.shape[1],np.mean(np.linalg.norm(layer,0,axis=1))/vectors.shape[1]))
+            print_warning("Layer %d: var = %f" % (l, var))
+            print_warning("Norm 0: %d / %d = %f" % (np.mean(np.linalg.norm(layer,0,axis=1)),
+                                                    vectors.shape[1],
+                                                    np.mean(np.linalg.norm(layer, 0, axis=1))/vectors.shape[1]))
 
 
 class GradientCallBack(Callback):

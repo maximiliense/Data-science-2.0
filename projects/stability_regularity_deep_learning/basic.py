@@ -1,9 +1,9 @@
 from datascience.data.loader import cifar10, mnist
 from datascience.ml.metrics import ValidationAccuracy
 from datascience.ml.neural.supervised import fit
-from datascience.ml.neural.models import load_create_nn
 from datascience.ml.neural.models.cnn import CustomizableCNN
-from datascience.ml.neural.supervised.callbacks.callbacks import NewStatCallback
+from datascience.ml.neural.supervised.callbacks import NewStatCallback
+from datascience.ml.neural.checkpoints import create_model
 from engine.parameters import get_parameters
 
 # load MNIST or CIFAR10
@@ -15,11 +15,11 @@ else:
 
 model_params = {
     'im_shape': train[0][0].shape,
-    'conv_layers': (100,),
-    'linear_layers': tuple()
+    'conv_layers': (150, 150),
+    'linear_layers': (128, 128)
 }
 
-model = load_create_nn(model_class=CustomizableCNN, model_params=model_params)
+model = create_model(model_class=CustomizableCNN, model_params=model_params)
 
 training_params = {
     'lr': 0.01,
@@ -32,7 +32,7 @@ training_params = {
 
 validation_params = {
     'metrics': (ValidationAccuracy(1),),
-    'vcallback': (NewStatCallback(),)
+    'vcallback': (NewStatCallback(train),)
 }
 
 fit(

@@ -1,6 +1,7 @@
-from engine.logging import print_debug
+from engine.logging import print_debug, is_warning
 from engine.machines import detect_machine, check_interactive_cluster
 from engine.parameters.ds_argparse import ask_general_config_default
+from engine.parameters.hyper_parameters import list_aliases
 from engine.path.path import export_config, output_directory, load_last_epoch
 from engine.logging.verbosity import set_verbose, is_info
 
@@ -64,6 +65,9 @@ def configure_engine():
     if args.clean or args.show:
         clean(special_parameters.homex, args.output_name, disp_only=args.show)
         exit()
+    if args.list_aliases:
+        list_aliases()
+        exit()
 
     # hardware
     set_devices(args.gpu)
@@ -98,12 +102,8 @@ def configure_engine():
 
     print_h1('Hello ' + getpass.getuser() + '!')
 
-    if not args.serious:
+    if not args.serious and is_warning():
         print_welcome_message()
-
-    # tensorboard
-    if special_parameters.tensorboard:
-        initialize_tensorboard()
 
     start_dt = get_start_datetime()
 
@@ -127,6 +127,10 @@ def configure_engine():
 
     if not is_info():
         print('Output directory: ' + output_directory() + '\n')
+
+    # tensorboard
+    if special_parameters.tensorboard:
+        initialize_tensorboard()
 
     export_config()
     atexit.register(exit_handler)

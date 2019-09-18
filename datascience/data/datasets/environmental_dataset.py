@@ -1,12 +1,14 @@
 import torch
 from torch.utils.data import Dataset
 
+import numpy as np
+
 from datascience.data.rasters.environmental_raster_glc import PatchExtractor
+from engine.flags import deprecated
 
 
 class EnvironmentalDataset(Dataset):
-    def __init__(self, labels, dataset, ids, rasters, size_patch=64, extractor=None, transform=None,
-                 add_all=True):
+    def __init__(self, labels, dataset, ids, rasters, size_patch=64, extractor=None, transform=None, add_all=True):
         self.labels = labels
         self.ids = ids
         self.dataset = dataset
@@ -31,6 +33,13 @@ class EnvironmentalDataset(Dataset):
         else:
             return self.dataset[idx], self.labels[idx]
 
+    def numpy(self):
+        """
+        :return: a numpy dataset of 1D vectors
+        """
+        return np.array([torch.flatten(self[i][0]).numpy() for i in range(len(self))]), self.labels
+
+    @deprecated()
     def get_vectors(self):
         vec = []
         for idx, data in enumerate(self.dataset):

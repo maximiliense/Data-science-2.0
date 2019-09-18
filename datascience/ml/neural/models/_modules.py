@@ -1,14 +1,5 @@
-from datascience.ml.neural.models.util import one_input, one_label, load_or_create
 from engine.core import module
-from engine.parameters import special_parameters
 from engine.logging import print_info
-
-
-@module
-def load_create_nn(model_class, from_scratch=None, model_params={}, p_input=one_input, p_label=one_label):
-    if from_scratch is None and hasattr(special_parameters, 'from_scratch'):
-        from_scratch = special_parameters.from_scratch
-    return load_or_create(model_class, from_scratch, model_params, p_input=p_input, p_label=p_label)
 
 
 @module

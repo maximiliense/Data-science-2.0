@@ -19,7 +19,7 @@ def _is_convolutive(output):
     return len(output.shape) > 2
 
 
-def compute_filters(model, data, nb_filters=100, include_logit=False):
+def compute_filters(model, data, nb_filters=100, include_logit=True):
     """
     compute the filters at multiple levels in multiple partitions. Notice that for convolutional filters,
     the code guarantees that all filters from the same layer will concern the same area of the input tensor. Thus
@@ -44,7 +44,6 @@ def compute_filters(model, data, nb_filters=100, include_logit=False):
     _optimizable(model, False)
 
     filters = []
-
     for layer in range(1, len(model_instance) + include_logit):
         output = model(batch, layer=layer)
         layer_filters = []

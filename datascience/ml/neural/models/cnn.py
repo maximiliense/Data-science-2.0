@@ -92,12 +92,13 @@ class CustomizableCNN(nn.Module):
             rep_size = int(rep_size)
 
         layers = [im_shape[0] if len(im_shape) == 3 else 1] + [s for s in conv_layers]
+
         layers = [
             convolutional_layer(in_f, out_f, relu, batchnorm) for in_f, out_f in zip(
                 layers, layers[1:])
         ]
 
-        self.conv_layers = self.layers = nn.Sequential(*layers)
+        self.conv_layers = nn.Sequential(*layers)
 
         layers = [conv_layers[-1] * int(rep_size)**2] + [s for s in linear_layers] + [dim_out]
 
@@ -106,7 +107,7 @@ class CustomizableCNN(nn.Module):
                 layers, layers[1:])
         ]
 
-        self.fc_layers = self.layers = nn.Sequential(*layers)
+        self.fc_layers = nn.Sequential(*layers)
 
         self.ask_layer = -1
 

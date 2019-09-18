@@ -3,14 +3,13 @@ import torch
 from datascience.data.synthetize.create_dataset import create_dataset
 from datascience.ml.neural.supervised.callbacks.circle import CircleCallback
 from datascience.ml.neural.supervised import fit
-from datascience.ml.neural.models import load_create_nn, FullyConnected
+from datascience.ml.neural.models import FullyConnected
 
 # creating dataset
-from datascience.ml.neural.loss.loss import CELoss
-from datascience.ml.metrics.metrics import ValidationAccuracy
+from datascience.ml.neural.loss import CELoss
 import numpy as np
 
-
+from datascience.ml.neural.checkpoints import create_model
 from datascience.visu.deep_test_plots import plot_decision_boundary, plot_dataset, plot_gradient_field, \
     plot_activation_rate
 from datascience.visu.util.util import plt, save_fig
@@ -26,7 +25,7 @@ model_params = {
     'relu': True
 }
 
-model = load_create_nn(model_class=FullyConnected, model_params=model_params)
+model = create_model(model_class=FullyConnected, model_params=model_params)
 
 for k, v in model.named_parameters():
     print(k, v)
@@ -85,7 +84,7 @@ if hasattr(special_parameters, 'circle_all'):
     ax = plot_dataset(train.dataset, train.labels)
     plot_activation_rate(train.dataset, train.labels, model, ax=ax)
 
-    plot_decision_boundary(train.dataset, train.labels, model, ax=ax)
+    plot_decision_boundary(model, ax=ax)
 
     plot_gradient_field(train.dataset, train.labels, model, ax=ax)
 
