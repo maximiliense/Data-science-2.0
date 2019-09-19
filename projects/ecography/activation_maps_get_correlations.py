@@ -5,7 +5,7 @@ from datascience.data.loader import occurrence_loader
 from datascience.data.datasets import EnvironmentalDataset
 from datascience.ml.neural.supervised import fit
 from datascience.model_selection import train_test_split_stratified
-from datascience.tools.activations_map.actiavtion_maps import get_species_neurons_correlation
+from datascience.tools.activations_map.actiavtion_maps import get_species_neurons_correlations
 
 # get activations
 get_species_neurons_correlation()
