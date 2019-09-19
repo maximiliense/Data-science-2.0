@@ -52,39 +52,14 @@ def get_species_neurons_activations(model, grid_points, batch_size=32):
         predictions = predict_grid(model, grid_points, batch_size=batch_size)
         logits = predict_grid(model, grid_points, batch_size=batch_size, logit=True)
 
-        print_info("calculate correlation matrix between features and species")
-
-        mean_act = np.mean(activations, axis=0)
-        std_act = np.std(activations, axis=0)
-        norm_act = (activations - mean_act) / std_act
-
-        mean_log = np.mean(logits, axis=0)
-        std_log = np.std(logits, axis=0)
-        norm_log = (logits - mean_log) / std_log
-
-        size = activations.shape[0] * activations.shape[1]
-        c = size - np.count_nonzero(activations)
-        print(str(c) + "/" + str(size) + " (" + str(c * 100.0 / size) + "%)")
-
-        matrix = np.zeros((activations.shape[1], logits.shape[1]), dtype=float)
-
-        for i in progressbar.progressbar(range(activations.shape[0])):
-            act = norm_act[i]
-            log = norm_log[i]
-            for j in range(norm_act.shape[1]):
-                matrix[j] += (log * act[j]) / activations.shape[0]
-
-        print_info("save activations for species")
-        result_path = special_parameters.output_path('correlation_activations.npy')
-        np.save(result_path, matrix)
-        print_info("save activations")
         result_path = special_parameters.output_path('activations.npy')
+        print_info("save activations:", result_path)
         np.save(result_path, activations)
-        print_info("save predictions")
         result_path = special_parameters.output_path('predictions.npy')
+        print_info("save predictions:", result_path)
         np.save(result_path, predictions)
-        print_info("save logits")
         result_path = special_parameters.output_path('logits.npy')
+        print_info("save logits", result_path)
         np.save(result_path, logits)
         print_info("saved !")
 
@@ -94,6 +69,35 @@ def get_species_neurons_activations(model, grid_points, batch_size=32):
         result_path = special_parameters.output_path('_weight.npy')
         np.save(result_path, w)
         print_info("saved !")
+
+
+def get_species_neurons_correlation(activations, logits):
+    print_info("calculate correlation matrix between features and species")
+
+    mean_act = np.mean(activations, axis=0)
+    std_act = np.std(activations, axis=0)
+    norm_act = (activations - mean_act) / std_act
+
+    mean_log = np.mean(logits, axis=0)
+    std_log = np.std(logits, axis=0)
+    norm_log = (logits - mean_log) / std_log
+
+    size = activations.shape[0] * activations.shape[1]
+    c = size - np.count_nonzero(activations)
+    print(str(c) + "/" + str(size) + " (" + str(c * 100.0 / size) + "%)")
+
+    matrix = np.zeros((activations.shape[1], logits.shape[1]), dtype=float)
+
+    for i in progressbar.progressbar(range(activations.shape[0])):
+        act = norm_act[i]
+        log = norm_log[i]
+        for j in range(norm_act.shape[1]):
+            matrix[j] += (log * act[j]) / activations.shape[0]
+
+    result_path = special_parameters.output_path('correlation_activations.npy')
+    print_info("save activations for species:", result_path)
+    np.save(result_path, matrix)
+    print_info("saved !")
 
 
 def save_classifier_weight(model):
