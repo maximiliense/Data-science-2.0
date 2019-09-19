@@ -71,7 +71,9 @@ def get_species_neurons_activations(model, grid_points, batch_size=32):
         print_info("saved !")
 
 
-def get_species_neurons_correlation(activations, logits):
+def get_species_neurons_correlation():
+    activations = np.load(special_parameters.output_path('_activations.npy'))
+    logits = np.load(special_parameters.output_path('_logits.npy'))
     print_info("calculate correlation matrix between features and species")
 
     mean_act = np.mean(activations, axis=0)
