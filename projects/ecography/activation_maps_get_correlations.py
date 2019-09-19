@@ -8,4 +8,4 @@ from datascience.model_selection import train_test_split_stratified
 from datascience.tools.activations_map.actiavtion_maps import get_species_neurons_correlations
 
 # get activations
-get_species_neurons_correlation()
+get_species_neurons_correlations()
