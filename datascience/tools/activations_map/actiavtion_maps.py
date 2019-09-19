@@ -52,13 +52,13 @@ def get_species_neurons_activations(model, grid_points, batch_size=32):
         predictions = predict_grid(model, grid_points, batch_size=batch_size)
         logits = predict_grid(model, grid_points, batch_size=batch_size, logit=True)
 
-        result_path = special_parameters.output_path('activations.npy')
+        result_path = special_parameters.output_path('_activations.npy')
         print_info("save activations:", result_path)
         np.save(result_path, activations)
-        result_path = special_parameters.output_path('predictions.npy')
+        result_path = special_parameters.output_path('_predictions.npy')
         print_info("save predictions:", result_path)
         np.save(result_path, predictions)
-        result_path = special_parameters.output_path('logits.npy')
+        result_path = special_parameters.output_path('_logits.npy')
         print_info("save logits", result_path)
         np.save(result_path, logits)
         print_info("saved !")
@@ -94,7 +94,7 @@ def get_species_neurons_correlation(activations, logits):
         for j in range(norm_act.shape[1]):
             matrix[j] += (log * act[j]) / activations.shape[0]
 
-    result_path = special_parameters.output_path('correlation_activations.npy')
+    result_path = special_parameters.output_path('_correlation_activations.npy')
     print_info("save activations for species:", result_path)
     np.save(result_path, matrix)
     print_info("saved !")
