@@ -1,0 +1,11 @@
+from datascience.ml.metrics import ValidationAccuracyMultipleBySpecies, ValidationMRRBySpecies
+from datascience.ml.metrics import ValidationAccuracyRangeBySpecies, ValidationAccuracyForAllSpecies
+from datascience.ml.neural.models import load_create_nn, InceptionEnv
+from datascience.data.loader import occurrence_loader
+from datascience.data.datasets import EnvironmentalDataset
+from datascience.ml.neural.supervised import fit
+from datascience.model_selection import train_test_split_stratified
+from datascience.tools.activations_map.actiavtion_maps import get_species_neurons_correlation
+
+# get activations
+get_species_neurons_correlation()
