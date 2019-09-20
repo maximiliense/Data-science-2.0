@@ -7,8 +7,9 @@ from engine.logging import print_info
 from datascience.visu.util import plt, get_figure, save_fig
 
 
-def plot_on_map(activations, map_ids, n_cols, n_rows, figsize, log_scale, random_selection, mean_size, selected=tuple(),
-                legend=None, output="activations", style="grey", exp_scale=False, cmap=None):
+def plot_on_map(activations, map_ids, n_cols=1, n_rows=1, figsize=4, log_scale=False, random_selection=True,
+                mean_size=1, selected=tuple(), legend=None, output="activations", style="grey",
+                exp_scale=False, cmap=None):
     if log_scale:
         print_info("apply log...")
         activations = activations + 1.0

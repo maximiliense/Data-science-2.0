@@ -8,9 +8,9 @@ from engine.parameters import special_parameters
 
 def predict_grid(model, grid_points, batch_size=32, features_activation=False, logit=False):
     if features_activation:
-        last_layer = set_model_last_layer(model, True)
-    elif logit:
         last_layer = set_model_last_layer(model, False)
+    elif logit:
+        last_layer = set_model_last_layer(model, True)
         training = set_model_logit(model, True)
 
     model.eval()

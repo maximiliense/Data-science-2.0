@@ -7,20 +7,23 @@ from datascience.data.loader.occurrence_loader import _occurrence_loader
 from datascience.data.rasters.environmental_raster_glc import PatchExtractor
 from datascience.ml.neural.supervised.predict.predict_grid import predict_grid
 from datascience.visu.spatial_map_plots import plot_on_map
+from engine.core import module
 from engine.logging import print_info
 from engine.parameters import special_parameters
 
 
-def plot_activations_on_map(grid_points, n_rows=3, n_cols=3, random_selection=False, selected=tuple(), log_scale=False,
-                 figsize=4, mean_size=1):
+@module
+def plot_activations_on_map(grid_points, n_rows=3, n_cols=5, random_selection=True, selected=tuple(), log_scale=False,
+                 figsize=4, mean_size=10):
         activations = np.load(special_parameters.output_path('_activations.npy'))
 
         # activations has shape nb points x last layer size
 
-        plot_on_map(activations, grid_points.ids, n_cols, n_rows, figsize, log_scale, random_selection, mean_size,
-                    selected=selected)
+        plot_on_map(activations, grid_points.ids, n_cols=n_cols, n_rows=n_rows, figsize=figsize, log_scale=log_scale,
+                    random_selection=random_selection, mean_size=mean_size, selected=selected)
 
 
+@module
 def plot_species_on_map(grid_points, _label_name, selected=0, log_scale=False,
                  figsize=5, mean_size=1):
         logits = np.load(special_parameters.output_path('_predictions.npy'))
@@ -41,11 +44,12 @@ def plot_species_on_map(grid_points, _label_name, selected=0, log_scale=False,
 
         # activations has shape nb points x last layer size
 
-        plot_on_map(logits, grid_points.ids, 1, 1, figsize, False, False, mean_size, selected=(int(use_label),),
-                    legend=(legend,),
-                    output="s" + str(selected) + "_pred")
+        plot_on_map(logits, grid_points.ids, n_cols=1, n_rows=1, figsize=figsize, log_scale=log_scale,
+                    random_selection=False, mean_size=mean_size, selected=(int(use_label),),
+                    legend=(legend,), output="s" + str(selected) + "_pred")
 
 
+@module
 def get_species_neurons_activations(model, grid_points, batch_size=32):
 
         activations = predict_grid(model, grid_points, batch_size=batch_size, features_activation=True)
@@ -71,6 +75,7 @@ def get_species_neurons_activations(model, grid_points, batch_size=32):
         print_info("saved !")
 
 
+@module
 def get_species_neurons_correlations():
     activations = np.load(special_parameters.output_path('_activations.npy'))
     logits = np.load(special_parameters.output_path('_logits.npy'))
@@ -113,6 +118,7 @@ def save_classifier_weight(model):
         print_info("saved !")
 
 
+@module
 def select_species_by_neuron(_label_name, grid_points, neuron, figsize=5, mean_size=1, type='correlation'):
 
         if type == 'correlation':
@@ -157,12 +163,15 @@ def select_species_by_neuron(_label_name, grid_points, neuron, figsize=5, mean_s
         logits = np.load(special_parameters.output_path('_logits.npy'))
 
         activations = np.load(special_parameters.output_path('_activations.npy'))
-        plot_on_map(logits, grid_points.ids, 5, 2, figsize, False, False, mean_size, selected=test, legend=legend,
+        plot_on_map(logits, grid_points.ids, n_cols=5, n_rows=2, figsize=figsize, log_scale=False,
+                    random_selection=False, mean_size=mean_size, selected=test, legend=legend,
                     output="n" + str(neuron) + "_species_pred")
-        plot_on_map(activations, grid_points.ids, 1, 1, figsize, False, False, mean_size, selected=(neuron,),
+        plot_on_map(activations, grid_points.ids, n_cols=1, n_rows=1, figsize=figsize, log_scale=False,
+                    random_selection=False, mean_size=mean_size, selected=(neuron,),
                     output="n" + str(neuron) + "_act")
 
 
+@module
 def select_neurons_by_species(_label_name, grid_points, species, figsize=5, mean_size=1, type='correlation'):
 
         if type == 'correlation':
@@ -209,12 +218,15 @@ def select_neurons_by_species(_label_name, grid_points, species, figsize=5, mean
         logits = np.load(special_parameters.output_path('_logits.npy'))
 
         activations = np.load(special_parameters.output_path('_activations.npy'))
-        plot_on_map(activations, grid_points.ids, 5, 2, figsize, False, False, mean_size, selected=test, legend=legend,
+        plot_on_map(activations, grid_points.ids, n_cols=5, n_rows=2, figsize=figsize, log_scale=False,
+                    random_selection=False, mean_size=mean_size, selected=test, legend=legend,
                     output="s" + str(true_label) + "_neurons_corr")
-        plot_on_map(logits, grid_points.ids, 1, 1, figsize, False, False, mean_size, selected=(int(use_label),),
+        plot_on_map(logits, grid_points.ids, n_cols=1, n_rows=1, figsize=figsize, log_scale=False,
+                    random_selection=False, mean_size=mean_size, selected=(int(use_label),),
                     legend=(label_name_dic[true_label],), output="s" + str(true_label) + "_pred")
 
 
+@module
 def species_train_test_occurrences(_label_name, train, val, test, species=4448):
         index = special_parameters.output_path('_index.json')
 
@@ -246,6 +258,7 @@ def species_train_test_occurrences(_label_name, train, val, test, species=4448):
             print('%f\t%f\tcircle6\tred\ttest' % (o[0], o[1]))
 
 
+@module
 def plot_raster(rasters, occurrences, dataset_class, validation_size=0, test_size=1, label_name='Label',
                  id_name='id', splitter=train_test_split, filters=tuple(), online_filters=tuple(),
                  postprocessing=tuple(), save_index=False, limit=None, raster="alti", **kwargs):
@@ -287,5 +300,5 @@ def plot_raster(rasters, occurrences, dataset_class, validation_size=0, test_siz
 
         """
 
-        plot_on_map(r, grid_points.ids, 1, 1, 5, False, False, 1, selected=(0,), legend=(raster,),
-                    output=raster)
+        plot_on_map(r, grid_points.ids, n_cols=1, n_rows=1, figsize=5, log_scale=False, random_selection=False,
+                    mean_size=1, selected=(0,), legend=(raster,), output=raster)
