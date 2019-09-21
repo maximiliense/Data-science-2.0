@@ -22,8 +22,7 @@ model_params = {
 model = create_model(model_class=FullyConnected, model_params=model_params)
 
 training_params = {
-    'lr': 0.1,
-    'iterations': [100],
+    'iterations': [90, 130, 150, 170, 180],
     'log_modulo': -1,
     'val_modulo': 1,
 }
@@ -32,6 +31,7 @@ validation_params = {
     'metrics': (ValidationAccuracy(1),)
 }
 optim_params = {
+    'lr': 0.1,
     'momentum': 0.0,
     'optimizer': optimizer.SGD
 }
