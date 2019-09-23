@@ -2,7 +2,7 @@ import torch.optim as optimizer
 
 from datascience.data.synthetize import create_dataset
 from datascience.ml.metrics.metrics import ValidationAccuracy
-from datascience.ml.neural.models import FullyConnected
+from datascience.ml.neural.models import FullyConnectedDeepAnalysis
 from datascience.ml.neural.supervised import fit
 from datascience.ml.neural.checkpoints import create_model
 from datascience.visu.deep_test_plots import plot_dataset, plot_activation_rate, plot_decision_boundary, \
@@ -19,7 +19,7 @@ model_params = {
     'relu': True,
     'last_sigmoid': True
 }
-model = create_model(model_class=FullyConnected, model_params=model_params)
+model = create_model(model_class=FullyConnectedDeepAnalysis, model_params=model_params)
 
 training_params = {
     'iterations': [90, 130, 150, 170, 180],

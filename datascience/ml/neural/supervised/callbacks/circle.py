@@ -40,7 +40,9 @@ class CircleCallback(Callback):
 
             x, y = (0, 0) if not self.use_bias else (p[0] * b / norm, p[1] * b / norm)
 
-            self.arrows[j] = plt('circle').arrow(x, y, dx, dy, shape='full', head_width=0.04, head_length=0.08)
+            self.arrows[j] = plt('circle').arrow(
+                x, y, dx, dy, shape='full', head_width=0.04, head_length=0.08, fc='gray', ec='gray'
+            )
 
     def last_call(self):
         step = 0.005
@@ -57,6 +59,7 @@ class CircleCallback(Callback):
             norm = np.sqrt(p[0] ** 2 + p[1] ** 2)
             if norm > self.coef_norm:
                 self.coef_norm = norm
+
         for i, p in enumerate(self.parameters[0]):
             p /= self.coef_norm
             norm = np.sqrt(p[0] ** 2 + p[1] ** 2)
@@ -68,7 +71,10 @@ class CircleCallback(Callback):
             dx, dy = p[0] * new_norm / norm, p[1] * new_norm / norm
 
             x, y = (0, 0) if not self.use_bias else (p[0] * b / norm, p[1] * b / norm)
-            self.arrows.append(plt('circle').arrow(x, y, dx, dy, shape='full', head_width=0.04, head_length=0.08))
+
+            self.arrows.append(
+                plt('circle').arrow(x, y, dx, dy, shape='full', head_width=0.04, head_length=0.08)
+            )
 
         fig = get_figure('circle')
         self.axis = fig.gca()

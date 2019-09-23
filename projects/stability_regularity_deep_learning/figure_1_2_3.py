@@ -1,6 +1,6 @@
 from datascience.data.synthetize.create_dataset import create_dataset
 from datascience.ml.neural.supervised import fit
-from datascience.ml.neural.models import FullyConnected
+from datascience.ml.neural.models import FullyConnectedDeepAnalysis
 from datascience.ml.neural.checkpoints import create_model
 
 from datascience.visu.deep_test_plots import plot_db_partitions_gradients
@@ -14,7 +14,7 @@ model_params = {
     'architecture': (8,),  # play with config GD and SGD + architecture for the first figures
     'dropout': 0.0,
 }
-model = create_model(model_class=FullyConnected, model_params=model_params)
+model = create_model(model_class=FullyConnectedDeepAnalysis, model_params=model_params)
 
 # optimization
 training_params = {
