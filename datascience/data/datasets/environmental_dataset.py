@@ -8,10 +8,14 @@ from engine.flags import deprecated
 
 
 class EnvironmentalDataset(Dataset):
-    def __init__(self, labels, dataset, ids, rasters, size_patch=64, extractor=None, transform=None, add_all=True):
+    def __init__(self, labels, dataset, ids, rasters, size_patch=64, extractor=None, transform=None,
+                 add_all=True, limit=-1):
         self.labels = labels
         self.ids = ids
         self.dataset = dataset
+
+        self.limit = limit
+
         if extractor is None:
             self.extractor = PatchExtractor(rasters, size=size_patch, verbose=True)
             if add_all:
@@ -22,7 +26,7 @@ class EnvironmentalDataset(Dataset):
         self.transform = transform
 
     def __len__(self):
-        return len(self.labels)
+        return len(self.labels) if self.limit == -1 else min(len(self.labels), self.limit)
 
     def __getitem__(self, idx):
         if type(self.extractor) is not bool:
