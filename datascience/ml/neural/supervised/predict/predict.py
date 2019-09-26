@@ -2,7 +2,7 @@ import numpy as np
 import torch
 
 from engine.tensorboard import add_scalar
-from engine.logging import print_info
+from engine.logging import print_info, print_warning
 
 
 def predict(model, loader, loss, export=False, filters=tuple(), validation_size=10000, compute_loss=False):
@@ -18,6 +18,13 @@ def predict(model, loader, loss, export=False, filters=tuple(), validation_size=
                        if export is true the loader must not be shuffled...
         :return: the arrays of predictions and corresponding labels
         """
+
+    if len(loader) > 20000 and (validation_size == -1 or validation_size > 20000):
+        print_warning(
+            '[predict] The dataset size is {}. Large test can cause memory '
+            'overflow during standard prediction...'.format(len(loader))
+        )
+
     with torch.no_grad():
         total = 0
         model.eval()
