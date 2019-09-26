@@ -5,6 +5,9 @@ from engine.tensorboard import add_scalar
 from engine.logging import print_info, print_warning
 
 
+_memory_overflow_size = 20000
+
+
 def predict(model, loader, loss, export=False, filters=tuple(), validation_size=10000, compute_loss=False):
     """
         Give the prediction of the model on a test set
@@ -19,7 +22,7 @@ def predict(model, loader, loss, export=False, filters=tuple(), validation_size=
         :return: the arrays of predictions and corresponding labels
         """
 
-    if len(loader) > 20000 and (validation_size == -1 or validation_size > 20000):
+    if len(loader) > _memory_overflow_size and (validation_size == -1 or validation_size > _memory_overflow_size):
         print_warning(
             '[predict] The dataset size is {}. Large test can cause memory '
             'overflow during standard prediction...'.format(len(loader))
