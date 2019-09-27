@@ -24,7 +24,7 @@ def predict(model, loader, loss, export=False, filters=tuple(), validation_size=
 
     if len(loader) > _memory_overflow_size and (validation_size == -1 or validation_size > _memory_overflow_size):
         print_warning(
-            '[predict] The dataset size is {}. Large test can cause memory '
+            '[predict] The dataset size is {}. Large datasets can cause memory '
             'overflow during standard prediction...'.format(len(loader))
         )
 
