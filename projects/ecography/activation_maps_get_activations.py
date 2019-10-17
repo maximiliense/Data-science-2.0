@@ -5,7 +5,7 @@ from datascience.data.loader import occurrence_loader
 from datascience.data.datasets import EnvironmentalDataset
 from datascience.ml.neural.supervised import fit
 from datascience.model_selection import train_test_split_stratified
-from datascience.tools.activations_map.actiavtion_maps import get_species_neurons_activations
+from datascience.tools.activations_map.get_activations import get_species_neurons_activations
 
 from projects.ecography.configs.inception import model_params
 

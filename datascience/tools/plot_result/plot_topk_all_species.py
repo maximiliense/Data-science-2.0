@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 from sklearn.linear_model import LinearRegression
-from scipy.interpolate import spline
 
 
 class ModelPrint(object):
@@ -36,7 +35,7 @@ def mean_categorical(arr, k=200):
     return cat, grad
 
 
-def slide_mean(arr, start=200, k=200):
+def slide_mean(arr, start=1, k=200):
     borne = int(k/2)
     res = np.ndarray(arr.shape[0])
     for i in range(arr.shape[0]):
@@ -52,7 +51,7 @@ def slide_mean(arr, start=200, k=200):
     return res
 
 
-def linear_regression(arr, k=4):
+def linear_regression(arr, k=5):
     coeff = [np.arange(arr.shape[0])]
     for i in range(k-1):
         coeff.append(coeff[0]**(i+2))
@@ -61,25 +60,30 @@ def linear_regression(arr, k=4):
     res = np.dot(X, reg.coef_) + reg.intercept_
     return res
 
-#bt = np.load("/home/bdeneu/results/bt_env_test1_result_top30_for_all_species.npy")
-rf = np.load("/home/bdeneu/results/rf_rs_env_d12_result_top30_for_all_species.npy")
-cnn = np.load("/home/bdeneu/results/inception_rs_normal_do07_result_top30_for_all_species.npy")
+bt = np.load("/home/bdeneu/results/bt_env_rs_result_top30_for_all_species.npy")
+rf = np.load("/home/bdeneu/results/rf_env_rs_d16_result_top30_for_all_species.npy")
+cnn = np.load("/home/bdeneu/results/inception_rs_normal_do07_4_result_top30_for_all_species.npy")
+dnn = np.load("/home/bdeneu/results/inception_rs_constant_do05_result_top30_for_all_species.npy")
 
 
-#grad_bt = np.arange(bt.shape[0])
+grad_bt = np.arange(bt.shape[0])
 grad_rf = np.arange(rf.shape[0])
 grad_cnn = np.arange(cnn.shape[0])
+grad_dnn = np.arange(dnn.shape[0])
 
-#print(grad_bt)
+print(grad_bt)
 print(grad_rf)
 print(grad_cnn)
-#bt_progressive = linear_regression(bt)
+print(grad_dnn)
+bt_progressive = slide_mean(bt)
 rf_progressive = slide_mean(rf)
 cnn_progressive = slide_mean(cnn)
+dnn_progressive = slide_mean(dnn)
 
 
 #plt.plot(grad, cnn_top_species, color="green", linestyle='-', label="CNN")
-#plt.plot(grad_bt, bt_progressive, linestyle="-", color="blue", label="BT")
+plt.plot(grad_dnn, dnn_progressive, linestyle="-", color="k", label="DNN")
+plt.plot(grad_bt, bt_progressive, linestyle="-", color="blue", label="BT")
 plt.plot(grad_rf, rf_progressive, linestyle="-", color="red", label="RF")
 plt.plot(grad_cnn, cnn_progressive, linestyle="-", color="green", label="CNN")
 

@@ -11,7 +11,7 @@ def load_model(model_name='model.xgb'):
     """
     print_info("Loading model: " + output_path(model_name))
     bst = xgb.Booster()
-    bst.load_model(output_path("model"))
+    bst.load_model(output_path(model_name))
     with open(output_path("model_complement.txt"), "r") as file:
         st = file.read()
         complement = ast.literal_eval(st)

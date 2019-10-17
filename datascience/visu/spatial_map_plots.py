@@ -7,9 +7,9 @@ from engine.logging import print_info
 from datascience.visu.util import plt, get_figure, save_fig
 
 
-def plot_on_map(activations, map_ids, n_cols=1, n_rows=1, figsize=4, log_scale=False, random_selection=True,
+def plot_on_map(activations, map_ids, n_cols=1, n_rows=1, figsize=4, log_scale=False,
                 mean_size=1, selected=tuple(), legend=None, output="activations", style="grey",
-                exp_scale=False, cmap=None):
+                exp_scale=False, cmap=None, alpha=None):
     if log_scale:
         print_info("apply log...")
         activations = activations + 1.0
@@ -39,12 +39,10 @@ def plot_on_map(activations, map_ids, n_cols=1, n_rows=1, figsize=4, log_scale=F
     act_map[:] = np.nan
 
     print_info("select neurons to print...")
-    if random_selection:
-        list_select = random.sample(list(range(activations.shape[1])), nb)
-    elif len(selected) > 0:
+    if len(selected) > 0:
         list_select = selected
     else:
-        list_select = list(range(nb))
+        list_select = random.sample(list(range(activations.shape[1])), nb)
 
     print_info("fill activation map array...")
     for k, act in enumerate(activations):
@@ -108,7 +106,7 @@ def plot_on_map(activations, map_ids, n_cols=1, n_rows=1, figsize=4, log_scale=F
                 cmap = matplotlib.cm.inferno
                 cmap.set_bad('white', 1.)
         ax = plt(output).subplot(n_rows, n_cols, j + 1)
-        im = plt(output).imshow(masked_array, cmap=cmap, interpolation='none')
+        im = plt(output).imshow(masked_array, cmap=cmap, interpolation='none', alpha=alpha)
         plt(output).title(legend[j], fontsize=12)
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="5%", pad=0.05)

@@ -6,7 +6,7 @@ from datascience.data.rasters.environmental_raster_glc import PatchExtractor
 
 class EnvironmentalDataset(Dataset):
     def __init__(self, labels, dataset, ids, rasters, size_patch=64, extractor=None, transform=None,
-                 add_all=True):
+                 add_all=True, **kwargs):
         self.labels = labels
         self.ids = ids
         self.dataset = dataset
