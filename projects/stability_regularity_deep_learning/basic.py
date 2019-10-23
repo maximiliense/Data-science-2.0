@@ -22,12 +22,15 @@ model_params = {
 model = create_model(model_class=CustomizableCNN, model_params=model_params)
 
 training_params = {
-    'lr': 0.01,
     'iterations': [50, 80, 100],  # iterations with learning rate decay
     'log_modulo': -1,  # print loss once per epoch
     'val_modulo': 1,  # run a validation on the validation set every 5 epochs
     'batch_size': 1024
 
+}
+
+optim_params = {
+    'lr': 0.01,
 }
 
 validation_params = {
@@ -36,5 +39,5 @@ validation_params = {
 }
 
 fit(
-    model, train, test, training_params=training_params, validation_params=validation_params
+    model, train, test, training_params=training_params, validation_params=validation_params, optim_params=optim_params
 )
