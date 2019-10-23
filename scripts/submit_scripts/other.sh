@@ -23,7 +23,7 @@ execute() {
 
     options="";
     help=false;
-    name="";
+    name="default";
     # setting options
     while [[ "$1" != "" ]]; do
         case $1 in
