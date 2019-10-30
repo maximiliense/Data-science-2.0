@@ -11,7 +11,7 @@ raster = get_parameters('raster', 'alti')
 
 # loading dataset
 _, _, grid_points = occurrence_loader(EnvironmentalDataset, source='grid_occs_1km', test_size=1,
-                                         label_name=None, size_patch=1, add_all=False)
+                                      label_name=None, size_patch=1, add_all=False)
 
 grid_points.extractor.append(raster)
 
