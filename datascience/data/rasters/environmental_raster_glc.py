@@ -282,7 +282,7 @@ class PatchExtractor(object):
         """
         return len(self.rasters)
 
-    def plot(self, item, cancel_one_hot=True, return_fig=False, style='fivethirtyeight'):
+    def plot(self, item, cancel_one_hot=True, return_fig=False, style='fivethirtyeight', nb_cols=5, alpha=1.):
         """
         Plot an environmental tensor (size > 1)...
 
@@ -307,8 +307,7 @@ class PatchExtractor(object):
                 patch = self.__getitem__(item, cancel_one_hot)
 
                 # computing number of rows and columns...
-                nb_rows = (patch.shape[0] + 4) // 5
-                nb_cols = 5
+                nb_rows = (patch.shape[0] + (nb_cols-1)) // nb_cols
 
                 plt('patch', figsize=(nb_cols * 6.4 * self.resolution, nb_rows * 4.8 * self.resolution))
                 fig = get_figure('patch')
@@ -318,6 +317,7 @@ class PatchExtractor(object):
                     plt('patch').imshow(patch[i], extent=k[1], aspect='auto')
                     plt('patch').colorbar()
                 fig.tight_layout()
+                fig.patch.set_alpha(alpha)
             if return_fig:
                 return fig
             else:

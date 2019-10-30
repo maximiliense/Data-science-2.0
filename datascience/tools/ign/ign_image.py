@@ -434,18 +434,19 @@ if __name__ == "__main__":
     # im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/BDORTHO_2-0_RVB-0M50_JP2-E080_LAMB93_D011_2015-01-01_old")
     # im_manager = IGNImageManager("/home/data/5M00/")
     # im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/5M00/")  # "/home/bdeneu/Desktop/IGN/5M00/"
-    im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/0M50/")
+    # im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/0M50/")
+    im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/BDORTHO_2-0_IRC-0M50_JP2-E080_LAMB93_D011_2015-01-01/")
 
     print(im_manager.map)
 
-    lat, long = 43.238676, 2.381339
+    lat, long = 43.203517, 2.361891
 
     im = im_manager.get_image_at_location(lat, long)
     print(im.department, im.date, im.image_name)
 
     print(im_manager.map.shape)
 
-    im = im_manager.extract_patch(lat, long, 64, 1)
+    im = im_manager.extract_patch(lat, long, 512, 1)
     print(im)
     plt.imshow(im)
     plt.show()

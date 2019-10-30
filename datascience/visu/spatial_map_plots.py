@@ -9,7 +9,7 @@ from datascience.visu.util import plt, get_figure, save_fig
 
 def plot_on_map(activations, map_ids, n_cols=1, n_rows=1, figsize=4, log_scale=False,
                 mean_size=1, selected=tuple(), legend=None, output="activations", style="grey",
-                exp_scale=False, cmap=None, alpha=None):
+                exp_scale=False, cmap=None, alpha=None, bad_alpha=1.):
     if log_scale:
         print_info("apply log...")
         activations = activations + 1.0
@@ -96,16 +96,17 @@ def plot_on_map(activations, map_ids, n_cols=1, n_rows=1, figsize=4, log_scale=F
                                                              axis=2), height // mean_size, axis=1), axis=2)
         else:
             act_map_j = act_map[j]
-
+        print(act_map_j[2, 572])
         masked_array = np.ma.array(act_map_j, mask=np.isnan(act_map_j))
         if cmap is None:
             if style == "grey":
                 cmap = matplotlib.cm.inferno
-                cmap.set_bad('grey', 1.)
+                cmap.set_bad('grey', bad_alpha)
             elif style == "white":
                 cmap = matplotlib.cm.inferno
-                cmap.set_bad('white', 1.)
+                cmap.set_bad('white', bad_alpha)
         ax = plt(output).subplot(n_rows, n_cols, j + 1)
+        ax.set_facecolor((0, 0, 0, 0))
         im = plt(output).imshow(masked_array, cmap=cmap, interpolation='none', alpha=alpha)
         plt(output).title(legend[j], fontsize=12)
         divider = make_axes_locatable(ax)
