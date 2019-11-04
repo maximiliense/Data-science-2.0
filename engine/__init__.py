@@ -37,7 +37,7 @@ def configure_engine():
     warnings.filterwarnings('default', category=DeprecationWarning)
 
     process_other_options(args.more)
-
+    print('A')
     # general setup
     set_verbose(args.verbose)
     special_parameters.plt_style = args.style
@@ -45,7 +45,7 @@ def configure_engine():
 
     special_parameters.setup_name = os.path.split(os.path.split(sys.argv[0])[0])[1]
     special_parameters.project_path = os.path.split(os.path.split(sys.argv[0])[0])[0]
-
+    print('B')
     ask_default = check_general_config(args)
 
     special_parameters.configure(args)
@@ -54,21 +54,21 @@ def configure_engine():
         detect_machine()
 
     special_parameters.interactive_cluster = check_interactive_cluster(special_parameters.machine)
-
+    print('C')
     if ask_default:
         ask_general_config_default(args)
 
     special_parameters.root_path = os.path.abspath(os.curdir)
 
     configure_homex()
-
+    print('D')
     if args.clean or args.show:
         clean(special_parameters.homex, args.output_name, disp_only=args.show)
         exit()
     if args.list_aliases:
         list_aliases()
         exit()
-
+    print('E')
     # hardware
     set_devices(args.gpu)
     special_parameters.nb_workers = args.nb_workers
@@ -76,7 +76,7 @@ def configure_engine():
 
     special_parameters.first_epoch = args.epoch - 1  # to be user friendly, we start at 1
     special_parameters.validation_id = args.validation_id
-
+    print('F')
     config_name = hp.check_config(args)
     hp.check_parameters(args)
     default_name = os.path.split(sys.argv[0])[-1].replace('.py', '')
@@ -108,7 +108,7 @@ def configure_engine():
     start_dt = get_start_datetime()
 
     print_info('Starting datetime: ' + start_dt.strftime('%Y-%m-%d %H:%M:%S'))
-
+    print('G')
     # configuring experiment
     load_model = (args.epoch != 1 or args.validation_only or args.export or args.restart)
     special_parameters.from_scratch = not args.load_model if args.load_model is not None else not load_model
@@ -124,7 +124,7 @@ def configure_engine():
             print_debug('Restarting experiment at last epoch: {}'.format(special_parameters.first_epoch))
     else:
         special_parameters.experiment_name = special_parameters.output_name + '_' + start_dt.strftime('%Y%m%d%H%M%S')
-
+    print('H')
     if not is_info():
         print('Output directory: ' + output_directory() + '\n')
 

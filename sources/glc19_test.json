@@ -1,7 +1,10 @@
 {
   "gpu4": {
     "occurrences": "/home/data/occurrences_GLC19/testset.csv",
-    "rasters": "/home/data/rasters_GLC19/"
+    "rasters": "/home/data/rasters_GLC19/",
+    "patches": "/gpfsdsstore/scratch/rech/fqg/uid61lx/data/ign_5m_patches/",
+    "id_name": "glc19TestOccId",
+    "label_name": false
   },
   "nef": {
     "occurrences":"/data/zenith/share/GeoLifeCLEF/occurrences_GLC19/testset.csv",
