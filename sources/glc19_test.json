@@ -6,5 +6,12 @@
   "nef": {
     "occurrences":"/data/zenith/share/GeoLifeCLEF/occurrences_GLC19/testset.csv",
     "rasters": "/data/zenith/share/GeoLifeCLEF/rasters_GLC19/"
+  },
+    "jean-zay": {
+    "occurrences": "/gpfswork/rech/fqg/uid61lx/data/occurrences/testset.csv",
+    "rasters": "/gpfswork/rech/fqg/uid61lx/data/rasters/rasters_ign/",
+    "patches": "/gpfsdsstore/scratch/rech/fqg/uid61lx/data/ign_5m_patches/",
+    "id_name": "glc19TestOccId",
+    "label_name": false
   }
 }
