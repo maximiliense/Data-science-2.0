@@ -22,7 +22,7 @@ def get_label(r, label_name):
 
 def index_init(save_index, label_name):
     if save_index in ('default', 'auto') and not special_parameters.from_scratch:
-        if label_name is not None:
+        if label_name is not None and not label_name:
             save_index = 'load_and_save'
         else:
             save_index = 'load'
@@ -78,7 +78,7 @@ def _occurrence_loader(dataset_class, occurrences, validation_size=0.1, test_siz
     df = df[df.apply(lambda _row: not online_filters_processing(online_filters, _row), axis=1)]
 
     # set label to -1 if no label or index label
-    if label_name is None:
+    if label_name is None or not label_name:
         df['label'] = -1
     else:
         df['label'] = df[label_name].apply(lambda name: index_labels(labels_indexed_bis, name))
