@@ -63,7 +63,6 @@ def check_parameters(args):
         error = False
         initial_error = None
         while (last_error is None or error) and type(params) is str:
-            print(params)
             try:
                 params = eval("{" + params + "}")
 
