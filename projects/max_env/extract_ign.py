@@ -10,16 +10,19 @@ from datascience.tools.ign.extract_7z import extract_7z
 from datascience.tools.ign.extract_patch import extract_patch
 from engine.parameters.special_parameters import get_parameters
 
-
-if get_parameters('source50cm', False):
-    source = 'ign_50cm_maps_and_patches'
+if get_parameters('test', False):
+    test = '_test'
 else:
-    source = 'ign_5m_maps_and_patches'
+    test = ''
+if get_parameters('source50cm', False):
+    source = 'ign_50cm_maps_and_patches' + test
+else:
+    source = 'ign_5m_maps_and_patches' + test
 
 if get_parameters('check_only', False):
     check_extraction(source=source)
 else:
-    if get_parameters('uncompress', True):
+    if get_parameters('uncompress', False):
         # uncompress the IGN maps
         extract_7z(source=source)
 

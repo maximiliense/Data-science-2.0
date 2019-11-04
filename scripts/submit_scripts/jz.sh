@@ -74,7 +74,7 @@ execute() {
         esac
         shift
     done
-    echo $options;
+
     if [[ "$python_file" = NULL ]];
     then
         usage;
