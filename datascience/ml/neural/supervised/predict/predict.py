@@ -48,9 +48,10 @@ def predict(model, loader, loss, export=False, filters=tuple(), validation_size=
             labels_variable = loss.output(model.p_label(labels))
             labels = model.p_label(labels)
             outputs = model(inputs)
-
-            loss_value = loss(outputs, labels)
-            running_loss += loss_value.item()
+            if labels[0] != -1:
+                print(labels)
+                loss_value = loss(outputs, labels)
+                running_loss += loss_value.item()
             outputs = loss.output(outputs)
 
             total += labels_variable.size(0)
