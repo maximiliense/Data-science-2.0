@@ -63,6 +63,7 @@ def check_parameters(args):
         error = False
         initial_error = None
         while (last_error is None or error) and type(params) is str:
+            print(params)
             try:
                 params = eval("{" + params + "}")
 
@@ -83,6 +84,7 @@ def check_parameters(args):
 
                 for p in patterns:
                     params = params.replace(p, '"' + p + '"')
+
         for k, v in params.items():
             k_split = k.split('.')
             c_param = _overriding_parameters
