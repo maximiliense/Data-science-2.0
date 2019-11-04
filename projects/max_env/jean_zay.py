@@ -12,7 +12,7 @@ model = create_model(model_class=InceptionEnv, model_params=model_params)
 train, val, test = occurrence_loader(EnvironmentalIGNDataset, source='full_ign_5m')
 
 # memory issue on full_ign_5m due to size
-test.limit = 3000
+test.limit = 30000
 
 # training model
 fit(
