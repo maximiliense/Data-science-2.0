@@ -27,6 +27,9 @@ def get_argparse():
     group.add_argument('-e', '--epoch', dest='epoch', type=int, default=1,
                        help='Starts the training at the given epoch (default: 1)')
 
+    group.add_argument('-r', '--restart', dest='restart', action='store_true', default=False,
+                       help='restart at last epoch (default: False)')
+
     group.add_argument('-l', '--load-model', dest='load_model', action='store_true', default=None,
                        help='Load model from previous execution (default: Auto).')
 
@@ -80,6 +83,8 @@ def get_argparse():
     group.add_argument('--style', dest='style', type=str, default='dark_background',
                        help='Change the plots style (default: dark_background)')
     group.add_argument('-m', '--more', nargs='+', help='Additional attributes for special_parameters', required=False)
+    group.add_argument('-la', '--list-aliases', dest='list_aliases', action='store_true', default=False,
+                       help='List parameters aliases.', required=False)
 
     # group.add_argument('--mode', dest='mode', type=str, default=None)
 

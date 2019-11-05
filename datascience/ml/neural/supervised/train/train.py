@@ -1,17 +1,20 @@
+import warnings
+
 import torch
 import torch.optim as optimizer
 from torch.optim.lr_scheduler import MultiStepLR
 
-from datascience.ml.neural.models.util import save_model
 from datascience.ml.neural.supervised.callbacks import init_callbacks, run_callbacks, finish_callbacks
 from datascience.ml.neural.loss import CELoss, load_loss, save_loss
 from datascience.ml.neural.supervised.predict import predict
 from datascience.ml.evaluation import validate, export_results
+from datascience.ml.neural.checkpoints.checkpoints import create_optimizer, save_checkpoint
 from engine.parameters import special_parameters
 from engine.path import output_path
+from engine.path.path import export_epoch
 from engine.util.log_email import send_email
 from engine.util.log_file import save_file
-from engine.logging import print_errors, print_h1, print_info, print_h2, print_notification
+from engine.logging import print_h1, print_h2, print_notification
 from engine.util.merge_dict import merge_smooth
 from engine.tensorboard import add_scalar
 from engine.core import module
@@ -33,23 +36,22 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
     :param model_z: the model that should be trained
     """
     # configuration
-    training_params, predict_params, validation_params, export_params, optim_params = configure(
+    training_params, predict_params, validation_params, export_params, optim_params = _configure(
         training_params, predict_params, validation_params, export_params, optim_params
     )
 
-    train_loader, test_loader, val_loader = dataset_setup(train, test, val, **training_params)
+    train_loader, test_loader, val_loader = _dataset_setup(train, test, val, **training_params)
 
     validation_path = output_path('validation.txt')
 
     # training parameters
     optim = optim_params.pop('optimizer')
-    lr = training_params.pop('lr')
     iterations = training_params.pop('iterations')
     gamma = training_params.pop('gamma')
     loss = training_params.pop('loss')
     log_modulo = training_params.pop('log_modulo')
     val_modulo = training_params.pop('val_modulo')
-    first_epoch = training_params.pop('first_epoch') - 1
+    first_epoch = training_params.pop('first_epoch')
 
     # callbacks for ml tests
     vcallback = validation_params.pop('vcallback') if 'vcallback' in validation_params else None
@@ -60,32 +62,35 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
         init_callbacks(vcallback, val_modulo, max(iterations) // val_modulo, train_loader.dataset, model_z)
     validation_only = special_parameters.validation_only
     export = special_parameters.export
-    if not (validation_only or export or len(iterations) == 0 or train_loader is None):
-        max_iterations = max(iterations)
-        if first_epoch >= max_iterations:
-            print_errors('you can\'t start from epoch ' + str(first_epoch + 1))
-            exit()
+    do_train = not (validation_only or export or len(iterations) == 0 or train_loader is None)
+    max_iterations = max(iterations)
 
+    if do_train and first_epoch < max(iterations):
         print_h1('Training: ' + special_parameters.setup_name)
-
-        model_path = output_path('models/model.torch')
 
         loss_logs = [] if first_epoch < 1 else load_loss('train_loss')
 
         loss_val_logs = [] if first_epoch < 1 else load_loss('validation_loss')
 
-        sgd = optim(model_z.parameters(), lr=lr, **optim_params)
-        scheduler = MultiStepLR(sgd, milestones=list(iterations), gamma=gamma)
+        opt = create_optimizer(model_z.parameters(), optim, optim_params)
+
+        scheduler = MultiStepLR(opt, milestones=list(iterations), gamma=gamma)
 
         # number of batches in the ml
         epoch_size = len(train_loader)
 
         # one log per epoch if value is -1
         log_modulo = epoch_size if log_modulo == -1 else log_modulo
-        for epoch in range(max_iterations):
-            if epoch < first_epoch:
-                continue
 
+        epoch = 0
+        for epoch in range(max_iterations):
+
+            if epoch < first_epoch:
+                # opt.step()
+                _skip_step(scheduler)
+                continue
+            # saving epoch to enable restart
+            export_epoch(epoch)
             model_z.train()
 
             # printing new epoch
@@ -103,29 +108,31 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
                 labels = model_z.p_label(labels)
 
                 # zero the parameter gradients
-                sgd.zero_grad()
+                opt.zero_grad()
                 outputs = model_z(inputs)
                 loss_value = loss(outputs, labels)
                 loss_value.backward()
 
-                sgd.step()
+                opt.step()
 
                 # print math
                 running_loss += loss_value.item()
                 if idx % log_modulo == log_modulo - 1:  # print every log_modulo mini-batches
-                    print_info('[%d, %5d] loss: %.5f' % (epoch + 1, idx + 1, running_loss / log_modulo))
+                    print('[%d, %5d] loss: %.5f' % (epoch + 1, idx + 1, running_loss / log_modulo))
 
                     # tensorboard support
                     add_scalar('Loss/train', running_loss / log_modulo)
                     loss_logs.append(running_loss / log_modulo)
                     running_loss = 0.0
-            # end of epoch update of learning rate scheduler
-            scheduler.step()
+
             # train_loader.data.reverse = not train_loader.data.reverse  # This is to check
             # the oscillating loss probably due to SGD and momentum...
 
+            # end of epoch update of learning rate scheduler
+            scheduler.step(epoch + 1)
+
             # saving the model and the current loss after each epoch
-            save_model(model_z, model_path)
+            save_checkpoint(model_z, optimizer=opt)
 
             # validation of the model
             if epoch % val_modulo == val_modulo - 1:
@@ -148,9 +155,8 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
                     save_file(validation_path, 'Results for XP ' + special_parameters.setup_name +
                               ' (epoch: ' + str(epoch + 1) + ')', res)
 
-                # save model used for validation
-                mvp = output_path('models/model.torch', validation_id=validation_id)
-                save_model(model_z, mvp)
+                # checkpoint
+                save_checkpoint(model_z, optimizer=opt, validation_id=validation_id)
 
                 # callback
                 if vcallback is not None:
@@ -164,6 +170,9 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
                 },
                 ylabel=str(loss)
             )
+
+        # saving last epoch
+        export_epoch(epoch + 1)  # if --restart is set, the train will not be executed
 
     # final validation
     print_h1('Validation/Export: ' + special_parameters.setup_name)
@@ -189,7 +198,7 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
     return predictions
 
 
-def configure(training_params, predict_params, validation_params, export_params, optim_params):
+def _configure(training_params, predict_params, validation_params, export_params, optim_params):
     """
     configure default parameters
     :param training_params:
@@ -226,7 +235,8 @@ def configure(training_params, predict_params, validation_params, export_params,
     return training_params, predict_params, validation_params, export_params, optim_params
 
 
-def dataset_setup(train, test, val=None, batch_size=32, bs_test=None, train_shuffle=True, test_shuffle=False, **kwargs):
+def _dataset_setup(train, test, val=None, batch_size=32, bs_test=None,
+                   train_shuffle=True, test_shuffle=False, **kwargs):
     # ignore kwargs
     locals().update(kwargs)
     if val is None:
@@ -258,3 +268,9 @@ def dataset_setup(train, test, val=None, batch_size=32, bs_test=None, train_shuf
         return train_loader, test_loader, val_loader
     else:
         return train, test, val
+
+
+def _skip_step(lr_scheduler):
+    warnings.filterwarnings("ignore")
+    lr_scheduler.step()
+    warnings.filterwarnings("default")

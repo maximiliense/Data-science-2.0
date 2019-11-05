@@ -2,8 +2,9 @@ import torch.optim as optimizer
 
 from datascience.data.synthetize import create_dataset
 from datascience.ml.metrics.metrics import ValidationAccuracy
-from datascience.ml.neural.models import load_create_nn, FullyConnected
+from datascience.ml.neural.models import FullyConnected
 from datascience.ml.neural.supervised import fit
+from datascience.ml.neural.checkpoints import create_model
 from datascience.visu.deep_test_plots import plot_dataset, plot_activation_rate, plot_decision_boundary, \
     plot_gradient_field
 from datascience.visu.util import save_fig
@@ -18,7 +19,7 @@ model_params = {
     'relu': True,
     'last_sigmoid': True
 }
-model = load_create_nn(model_class=FullyConnected, model_params=model_params)
+model = create_model(model_class=FullyConnected, model_params=model_params)
 
 training_params = {
     'lr': 0.1,
@@ -42,7 +43,7 @@ fit(
 ax = plot_dataset(train.dataset, train.labels)
 plot_activation_rate(train.dataset, train.labels, model, ax=ax)
 
-plot_decision_boundary(train.dataset, train.labels, model, ax=ax)
+plot_decision_boundary(model, ax=ax)
 
 plot_gradient_field(train.dataset, train.labels, model, ax=ax)
 

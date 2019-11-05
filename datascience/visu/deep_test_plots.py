@@ -1,40 +1,44 @@
 import numpy as np
 import torch
-from torch.nn import Linear, BatchNorm1d, Conv2d, BatchNorm2d
+from torch.nn import Linear, BatchNorm1d
 
 from datascience.ml.neural.models import fully_connected
 from datascience.visu.util import plt
-from engine.logging import print_info, print_errors, print_info
+from engine.logging import print_errors, print_info
 from engine.core import module
 
 
-def plot(dataset, label, separator, clf=None, x_min=-0.5, x_max=0.55, y_min=-1, y_max=1.6,
-         step_x=0.00125, step_y=0.00625):
-    plt('plot_', figsize=(16, 14))
-    if clf is not None:
-        # mesh
-        xx, yy = np.meshgrid(np.arange(x_min, x_max, step_x), np.arange(y_min, y_max, step_y))
-        data = torch.from_numpy(np.c_[xx.ravel(), yy.ravel()]).float()
+@module
+def plot_db_partitions_gradients(dataset, labels, model):
+    """
+    Plot the decision boundary, the partitions and the gradients. Works for 2D datasets.
+    :param dataset: the dataset (must be 2D)
+    :param labels: the labels
+    :param model: the model
+    :return:
+    """
+    ax = plot_dataset.func(dataset, labels)
+    plot_activation_rate.func(dataset, labels, model, ax=ax)
 
-        Z = clf(data)
-        Z = Z.argmax(dim=1)
-        # Z = (Z > 0.5).int()
-        Z = Z.reshape(xx.shape)
-        ax = plt.gca()
-        out = ax.contourf(xx, yy, Z,cmap=plt.cm.coolwarm, alpha=0.3)
-    plt('plot_').plot(separator[0, :], separator[1, :])
-    plt('plot_').scatter(dataset[:, 0], dataset[:, 1], cmap=plt.cm.coolwarm, c=np.array(label))
+    plot_decision_boundary.func(model, ax=ax)
+
+    plot_gradient_field.func(dataset, labels, model, ax=ax)
 
 
 @module
-def plot_decision_boundary(X, y, model, figure_name='pdb', ax=None):
+def plot_decision_boundary(model, figure_name='pdb', ax=None):
+    """
+    Plot the decision boundary
+    :param model: the model
+    :param figure_name: figure name, by default pdb
+    :param ax: an axis if needs to be plotted on an other figure
+    :return: the axis of the current figure
+    """
     pred_func = make_pred_func(model)
     if ax is None:
         ax = plt(figure_name).gca()
     if not callable(pred_func) and hasattr(pred_func, 'predict'):
         pred_func = pred_func.predict
-
-    # plot_dataset(X, y, ax=ax)
 
     num = 1000
     x_min, x_max = ax.get_xlim()
@@ -42,28 +46,35 @@ def plot_decision_boundary(X, y, model, figure_name='pdb', ax=None):
     xx, yy = np.meshgrid(np.linspace(x_min, x_max, num),
                          np.linspace(y_min, y_max, num))
 
-    Z = pred_func(np.c_[xx.ravel(), yy.ravel()])
+    zz = pred_func(np.c_[xx.ravel(), yy.ravel()])
 
-    Z = Z.reshape(xx.shape)
+    zz = zz.reshape(xx.shape)
 
-    ax.contourf(xx, yy, Z, alpha=.4, zorder=-1)
+    ax.contourf(xx, yy, zz, alpha=.4, zorder=-1)
     return ax
 
 
 @module
-def plot_dataset_module(X, y, ax=None, figure_name='plot_dataset', **kwargs):
-    return plot_dataset(X, y, ax, figure_name, **kwargs)
+def plot_dataset(dataset, y, ax=None, figure_name='plot_dataset', **kwargs):
+    """
+    Plot the dataset
+    :param dataset: the dataset, must be 2D
+    :param y: the label
+    :param ax: the axis if needs to be plotted on an other figure
+    :param figure_name: plot_dataset by default
+    :param kwargs:
+    :return:
+    """
+    locals().update(kwargs)
 
-
-def plot_dataset(X, y, ax=None, figure_name='plot_dataset', **kwargs):
     if ax is None:
         ax = plt(figure_name).gca()
 
     n_classes = len(np.unique(y))
     colors = ['red', 'cyan', 'orange']
     for k in range(n_classes):
-        X_k = X[y == k]
-        ax.scatter(X_k[:, 0], X_k[:, 1], color=colors[k], alpha=0.5)
+        dataset_k = dataset[y == k]
+        ax.scatter(dataset_k[:, 0], dataset_k[:, 1], color=colors[k], alpha=0.5)
     return ax
 
 
@@ -77,9 +88,9 @@ def plot_partition_distribution(model, X, figure_name='plot_pat_dist', ax=None):
     print(len(unique))
 
     sorted_counts = np.sort(counts)[::-1]
-    cumsum = sorted_counts.cumsum() / sorted_counts.sum()
+    cumulative_sum = sorted_counts.cumsum() / sorted_counts.sum()
 
-    ax.plot(cumsum)
+    ax.plot(cumulative_sum)
     ax.grid()
 
 

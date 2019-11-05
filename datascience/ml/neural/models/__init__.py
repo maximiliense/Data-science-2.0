@@ -1,4 +1,3 @@
-from ._modules import load_create_nn
 from ._modules import print_model_parameters
 from .fully_connected import FullyConnected
 from .inception_env import InceptionEnv

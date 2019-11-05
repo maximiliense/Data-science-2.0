@@ -1,7 +1,7 @@
 from datascience.data.rasters.environmental_raster_glc import PatchExtractor
 from datascience.data.util.source_management import check_source
 from engine.core import module
-
+from engine.logging import print_statistics
 
 from engine.parameters import special_parameters
 from datascience.visu.util import plt, get_figure
@@ -26,10 +26,25 @@ def pplot(latitude, longitude, source, resolution=1., style=special_parameters.p
 
 
 @module
+def raster_characteristics(source):
+    """
+    print infos about the rasters
+    :param source:
+    :return:
+    """
+    r = check_source(source)
+    rasters = r['rasters']
+    extractor = PatchExtractor(rasters)
+    extractor.add_all()
+
+    print_statistics(str(extractor))
+
+
+@module
 def pplot_patch(patch, resolution=1., return_fig=True, header=None):
     """
     plot a patch that has already been extracted
-    :param titles:
+    :param header:
     :param patch:
     :param resolution:
     :param return_fig:

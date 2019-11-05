@@ -1,6 +1,8 @@
+from engine.logging import print_debug, is_warning
 from engine.machines import detect_machine, check_interactive_cluster
 from engine.parameters.ds_argparse import ask_general_config_default
-from engine.path.path import export_config, output_directory
+from engine.parameters.hyper_parameters import list_aliases
+from engine.path.path import export_config, output_directory, load_last_epoch
 from engine.logging.verbosity import set_verbose, is_info
 
 
@@ -63,17 +65,17 @@ def configure_engine():
     if args.clean or args.show:
         clean(special_parameters.homex, args.output_name, disp_only=args.show)
         exit()
+    if args.list_aliases:
+        list_aliases()
+        exit()
 
     # hardware
     set_devices(args.gpu)
     special_parameters.nb_workers = args.nb_workers
     special_parameters.nb_nodes = args.nb_nodes
 
-    special_parameters.first_epoch = args.epoch
+    special_parameters.first_epoch = args.epoch - 1  # to be user friendly, we start at 1
     special_parameters.validation_id = args.validation_id
-
-    load_model = (args.epoch != 1 or args.validation_only or args.export)
-    special_parameters.from_scratch = not args.load_model if args.load_model is not None else not load_model
 
     config_name = hp.check_config(args)
     hp.check_parameters(args)
@@ -100,26 +102,35 @@ def configure_engine():
 
     print_h1('Hello ' + getpass.getuser() + '!')
 
-    if not args.serious:
+    if not args.serious and is_warning():
         print_welcome_message()
-
-    # tensorboard
-    if special_parameters.tensorboard:
-        initialize_tensorboard()
 
     start_dt = get_start_datetime()
 
     print_info('Starting datetime: ' + start_dt.strftime('%Y-%m-%d %H:%M:%S'))
+
+    # configuring experiment
+    load_model = (args.epoch != 1 or args.validation_only or args.export or args.restart)
+    special_parameters.from_scratch = not args.load_model if args.load_model is not None else not load_model
+
     if not special_parameters.from_scratch:
         _, special_parameters.experiment_name = last_experiment(special_parameters.output_name)
         # special_parameters.output_name = name
         if special_parameters.experiment_name is None:
             print_errors('No previous experiment named ' + special_parameters.output_name, do_exit=True)
+
+        if args.restart:
+            special_parameters.first_epoch = load_last_epoch()
+            print_debug('Restarting experiment at last epoch: {}'.format(special_parameters.first_epoch))
     else:
         special_parameters.experiment_name = special_parameters.output_name + '_' + start_dt.strftime('%Y%m%d%H%M%S')
 
     if not is_info():
         print('Output directory: ' + output_directory() + '\n')
+
+    # tensorboard
+    if special_parameters.tensorboard:
+        initialize_tensorboard()
 
     export_config()
     atexit.register(exit_handler)
