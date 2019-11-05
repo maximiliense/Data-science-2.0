@@ -40,7 +40,7 @@ raster_metadata = {
     'chbio_12': {'min_val': 318.3, 'max_val': 2543.3, 'nan': 317.},
     'chbio_13': {'min_val': 43., 'max_val': 285.5, 'nan': 42.},
     'chbio_14': {'min_val': 3.0, 'max_val': 135.6, 'nan': 2.},
-    'chbio_15': {'min_val': 8.2, 'max_val': 26.5, 'nan': 7.},
+    'chbio_15': {'min_val': 8.2, 'max_val': 57.8, 'nan': 7.},
     'chbio_16': {'min_val': 121.6, 'max_val': 855.6, 'nan': 120.},
     'chbio_17': {'min_val': 19.8, 'max_val': 421.3, 'nan': 19.},
     'chbio_18': {'min_val': 19.8, 'max_val': 851.7, 'nan': 19.},
@@ -143,8 +143,8 @@ class Raster(object):
                     else:
                         self.raster[self.raster == line[1]['storage_8bit']] = line[1][attrib_column]
         # if the file does not exist, then correct values must be reconstructed....
-        # else:
-        #     self.raster = min_val + (max_val - min_val)*((self.raster/255) - 0.1) / 0.8
+        #else:
+            #self.raster = min_val + (max_val - min_val)*((self.raster/255) - 0.1) / 0.8
 
         if normalized and dtype != rasterio.ubyte:
             # normalizing the whole raster given available data (therefore avoiding no_data)...

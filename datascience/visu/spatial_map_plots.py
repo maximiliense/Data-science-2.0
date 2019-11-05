@@ -9,7 +9,8 @@ from datascience.visu.util import plt, get_figure, save_fig
 
 def plot_on_map(activations, map_ids, n_cols=1, n_rows=1, figsize=4, log_scale=False,
                 mean_size=1, selected=tuple(), legend=None, output="activations", style="grey",
-                exp_scale=False, cmap=None, alpha=None, bad_alpha=1.):
+                exp_scale=False, cmap=None, alpha=None, bad_alpha=1., font_size=12,
+                color_text='black', color_tick='black'):
     if log_scale:
         print_info("apply log...")
         activations = activations + 1.0
@@ -75,14 +76,19 @@ def plot_on_map(activations, map_ids, n_cols=1, n_rows=1, figsize=4, log_scale=F
         fig.colorbar(im, cax=cax)
     """
 
+    font = {'family': 'normal',
+            'weight': 'bold',
+            'size': font_size}
+
+    matplotlib.rc('font', **font)
+
     if legend is None:
         legend = list(map(str, list_select))
 
-    COLOR = 'black'
-    mplt.rcParams['text.color'] = COLOR
-    mplt.rcParams['axes.labelcolor'] = COLOR
-    mplt.rcParams['xtick.color'] = COLOR
-    mplt.rcParams['ytick.color'] = COLOR
+    mplt.rcParams['text.color'] = color_text
+    mplt.rcParams['axes.labelcolor'] = color_tick
+    mplt.rcParams['xtick.color'] = color_tick
+    mplt.rcParams['ytick.color'] = color_tick
 
     plt(output, figsize=(n_cols * figsize * 1.2, n_rows * figsize))
     fig = get_figure(output)
@@ -108,7 +114,7 @@ def plot_on_map(activations, map_ids, n_cols=1, n_rows=1, figsize=4, log_scale=F
         ax = plt(output).subplot(n_rows, n_cols, j + 1)
         ax.set_facecolor((0, 0, 0, 0))
         im = plt(output).imshow(masked_array, cmap=cmap, interpolation='none', alpha=alpha)
-        plt(output).title(legend[j], fontsize=12)
+        plt(output).title(legend[j])
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="5%", pad=0.05)
         plt(output).colorbar(im, cax=cax)
