@@ -2,7 +2,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import datetime
-from engine.path import list_files
+from engine.path import list_files, output_path
 from engine.logging.logs import print_info, print_info, print_errors
 from pyproj import Transformer, Proj
 import time as ti
@@ -364,6 +364,53 @@ class IGNImageManager(object):
                         = self.readImage((tuile.pos_x, tuile.pos_y))[:, :, :1]
     """
 
+    def create_sparse(self, long_lat_df, size=64, step=1, error_extract_folder=None,
+                        error_cache_size=1000, white_percent_allowed=20, check_file=True):
+        """
+        The main extraction method for multiple extractions
+        :param long_lat_df:
+        :param destination_directory:
+        :param size:
+        :param step:
+        :param error_extract_folder:
+        :param error_cache_size:
+        :param white_percent_allowed:
+        :param check_file:
+        """
+
+        error_manager = _ErrorManager(self.in_proj,
+                                      self.ign_proj,
+                                      output_path() if error_extract_folder is None else error_extract_folder,
+                                      cache_size=error_cache_size
+                                      )
+
+        total = long_lat_df.shape[0]
+        start = datetime.datetime.now()
+        extract_time = 0
+
+        for idx, row in enumerate(long_lat_df.iterrows()):
+            longitude, latitude = row[1][0], row[1][1]
+            patch_id = int(row[1][2])
+
+            if idx % 100000 == 99999:
+                _print_details(idx+1, total, start, extract_time, latitude, longitude, len(error_manager))
+
+            t1 = ti.time()
+            t2 = 0
+            try:
+                patch = self.extract_patch(latitude, longitude, size, step, identifier=int(patch_id),
+                                           white_percent_allowed=white_percent_allowed)
+            except ExtractionError as err:
+                t2 = ti.time()
+                error_manager.append(err)
+            else:
+                t2 = ti.time()
+
+            finally:
+                delta = t2 - t1
+                extract_time += delta
+
+        error_manager.write_errors()
 
 class _ErrorManager(object):
     def __init__(self, in_proj, out_proj, path, cache_size=1000):
@@ -434,18 +481,19 @@ if __name__ == "__main__":
     # im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/BDORTHO_2-0_RVB-0M50_JP2-E080_LAMB93_D011_2015-01-01_old")
     # im_manager = IGNImageManager("/home/data/5M00/")
     # im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/5M00/")  # "/home/bdeneu/Desktop/IGN/5M00/"
-    im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/0M50/")
+    # im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/0M50/")
+    im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/BDORTHO_2-0_IRC-0M50_JP2-E080_LAMB93_D011_2015-01-01/")
 
     print(im_manager.map)
 
-    lat, long = 43.238676, 2.381339
+    lat, long = 43.203517, 2.361891
 
     im = im_manager.get_image_at_location(lat, long)
     print(im.department, im.date, im.image_name)
 
     print(im_manager.map.shape)
 
-    im = im_manager.extract_patch(lat, long, 64, 1)
+    im = im_manager.extract_patch(lat, long, 512, 1)
     print(im)
     plt.imshow(im)
     plt.show()

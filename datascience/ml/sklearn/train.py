@@ -7,8 +7,8 @@ import numpy as np
 
 
 @module
-def fit(model, train, test, export=False,
-        training_params=None, export_params=None):
+def fit(model, train, test, export=False, nb_classes=4520,
+        training_params=None, export_params=None, save=True):
     training_params = {} if training_params is None else training_params
     export_params = {} if export_params is None else export_params
     clf = model
@@ -22,9 +22,12 @@ def fit(model, train, test, export=False,
 
         clf.fit(X, y)
 
-        save_model(clf)
+        if save:
+            save_model(clf)
     print_h1('Validation/Export: ' + setup_name)
-    predictions = clf.predict_proba(np.array(test.get_vectors()))
+    restricted_predictions = clf.predict_proba(np.array(test.get_vectors()))
+    predictions = np.zeros((restricted_predictions.shape[0], nb_classes))
+    predictions[:, clf.classes_] = restricted_predictions
     res = validate(
         predictions, np.array(test.labels), training_params['metrics'] if 'metrics' in training_params else tuple(),
         final=True
