@@ -1,6 +1,8 @@
-from sync.datascience.engine.parameters.special_parameters import get_setup_path
 
+import os
 from datascience.ml.evaluation.filters import FilterLabelsList
+
+print(os.path.dirname(__file__) + '/allowed_classes_final.txt')
 
 config = {
     'occurrence_loader': {
@@ -10,7 +12,7 @@ config = {
     },
     'fit': {
         'predict_params': {
-                'filters': (FilterLabelsList(get_setup_path() + '/allowed_classes_final.txt'),)
+                'filters': (FilterLabelsList(os.path.dirname(__file__) + '/allowed_classes_final.txt'),)
             }
     }
 }
