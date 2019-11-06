@@ -2,8 +2,6 @@
 import os
 from datascience.ml.evaluation.filters import FilterLabelsList
 
-print(os.path.dirname(__file__) + '/allowed_classes_final.txt')
-
 config = {
     'occurrence_loader': {
         'source': "glc19_test",
