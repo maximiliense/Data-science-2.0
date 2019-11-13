@@ -1,3 +1,5 @@
+import math
+
 from pyproj import Proj
 
 from engine.path import output_path
@@ -21,17 +23,14 @@ def create_ign_sparse(source_occ, source_ign, patch_size=64, error_path=output_p
 
     # extract manager
     im_manager = IGNImageManager(ign_images)
-    extract_size = patch_size
-    extract_step = 1
 
     # loading the occurrence file
     df = pd.read_csv(occurrences, header='infer', sep=';', low_memory=False)
-    max_lat = df['Latitude'].max()
-    print(max_lat)
-
 
     # sorting the dataset to optimise the extraction
     df.sort_values('Latitude', inplace=True)
 
     print_info(str(len(df)) + ' occurrences to extract!')
+
+    im_manager.create_sparse(df[['Latitude', 'Longitude']], size=patch_size, step=1)
 
