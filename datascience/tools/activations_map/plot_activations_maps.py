@@ -5,6 +5,7 @@ from datascience.data.loader.occurrence_loader import _occurrence_loader
 from datascience.data.rasters.environmental_raster_glc import PatchExtractor
 from datascience.visu.spatial_map_plots import plot_on_map
 from engine.core import module
+from engine.logging import print_info
 from engine.path import output_path
 
 
@@ -160,6 +161,34 @@ def select_neurons_by_species(grid_points, label_species, species, figsize=5, me
     plot_on_map(logits, grid_points.ids, n_cols=1, n_rows=1, figsize=figsize, log_scale=False,
                 mean_size=mean_size, selected=(int(use_label),),
                 legend=(label_name_dic[true_label],), output="s" + str(true_label) + "_pred")
+
+
+@module
+def get_correlation_csv(label_species):
+    result_path = output_path('correlation_activations.npy')
+    matrix = np.load(result_path)
+
+    index = output_path('index.json')
+
+    with open(index, 'r') as f:
+        s = f.read()
+        index_dic = ast.literal_eval(s)
+
+    with open(label_species, 'r') as f:
+        s = f.read()
+        label_name_dic = ast.literal_eval(s)
+
+    header = "neuron"
+
+    for i in range(matrix.shape[1]):
+        header = header+";"+label_name_dic[index_dic[str(i)]]
+
+    neuron_index = np.arange(matrix.shape[0])
+
+    matrix = np.insert(matrix, 0, neuron_index, axis=1)
+
+    np.savetxt(output_path("correlations_csv.csv"), matrix, delimiter=";", header=header)
+    print_info("csv file saved at "+output_path("correlations_csv.csv"))
 
 
 @module
