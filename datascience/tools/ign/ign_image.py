@@ -34,7 +34,7 @@ class ExtractionError(Exception):
             self.identifier = "NA"
 
 
-# resolutions of the IGN maps
+# resolutions of the IGN maps // size (m), size (px), resolution (m)
 resolution_details = {
     '5M00': (10000, 2000, 5.0),
     '0M50': (5000, 10000, 0.5)
@@ -393,6 +393,7 @@ class IGNImageManager(object):
                                       cache_size=error_cache_size
                                       )
 
+        """
         max_lat_loc = long_lat_df.loc[[long_lat_df['Latitude'].idxmax()]]
         max_lat_long, max_lat_lat = float(max_lat_loc['Longitude']), float(max_lat_loc['Latitude'])
 
@@ -415,8 +416,15 @@ class IGNImageManager(object):
         print("bottom_right", bottom_right)
 
         res = 10000
-        top_left = (int(top_left[0]/res)*res, math.ceil(top_left[1]/res)*res)
-        bottom_right = (math.ceil(bottom_right[0]/res)*res, int(bottom_right[1]/res)*res)
+        top_left = (int((top_left[0]-res)/res)*res, math.ceil((top_left[1]+res)/res)*res)
+        bottom_right = (math.ceil((bottom_right[0]+res)/res)*res, int((bottom_right[1]-res)/res)*res)
+
+        print("top_left", top_left)
+        print("bottom_right", bottom_right)
+        """
+
+        top_left = (-360000, 7240000)
+        bottom_right = (1320000, 6030000)
 
         print("top_left", top_left)
         print("bottom_right", bottom_right)
@@ -459,7 +467,7 @@ class IGNImageManager(object):
         for idx, row in enumerate(long_lat_df.iterrows()):
             longitude, latitude = row[1][1], row[1][0]
 
-            if idx % 100000 == 99999:
+            if idx % 10000 == 9999:
                 _print_details(idx+1, total, start, extract_time, latitude, longitude, len(error_manager))
 
             t1 = ti.time()
@@ -472,8 +480,8 @@ class IGNImageManager(object):
                 error_manager.append(err)
             else:
                 t2 = ti.time()
-                pos_x = int((top_left[1] - x)/5)
-                pos_y = int((y - top_left[0])/5)
+                pos_x = int((top_left[1] - x)/self.resolution)
+                pos_y = int((y - top_left[0])/self.resolution)
                 for i in range(len(list_raster)):
                     list_raster[i][pos_x-half_size:pos_x+half_size+modulo, pos_y-half_size:pos_y+half_size+modulo] = patch[:, :, i]
 
@@ -483,7 +491,10 @@ class IGNImageManager(object):
         error_manager.write_errors()
         for i in range(len(list_raster)):
             r = list_raster[i].tobsr()
-            save_npz(output_path(image_type_details[self.image_type][i]+".npz"), r)
+            out = output_path(image_type_details[self.image_type][i]+".npz")
+            print_info(image_type_details[self.image_type][i]+" channel saved at: "+out)
+            save_npz(out, r)
+
 
 class _ErrorManager(object):
     def __init__(self, in_proj, out_proj, path, cache_size=1000):
