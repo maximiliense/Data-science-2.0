@@ -1,7 +1,6 @@
 import torch
 from torch.utils.data import Dataset
-import numpy as np
-from engine.dataset.rasters.environmental_raster_glc import PatchExtractor
+from datascience.data.rasters.environmental_raster_glc import PatchExtractor
 
 
 class GeoLifeClefDataset(Dataset):

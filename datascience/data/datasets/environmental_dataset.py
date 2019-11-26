@@ -12,7 +12,7 @@ ENVIRONMENTAL_DATASET_EXTRACTOR = None
 
 class EnvironmentalDataset(Dataset):
     def __init__(self, labels, dataset, ids, rasters, size_patch=64, transform=None,
-                 add_all=True, limit=-1, reset_extractor=False):
+                 add_all=True, limit=-1, reset_extractor=False, **kwargs):
         self.labels = labels
         self.ids = ids
         self.dataset = dataset

@@ -2,5 +2,9 @@
   "gpu4": {
     "occurrences": "/home/data/grid_points_1km.csv",
     "rasters": "/home/data/rasters_GLC19/"
+  },
+  "nef": {
+    "occurrences":"/data/zenith/share/GeoLifeCLEF/grid_points_1km.csv",
+    "rasters": "/data/zenith/share/GeoLifeCLEF/rasters_GLC19/"
   }
 }

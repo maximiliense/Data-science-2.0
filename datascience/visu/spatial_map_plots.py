@@ -1,4 +1,4 @@
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as mplt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib
 import random
@@ -7,11 +7,18 @@ from engine.logging import print_info
 from datascience.visu.util import plt, get_figure, save_fig
 
 
-def plot_on_map(activations, map_ids, n_cols, n_rows, figsize, log_scale, random_selection, mean_size, selected=tuple(),
-                output="activations"):
+def plot_on_map(activations, map_ids, n_cols=1, n_rows=1, figsize=4, log_scale=False,
+                mean_size=1, selected=tuple(), legend=None, output="activations", style="grey",
+                exp_scale=False, cmap=None, alpha=None, bad_alpha=1., font_size=12,
+                color_text='black', color_tick='black'):
     if log_scale:
+        print_info("apply log...")
         activations = activations + 1.0
         activations = np.log(activations)
+    elif exp_scale:
+        print_info("apply exp...")
+        p = np.full(activations.shape, 1.2)
+        activations = np.power(p, activations)
 
     print_info("construct array activation map...")
     pos = []
@@ -33,12 +40,10 @@ def plot_on_map(activations, map_ids, n_cols, n_rows, figsize, log_scale, random
     act_map[:] = np.nan
 
     print_info("select neurons to print...")
-    if random_selection:
-        list_select = random.sample(list(range(activations.shape[1])), nb)
-    elif len(selected) > 0:
+    if len(selected) > 0:
         list_select = selected
     else:
-        list_select = list(range(nb))
+        list_select = random.sample(list(range(activations.shape[1])), nb)
 
     print_info("fill activation map array...")
     for k, act in enumerate(activations):
@@ -52,7 +57,7 @@ def plot_on_map(activations, map_ids, n_cols, n_rows, figsize, log_scale, random
     fig.subplots_adjust(wspace=0.5)
     plt.tight_layout(pad=1.5)
 
-    print_logs("make figure...")
+    print_info("make figure...")
     for j in range(nb):
         if mean_size != 1:
             height, width = act_map[j].shape
@@ -71,28 +76,50 @@ def plot_on_map(activations, map_ids, n_cols, n_rows, figsize, log_scale, random
         fig.colorbar(im, cax=cax)
     """
 
+    font = {'family': 'normal',
+            'weight': 'bold',
+            'size': font_size}
+
+    matplotlib.rc('font', **font)
+
+    if legend is None:
+        legend = list(map(str, list_select))
+
+    mplt.rcParams['text.color'] = color_text
+    mplt.rcParams['axes.labelcolor'] = color_tick
+    mplt.rcParams['xtick.color'] = color_tick
+    mplt.rcParams['ytick.color'] = color_tick
+
     plt(output, figsize=(n_cols * figsize * 1.2, n_rows * figsize))
     fig = get_figure(output)
     fig.subplots_adjust(wspace=0.05)
-    fig.tight_layout(pad=0.05)
 
     print_info("make figure...")
     for j in range(nb):
         if mean_size != 1:
             height, width = act_map[j].shape
-            act_map_j = np.ma.average(np.split(np.ma.average(np.split(act_map[j], width // mean_size, axis=1),
+            act_map_j = np.nanmean(np.split(np.nanmean(np.split(act_map[j], width // mean_size, axis=1),
                                                              axis=2), height // mean_size, axis=1), axis=2)
         else:
             act_map_j = act_map[j]
-
+        print(act_map_j[2, 572])
         masked_array = np.ma.array(act_map_j, mask=np.isnan(act_map_j))
-        cmap = matplotlib.cm.inferno
-        cmap.set_bad('grey', 1.)
+        if cmap is None:
+            if style == "grey":
+                cmap = matplotlib.cm.inferno
+                cmap.set_bad('grey', bad_alpha)
+            elif style == "white":
+                cmap = matplotlib.cm.inferno
+                cmap.set_bad('white', bad_alpha)
         ax = plt(output).subplot(n_rows, n_cols, j + 1)
-        im = plt(output).imshow(masked_array, cmap=cmap, interpolation='none')
-        plt(output).title(str(list_select[j]), fontsize=24)
+        ax.set_facecolor((0, 0, 0, 0))
+        im = plt(output).imshow(masked_array, cmap=cmap, interpolation='none', alpha=alpha)
+        plt(output).title(legend[j])
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="5%", pad=0.05)
         plt(output).colorbar(im, cax=cax)
+
+    fig.tight_layout(pad=0.05)
+    fig.patch.set_alpha(0.0)
 
     save_fig(figure_name=output, extension='png')

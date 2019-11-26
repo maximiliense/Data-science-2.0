@@ -11,7 +11,7 @@ from engine.logging import is_debug
 class InceptionEnv(nn.Module):
 
     def __init__(self, n_labels=3336, n_input=80, dropout=0.5, last_layer=True, logit=False, exp=False,
-                 normalize_weight=1.):
+                 normalize_weight=1., temperature=1.):
         super(InceptionEnv, self).__init__()
         if n_input >= 15:
             self.Conv2d_1a_3x3 = BasicConv2d(n_input, 80, kernel_size=3, stride=1, padding=1)
@@ -44,6 +44,8 @@ class InceptionEnv(nn.Module):
         self.last_layer = last_layer
         self.logit = logit
         self.exp = exp
+
+        self.temperature = temperature
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
@@ -128,7 +130,7 @@ class InceptionEnv(nn.Module):
             x = self.fc(x)
             # (num_classes)
             if not self.training and not self.logit and not self.exp:
-                x = F.softmax(x, dim=-1)
+                x = F.softmax(x*self.temperature, dim=-1)
             elif not self.training and not self.logit:
                 x = x.exp()
 

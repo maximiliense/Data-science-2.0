@@ -25,11 +25,11 @@ class JustExportPredictions(ValidationMetric):
         super().__init__(final_validation)
 
     def __call__(self, predictions, labels):
-        np.save(output_path('predictions_array.npy'), predictions)
+        np.save(output_path('predictions.npy'), predictions)
         return self.__str__()
 
     def __str__(self):
-        return "Predictions saved at \"" + output_path('_predictions_array.npy') + "\""
+        return "Predictions saved at \"" + output_path('predictions.npy') + "\""
 
 
 class ValidationAccuracy(ValidationMetric):
