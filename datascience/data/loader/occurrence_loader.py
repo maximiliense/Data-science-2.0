@@ -108,9 +108,6 @@ def _occurrence_loader(dataset_class, occurrences, validation_size=0.1, test_siz
 
     # train set
     train = dataset_class(*train, **kwargs)
-    if hasattr(train, 'extractor'):
-        ext = train.extractor
-        kwargs['extractor'] = ext
 
     # test set
     test = dataset_class(*test, **kwargs)

@@ -7,21 +7,25 @@ from datascience.data.rasters.environmental_raster_glc import PatchExtractor
 from engine.flags import deprecated
 
 
+ENVIRONMENTAL_DATASET_EXTRACTOR = None
+
+
 class EnvironmentalDataset(Dataset):
-    def __init__(self, labels, dataset, ids, rasters, size_patch=64, extractor=None, transform=None,
-                 add_all=True, limit=-1):
+    def __init__(self, labels, dataset, ids, rasters, size_patch=64, transform=None,
+                 add_all=True, limit=-1, reset_extractor=False):
         self.labels = labels
         self.ids = ids
         self.dataset = dataset
 
         self.limit = limit
-
-        if extractor is None:
+        global ENVIRONMENTAL_DATASET_EXTRACTOR
+        if ENVIRONMENTAL_DATASET_EXTRACTOR is None or reset_extractor:
             self.extractor = PatchExtractor(rasters, size=size_patch, verbose=True)
             if add_all:
                 self.extractor.add_all()
+            ENVIRONMENTAL_DATASET_EXTRACTOR = self.extractor
         else:
-            self.extractor = extractor
+            self.extractor = ENVIRONMENTAL_DATASET_EXTRACTOR
 
         self.transform = transform
 
