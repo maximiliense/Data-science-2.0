@@ -203,7 +203,9 @@ def species_train_test_occurrences(label_species, train, val, test, species=4448
         s = f.read()
         label_name_dic = ast.literal_eval(s)
 
+    print('label_data:', species)
     use_label = list(index_dic.keys())[list(index_dic.values()).index(species)]
+    print('label_model:', use_label)
 
     datasets = [train, val, test]
 

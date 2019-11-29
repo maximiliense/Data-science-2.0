@@ -11,3 +11,7 @@ training_params = {
     'log_modulo': 200,
     'val_modulo': 5,
 }
+
+optim_params = {
+    'lr': 0.1
+}
