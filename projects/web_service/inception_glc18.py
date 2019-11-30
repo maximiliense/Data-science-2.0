@@ -13,7 +13,7 @@ model = create_model(model_class=InceptionEnv, model_params=model_params)
 
 # loading dataset
 train, _, _ = occurrence_loader(EnvironmentalDataset, source='glc18', splitter=train_test_split, validation_size=0, test_size=0)
-_, _, test = occurrence_loader(EnvironmentalDataset, source='glc18', splitter=train_test_split, validation_size=0, test_size=1)
+_, _, test = occurrence_loader(EnvironmentalDataset, source='glc18_test', splitter=train_test_split, validation_size=0, test_size=1)
 
 # training model
 validation_params = {
