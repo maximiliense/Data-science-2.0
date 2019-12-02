@@ -1,0 +1,12 @@
+{
+  "gpu4": {
+    "archive": "/home/data/5M00/",
+    "occurrences": "/home/data/occurrences_GLC19/testset.csv",
+    "maps": "/home/data/5M00/",
+    "patches": "/home/data/ign_5m_test/",
+    "id_name": "glc19TestOccId",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "label_name": false
+  }
+}

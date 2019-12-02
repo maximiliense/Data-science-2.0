@@ -23,13 +23,14 @@ execute() {
 
     options="";
     help=false;
+    name="default";
     # setting options
     while [[ "$1" != "" ]]; do
         case $1 in
             --no-screen )           runScreen=false;
                                     ;;
-            --show | --clean )      runScreen=False;  # if clean or show.. The user wants direct output...
-                                    options="$options $1";
+            --screen-name )           shift;
+                                    name=$1;
                                     ;;
             -h | --help )           help=true;
                                     ;;
@@ -57,7 +58,8 @@ execute() {
     if [[ ${runScreen} = true ]];
     then
         echo "Submitting command: ${command};";
-        screen -dm bash -c "${command}";
+        echo "screen -S ${name} -dm bash -c \"${command}\"";
+        screen -S "${name}" -dm bash -c "${command}";
         echo "Job submitted in a screen.";
     else
         echo "Executing command: ${command};";

@@ -37,7 +37,6 @@ def configure_engine():
     warnings.filterwarnings('default', category=DeprecationWarning)
 
     process_other_options(args.more)
-
     # general setup
     set_verbose(args.verbose)
     special_parameters.plt_style = args.style

@@ -87,7 +87,7 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
 
             if epoch < first_epoch:
                 # opt.step()
-                _skip_step(scheduler)
+                _skip_step(scheduler, epoch)
                 continue
             # saving epoch to enable restart
             export_epoch(epoch)
@@ -270,7 +270,7 @@ def _dataset_setup(train, test, val=None, batch_size=32, bs_test=None,
         return train, test, val
 
 
-def _skip_step(lr_scheduler):
+def _skip_step(lr_scheduler, epoch):
     warnings.filterwarnings("ignore")
-    lr_scheduler.step()
+    lr_scheduler.step(epoch + 1)
     warnings.filterwarnings("default")

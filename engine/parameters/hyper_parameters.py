@@ -83,6 +83,7 @@ def check_parameters(args):
 
                 for p in patterns:
                     params = params.replace(p, '"' + p + '"')
+
         for k, v in params.items():
             k_split = k.split('.')
             c_param = _overriding_parameters

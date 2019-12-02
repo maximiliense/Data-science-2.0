@@ -5,7 +5,7 @@ from datascience.ml.metrics.metrics import ValidationAccuracyMultiple
 model_params = {
     'dropout': 0.8,
     'n_labels': 34382,
-    'n_input': 35
+    'n_input': 77
 }
 
 training_params = {

@@ -141,12 +141,12 @@ createScript() {
 
     echo "#!/bin/bash" > ${script_dir}/${setup_name}${actualName}.slurm
     echo "#SBATCH --job-name=${setup_name}$actualName         # nom du job" >> ${script_dir}/${setup_name}${actualName}.slurm
-    if [[ ${dev} == false ]];
-    then
-        echo "#SBATCH --partition=gpu_gct3">> ${script_dir}/${setup_name}${actualName}.slurm
-    else
-        echo "#SBATCH --partition=gpu_dev">> ${script_dir}/${setup_name}${actualName}.slurm
-    fi
+    # if [[ ${dev} == false ]];
+    # then
+        # echo "#SBATCH --partition=gpu_gct3">> ${script_dir}/${setup_name}${actualName}.slurm
+    # else
+    #     echo "#SBATCH --partition=gpu_dev">> ${script_dir}/${setup_name}${actualName}.slurm
+    # fi
 
     echo "#SBATCH  --mem=160G">> ${script_dir}/${setup_name}${actualName}.slurm
     echo "#SBATCH  --cpus-per-task=4">> ${script_dir}/${setup_name}${actualName}.slurm

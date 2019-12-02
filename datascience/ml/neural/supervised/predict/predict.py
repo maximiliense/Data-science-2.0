@@ -2,7 +2,10 @@ import numpy as np
 import torch
 
 from engine.tensorboard import add_scalar
-from engine.logging import print_info
+from engine.logging import print_info, print_warning
+
+
+_memory_overflow_size = 20000
 
 
 def predict(model, loader, loss, export=False, filters=tuple(), validation_size=10000, compute_loss=False):
@@ -18,6 +21,13 @@ def predict(model, loader, loss, export=False, filters=tuple(), validation_size=
                        if export is true the loader must not be shuffled...
         :return: the arrays of predictions and corresponding labels
         """
+
+    if len(loader) > _memory_overflow_size and (validation_size == -1 or validation_size > _memory_overflow_size):
+        print_warning(
+            '[predict] The dataset size is {}. Large datasets can cause memory '
+            'overflow during standard prediction...'.format(len(loader))
+        )
+
     with torch.no_grad():
         total = 0
         model.eval()
@@ -39,8 +49,10 @@ def predict(model, loader, loss, export=False, filters=tuple(), validation_size=
             labels = model.p_label(labels)
             outputs = model(inputs)
 
-            loss_value = loss(outputs, labels)
-            running_loss += loss_value.item()
+            # if not test set
+            if labels[0] != -1:
+                loss_value = loss(outputs, labels)
+                running_loss += loss_value.item()
             outputs = loss.output(outputs)
 
             total += labels_variable.size(0)

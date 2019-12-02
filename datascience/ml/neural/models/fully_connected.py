@@ -23,7 +23,43 @@ def fc_layer(in_f, out_f, relu=True, batchnorm=True, bias=True):
 class FullyConnected(nn.Module):
     def __init__(self, n_labels=2, n_input=2, architecture=(2,), relu=True, batchnorm=True, bias=True, dropout=0.0,
                  last_sigmoid=True, hidden_layer=False):
+
         super(FullyConnected, self).__init__()
+        self.last_sigmoid = last_sigmoid
+
+        self.n_input = n_input
+        self.n_labels = n_labels
+        self.dropout = dropout
+        self.hidden_layer = hidden_layer
+
+        if type(architecture) is str:
+            architecture = ast.literal_eval(architecture)
+        layer_size = [n_input] + [i for i in architecture]
+
+        layers = [
+            fc_layer(in_f, out_f, relu, batchnorm, bias) for in_f, out_f in zip(layer_size, layer_size[1:])
+        ]
+        self.layers = nn.Sequential(*layers)
+
+        self.linear_layer = nn.Linear(layer_size[-1], n_labels)
+
+    def forward(self, x):
+        x = self.layers(x)
+        if not self.hidden_layer:
+            x = self.linear_layer(x)
+
+            x = F.dropout(x, p=self.dropout, training=self.training)
+
+            if self.last_sigmoid and not self.training:
+                x = F.softmax(x, dim=-1)
+
+        return x
+
+
+class FullyConnectedDeepAnalysis(nn.Module):
+    def __init__(self, n_labels=2, n_input=2, architecture=(2,), relu=True, batchnorm=True, bias=True, dropout=0.0,
+                 last_sigmoid=True, hidden_layer=False):
+        super(FullyConnectedDeepAnalysis, self).__init__()
         if type(architecture) is str:
             architecture = ast.literal_eval(architecture)
         self.last_sigmoid = last_sigmoid
@@ -61,5 +97,5 @@ class FullyConnected(nn.Module):
 
 
 if __name__ == '__main__':
-    model = FullyConnected()
+    model = FullyConnectedDeepAnalysis()
     print(model)

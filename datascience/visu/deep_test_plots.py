@@ -23,6 +23,15 @@ def plot_db_partitions_gradients(dataset, labels, model):
     plot_decision_boundary.func(model, ax=ax)
 
     plot_gradient_field.func(dataset, labels, model, ax=ax)
+    return ax
+
+
+@module
+def plot_separator(separator, figure_name='separator', ax=None, **kwargs):
+    if ax is None:
+        ax = plt(figure_name).gca()
+
+    ax.plot(separator[0], separator[1], **kwargs)
 
 
 @module
