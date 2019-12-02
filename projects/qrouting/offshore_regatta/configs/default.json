@@ -1,0 +1,31 @@
+{
+  "training_params": {
+    "lr_decay": 0.1,
+    "learning_rate": 0.00001,
+    "iterations": [
+      10000,
+      15000
+    ],
+    "batch_size": 64,
+    "log_modulo": 1,
+    "val_modulo": 20,
+    "l2_penalty": 0,
+    "rm_size": 10000,
+    "save_validation_model": false,
+    "gamma": 0.001,
+    "eps_start": 0.9
+  },
+  "model_params": {
+    "n_output": 8,
+    "n_input": 3,
+    "n_input_2": 2,
+    "dropout": 0.8
+  },
+  "game_params": {
+    "root_dir": "contrib/rawdata/",
+    "polar": "contrib/rawdata/polar/class40.pol",
+    "islands_sup": 800,
+    "nb_try_max": 10000,
+    "close_target": true
+  }
+}

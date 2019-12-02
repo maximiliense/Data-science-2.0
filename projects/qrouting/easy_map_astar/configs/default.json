@@ -1,0 +1,6 @@
+{
+  "game_params": {
+    "nb_coup_max": 100,
+    "nb_obstacles": 60
+  }
+}

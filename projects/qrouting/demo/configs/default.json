@@ -1,0 +1,20 @@
+{
+  "training_params": {
+    "lr_decay": 0.1,
+    "learning_rate": 0.0000001,
+    "iterations": [
+      10000,
+      15000
+    ],
+    "batch_size": 2048,
+    "log_modulo": 25,
+    "val_modulo": 25,
+    "l2_penalty": 0,
+    "rm_size": 15000,
+    "save_validation_model": false
+  },
+  "model_params": {
+    "n_labels": 6,
+    "n_input": 6
+  }
+}
