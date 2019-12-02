@@ -6,7 +6,14 @@ from datascience.data.loader import occurrence_loader
 from datascience.data.datasets import EnvironmentalDataset
 from datascience.ml.neural.supervised import fit
 from sklearn.model_selection import train_test_split
-from projects.ecography.configs.inception import model_params, training_params, optim_params
+from projects.ecography.configs.inception import training_params, optim_params
+
+
+model_params = {
+    'dropout': 0.7,
+    'n_labels': 1348,
+    'n_input': 77
+}
 
 # loading/creating model
 model = create_model(model_class=InceptionEnv, model_params=model_params)
