@@ -4,7 +4,10 @@ from datascience.ml.neural.supervised import fit
 from datascience.ml.neural.models.cnn import CustomizableCNN
 from datascience.ml.neural.supervised.callbacks import NewStatCallback
 from datascience.ml.neural.checkpoints import create_model
+from datascience.ml.neural.supervised.callbacks.callbacks import FilterVarianceCallback
 from engine.parameters import get_parameters
+
+import torch
 
 # load MNIST or CIFAR10
 if get_parameters('mnist', False):
@@ -16,13 +19,14 @@ else:
 model_params = {
     'im_shape': train[0][0].shape,
     'conv_layers': (150, 150),
-    'linear_layers': (128, 128)
+    'linear_layers': (128, 128),
+    'pooling': torch.nn.AvgPool2d
 }
 
 model = create_model(model_class=CustomizableCNN, model_params=model_params)
 
 training_params = {
-    'iterations': [50, 80, 100],  # iterations with learning rate decay
+    'iterations': [50, 70, 80, 100],  # iterations with learning rate decay
     'log_modulo': -1,  # print loss once per epoch
     'val_modulo': 1,  # run a validation on the validation set every 5 epochs
     'batch_size': 1024
@@ -30,12 +34,12 @@ training_params = {
 }
 
 optim_params = {
-    'lr': 0.01,
+    'lr': 0.1,
 }
 
 validation_params = {
     'metrics': (ValidationAccuracy(1),),
-    'vcallback': (NewStatCallback(train),)
+    'vcallback': (FilterVarianceCallback(),)  # (NewStatCallback(train),)
 }
 
 fit(

@@ -1,8 +1,11 @@
+import torch
 from numpy.linalg import norm
 from torch.nn import Linear, BatchNorm1d, Conv2d
 import numpy as np
 
 from datascience.math import compute_filters
+from datascience.ml.neural.models.cnn import CustomizableCNN
+from datascience.ml.neural.models.fully_connected import FullyConnected
 from datascience.ml.neural.supervised.callbacks.util import Callback
 from datascience.visu.deep_test_plots import plot_dataset, plot_activation_rate, plot_decision_boundary, \
     plot_gradient_field, compute_neural_directions
@@ -71,6 +74,44 @@ class StatCallback(Callback):
                 self.dir_variances[l].append(-np.log(pca_dir.explained_variance_ratio_[0]))
 
                 l += 1
+
+
+class FilterVarianceCallback(Callback):
+    """
+    Analysis the variance of the filter of 1 hidden layer convolutional network
+    """
+    def __init__(self, window_size=5):
+        super().__init__()
+        self.window_size = window_size
+        self.filters_history = []
+
+    def initial_call(self, modulo, nb_calls, dataset, model):
+        super().initial_call(modulo, nb_calls, dataset, model)
+        assert (type(self.model) is CustomizableCNN), "VarianceCallback only works with CustomizableCNN."
+        # assert (len(self.model.conv_layers) == 1), "VarianceCallback only works with 1 convolutional layer networks."
+
+    def last_call(self):
+        matrix = np.transpose(np.array(self.filters_history), (1, 0, 2))
+
+        iterations = max(matrix.shape[1] - self.window_size + 1, 1)
+        for i in range(iterations):
+            current_time_window = matrix[:, i:(i+self.window_size), :]
+            mean_filters = np.average(current_time_window, axis=1)
+            variance = []
+            for j in range(mean_filters.shape[0]):
+                one_filter = []
+                variance.append(one_filter)
+                for z in range(current_time_window.shape[1]):
+                    one_filter.append(np.dot(current_time_window[j, z], mean_filters[j]))
+            variance = np.average(np.var(np.array(variance), axis=1))
+            print(variance)
+
+        exit()
+
+    def __call__(self, validation_id):
+        self.filters_history.append(
+            torch.flatten(self.model.conv_layers[0][0].weight, start_dim=1).detach().cpu().numpy()
+        )
 
 
 class NewStatCallback(Callback):

@@ -81,7 +81,7 @@ def fc_layer(in_f, out_f, relu=True, bias=True):
 
 class CustomizableCNN(nn.Module):
     def __init__(self, conv_layers=(100, 100), linear_layers=(124,), dim_out=10, im_shape=(3, 32, 32),
-                 relu=True, batchnorm=True):
+                 relu=True, batchnorm=True, pooling=False):
         super(CustomizableCNN, self).__init__()
         rep_size = im_shape[1]
         conv_size = 5
@@ -99,6 +99,11 @@ class CustomizableCNN(nn.Module):
         ]
 
         self.conv_layers = nn.Sequential(*layers)
+
+        self.pooling = None
+        if type(pooling) is nn.Module:
+            self.pooling = pooling(rep_size, rep_size)
+            rep_size = 1
 
         layers = [conv_layers[-1] * int(rep_size)**2] + [s for s in linear_layers] + [dim_out]
 
@@ -123,6 +128,10 @@ class CustomizableCNN(nn.Module):
                 if last_relu or i != layer - 1 or type(seq[s]) is not nn.ReLU:
                     x = seq[s](x)
             i += 1
+
+        if self.pooling is not None:
+            x = self.pooling(x)
+
         if i != layer:
             x = torch.flatten(x, 1)
         else:
