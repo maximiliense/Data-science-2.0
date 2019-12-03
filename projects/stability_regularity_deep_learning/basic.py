@@ -26,7 +26,7 @@ model_params = {
 model = create_model(model_class=CustomizableCNN, model_params=model_params)
 
 training_params = {
-    'iterations': [50, 70, 80, 100],  # iterations with learning rate decay
+    'iterations': [50, 75, 90, 100],  # iterations with learning rate decay
     'log_modulo': -1,  # print loss once per epoch
     'val_modulo': 1,  # run a validation on the validation set every 5 epochs
     'batch_size': 1024
@@ -39,7 +39,7 @@ optim_params = {
 
 validation_params = {
     'metrics': (ValidationAccuracy(1),),
-    'vcallback': (FilterVarianceCallback(),)  # (NewStatCallback(train),)
+    'vcallback': (FilterVarianceCallback(averaged=False),)  # (NewStatCallback(train),)
 }
 
 fit(

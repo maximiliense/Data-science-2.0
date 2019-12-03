@@ -5,7 +5,7 @@ import numpy as np
 from engine.hardware import use_gpu
 
 
-def construct_action(epsilon, model_z, state, output_size, xp_gpu):
+def construct_action(epsilon, model_z, state, output_size):
     random_action = random.random() <= epsilon
     action_index = [
         torch.randint(output_size, torch.Size([]), dtype=torch.int)
@@ -14,7 +14,7 @@ def construct_action(epsilon, model_z, state, output_size, xp_gpu):
 
     action = torch.zeros([output_size], dtype=torch.float32)
 
-    if xp_gpu:
+    if use_gpu():
         action = action.cuda()
 
     action[action_index] = 1

@@ -1,25 +1,25 @@
 import os
-import traceback
 
 import numpy as np
 import torch
 import random
 
-from datasets.numpy_grib import project, NumpyGrib
-from engine.games.abstract_game import AbstractGame
-from contrib.datasets.polar_to_numpy import Polar
-import matplotlib
+from datascience.data.datasets.util.numpy_grib import project, NumpyGrib
+from datascience.ml.neural.reinforcement.game.util.abstract_game import AbstractGame
+from datascience.data.datasets.util.polar_to_numpy import Polar
 import matplotlib.pyplot as plt
 import pandas as pd
-from engine.util.print_colors import color
 import bisect
 
 
 # very first implementation (no lag, no inception ; idea=instead of lag use forecast ;
 # pressure fields could be useful aswell)
+from engine.util.console.print_colors import color
+
+
 class OffshoreRegatta(AbstractGame):
 
-    def __init__(self, root_dir, polar, nb_try_max=1000, islands_sup=0, close_target=False, autorestart=True):
+    def __init__(self, root_dir, polar, nb_try_max=1000, islands_sup=0, close_target=False, auto_restart=True):
         """
         :param root_dir: the root dir of the grib files
         :param polar: the polar path to the file
@@ -27,7 +27,7 @@ class OffshoreRegatta(AbstractGame):
         """
         super().__init__()
 
-        self.autorestart = autorestart
+        self.autorestart = auto_restart
 
         self.root_dir = root_dir
 
@@ -467,8 +467,8 @@ if __name__ == '__main__':
     regatta.print()
 
     # play
-    nstep = 700
-    for _ in range(nstep):
+    n_step = 700
+    for _ in range(n_step):
         act, _ = regatta.bearing()
         regatta.action(act)
         if _ % 100 == 0:

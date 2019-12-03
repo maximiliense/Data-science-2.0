@@ -9,6 +9,7 @@ from datascience.ml.neural.loss import CELoss, load_loss, save_loss
 from datascience.ml.neural.supervised.predict import predict
 from datascience.ml.evaluation import validate, export_results
 from datascience.ml.neural.checkpoints.checkpoints import create_optimizer, save_checkpoint
+from engine.hardware import use_gpu
 from engine.parameters import special_parameters
 from engine.path import output_path
 from engine.path.path import export_epoch
@@ -105,7 +106,9 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
                 inputs, labels = data
 
                 # wrap labels in Variable as input is managed through a decorator
-                labels = model_z.p_label(labels)
+                # labels = model_z.p_label(labels)
+                if use_gpu():
+                    labels = labels.cuda()
 
                 # zero the parameter gradients
                 opt.zero_grad()

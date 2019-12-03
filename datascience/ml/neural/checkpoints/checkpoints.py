@@ -1,6 +1,5 @@
 import os
 
-from datascience.ml.neural.models.util import one_label
 from engine.core import module
 from engine.hardware import use_gpu, first_device, all_devices, device_description
 from engine.logging import print_info, print_errors
@@ -20,14 +19,13 @@ _checkpoint = {}
 
 
 @module
-def create_model(model_class, model_params, model_name='model', p_label=one_label):
+def create_model(model_class, model_params, model_name='model'):
     """
     create and eventually load model
     :param model_name:
     :param model_class:
     :param model_params:
     :param model_name:
-    :param p_label:
     :return:
     """
     model = model_class(**model_params)
@@ -39,8 +37,6 @@ def create_model(model_class, model_params, model_name='model', p_label=one_labe
     if use_gpu():
         model.to(first_device())
         model = torch.nn.DataParallel(model, device_ids=all_devices())
-
-    model.p_label = p_label
 
     # print info about devices
     print_info('Device(s)): ' + str(device_description()))

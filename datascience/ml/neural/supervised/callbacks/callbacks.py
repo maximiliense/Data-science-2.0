@@ -80,10 +80,12 @@ class FilterVarianceCallback(Callback):
     """
     Analysis the variance of the filter of 1 hidden layer convolutional network
     """
-    def __init__(self, window_size=5):
+    def __init__(self, window_size=5, averaged=True, fig_name='FilterVarianceCallback'):
         super().__init__()
         self.window_size = window_size
         self.filters_history = []
+        self.averaged = averaged
+        self.fig_name = fig_name
 
     def initial_call(self, modulo, nb_calls, dataset, model):
         super().initial_call(modulo, nb_calls, dataset, model)
@@ -91,22 +93,40 @@ class FilterVarianceCallback(Callback):
         # assert (len(self.model.conv_layers) == 1), "VarianceCallback only works with 1 convolutional layer networks."
 
     def last_call(self):
+        # transform data into matrix
         matrix = np.transpose(np.array(self.filters_history), (1, 0, 2))
 
         iterations = max(matrix.shape[1] - self.window_size + 1, 1)
+        scatter_points = []
+        # the number of iterations depend on the window size
         for i in range(iterations):
             current_time_window = matrix[:, i:(i+self.window_size), :]
+
+            # for each window what is the average filter
             mean_filters = np.average(current_time_window, axis=1)
             variance = []
+            # for each filter
             for j in range(mean_filters.shape[0]):
                 one_filter = []
                 variance.append(one_filter)
-                for z in range(current_time_window.shape[1]):
-                    one_filter.append(np.dot(current_time_window[j, z], mean_filters[j]))
-            variance = np.average(np.var(np.array(variance), axis=1))
-            print(variance)
 
-        exit()
+                # for each occurrence of the filter in the time window
+                for z in range(current_time_window.shape[1]):
+                    # dot product
+                    one_filter.append(np.dot(current_time_window[j, z], mean_filters[j]))
+
+            # compute the variance of the dot product per filter
+            variance = np.var(np.array(variance), axis=1)
+            if self.averaged:
+                variance = [np.average(variance)]
+            scatter_points.append(variance)
+        scatter_points = np.array(scatter_points)
+        print(scatter_points.shape)
+        fig = get_figure(self.fig_name)
+        ax = fig.gca()
+        for i in range(scatter_points.shape[1]):
+            ax.plot(scatter_points[:, i])
+        save_fig_direct_call(figure_name=self.fig_name)
 
     def __call__(self, validation_id):
         self.filters_history.append(
