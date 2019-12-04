@@ -56,17 +56,17 @@ class CNN(nn.Module):
         return x
 
 
-def convolutional_layer(in_f, out_f, relu=True, batchnorm=True, stride=2):
+def convolutional_layer(in_f, out_f, relu=True, batchnorm=True, stride=2, conv_size=5):
     if batchnorm:
         return nn.Sequential(
-            nn.Conv2d(in_f, out_f, 5, stride=stride),
+            nn.Conv2d(in_f, out_f, kernel_size=conv_size, stride=stride),
             nn.BatchNorm2d(out_f),
             # nn.Sequential()
             nn.ReLU() if relu else nn.Sequential()  # nn.Softplus()
         )
     else:
         return nn.Sequential(
-            nn.Conv2d(in_f, out_f, 5, stride=stride),
+            nn.Conv2d(in_f, out_f, kernel_size=conv_size, stride=stride),
             nn.ReLU() if relu else nn.Sequential()   # nn.Softplus()
         )
 
@@ -81,11 +81,9 @@ def fc_layer(in_f, out_f, relu=True, bias=True):
 
 class CustomizableCNN(nn.Module):
     def __init__(self, conv_layers=(100, 100), linear_layers=(124,), dim_out=10, im_shape=(3, 32, 32),
-                 relu=True, batchnorm=True, pooling=False):
+                 relu=True, batchnorm=True, pooling=False, conv_size=5, stride=2):
         super(CustomizableCNN, self).__init__()
         rep_size = im_shape[1]
-        conv_size = 5
-        stride = 2
         for _ in range(len(conv_layers)):
             rep_size -= conv_size - 1
             rep_size /= stride
@@ -94,7 +92,7 @@ class CustomizableCNN(nn.Module):
         layers = [im_shape[0] if len(im_shape) == 3 else 1] + [s for s in conv_layers]
 
         layers = [
-            convolutional_layer(in_f, out_f, relu, batchnorm) for in_f, out_f in zip(
+            convolutional_layer(in_f, out_f, relu, batchnorm, stride, conv_size) for in_f, out_f in zip(
                 layers, layers[1:])
         ]
 
@@ -136,6 +134,7 @@ class CustomizableCNN(nn.Module):
             x = torch.flatten(x, 1)
         else:
             x = torch.flatten(x, 2)
+
         i = 0
         while i + len(self.conv_layers) < layer and i < len(self.fc_layers):
             seq = self.fc_layers[i]
