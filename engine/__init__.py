@@ -14,7 +14,7 @@ def configure_engine():
     from engine.hardware import set_devices
     from engine.parameters import special_parameters
     from engine.parameters.special_parameters import last_experiment, configure_homex
-    from engine.tensorboard import initialize_tensorboard
+    # from engine.tensorboard import initialize_tensorboard
     from engine.util.clean import clean
     from engine.logging.logs import print_h1, print_info, print_durations, print_info, print_errors, print_info
     from engine.util.console.time import get_start_datetime
@@ -128,8 +128,8 @@ def configure_engine():
         print('Output directory: ' + output_directory() + '\n')
 
     # tensorboard
-    if special_parameters.tensorboard:
-        initialize_tensorboard()
+    # if special_parameters.tensorboard:
+        # initialize_tensorboard()
 
     export_config()
     atexit.register(exit_handler)
