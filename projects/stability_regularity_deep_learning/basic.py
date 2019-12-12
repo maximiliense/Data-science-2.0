@@ -10,11 +10,8 @@ from engine.parameters import get_parameters
 import torch
 
 # load MNIST or CIFAR10
-if get_parameters('mnist', False):
-    train, test = mnist()
-else:
-    # classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
-    train, test = cifar10()
+train, test = mnist() if get_parameters('mnist', False) else cifar10()
+# classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
 model_params = {
     'im_shape': train[0][0].shape,

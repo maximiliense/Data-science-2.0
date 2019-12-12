@@ -22,7 +22,7 @@ class NumpyGrib(object):
         """
         self.name = npz_path.replace('.npz', '').split('_')[2]
 
-        file = np.load(npz_path)
+        file = np.load(npz_path, allow_pickle=True)
 
         self.mask = file['mask']
         self.gribs = file['gribs']

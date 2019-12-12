@@ -1,9 +1,0 @@
-{
-  "game_params": {
-    "root_dir": "contrib/rawdata/",
-    "polar": "contrib/rawdata/polar/class40.pol",
-    "islands_sup": 800,
-    "nb_try_max": 10000,
-    "close_target": true
-  }
-}

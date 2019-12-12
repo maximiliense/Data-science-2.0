@@ -5,21 +5,23 @@ import torch
 import random
 
 from datascience.data.datasets.util.numpy_grib import project, NumpyGrib
+from datascience.data.util.source_management import check_source
 from datascience.ml.neural.reinforcement.game.util.abstract_game import AbstractGame
 from datascience.data.datasets.util.polar_to_numpy import Polar
-import matplotlib.pyplot as plt
+from datascience.visu.util import plt, save_fig
 import pandas as pd
 import bisect
 
 
 # very first implementation (no lag, no inception ; idea=instead of lag use forecast ;
 # pressure fields could be useful aswell)
+from engine.logging import print_errors
 from engine.util.console.print_colors import color
 
 
 class OffshoreRegatta(AbstractGame):
 
-    def __init__(self, root_dir, polar, nb_try_max=1000, islands_sup=0, close_target=False, auto_restart=True):
+    def __init__(self, source, nb_try_max=1000, islands_sup=0, close_target=False, auto_restart=True):
         """
         :param root_dir: the root dir of the grib files
         :param polar: the polar path to the file
@@ -29,18 +31,24 @@ class OffshoreRegatta(AbstractGame):
 
         self.autorestart = auto_restart
 
-        self.root_dir = root_dir
+        r = check_source(source)
+        if 'path' not in r:
+            print_errors('The source ' + source + ' does not contain path', do_exit=True)
+        if 'polar' not in r:
+            print_errors('The source ' + source + ' does not contain polar', do_exit=True)
+
+        self.root_dir = r['path']
 
         self.game = None
 
         self.numpy_grib = None
-        self.polar = Polar(path_polar_file=polar)
+        self.polar = Polar(path_polar_file=r['polar'])
 
         self.target = None
         self.position = None
         self.start_position = None
 
-        self.grib_list = [file for file in os.listdir(root_dir) if file.endswith('.npz')]
+        self.grib_list = [file for file in os.listdir(self.root_dir) if file.endswith('.npz')]
 
         self.start_timestamp = None
         self.timedelta = None
@@ -386,7 +394,7 @@ class OffshoreRegatta(AbstractGame):
     def print(self):
         print(self)
 
-    def plot(self, plot_weather=False, save=False, show=True, track=None):
+    def plot(self, plot_weather=False, save=False, show=True, track=None, figure_name='regatta_plot'):
         if track is not None:
             self.track = track
 
@@ -402,13 +410,16 @@ class OffshoreRegatta(AbstractGame):
         y_position, x_position = project(latitude=self.position[1], longitude=self.position[0], grib=self.numpy_grib)
 
         y_position = self.numpy_grib.latitudes.shape[0] - y_position
-        plt.plot(x_position, y_position, 's', markersize=4, color="blue")
+
+        fig = plt(figure_name)
+
+        fig.plot(x_position, y_position, 's', markersize=4, color="blue")
 
         # target
         y_target, x_target = project(latitude=self.target[1], longitude=self.target[0], grib=self.numpy_grib)
 
         y_target = self.numpy_grib.latitudes.shape[0] - y_target
-        plt.plot(x_target, y_target, 'bo', markersize=6, color="green")
+        fig.plot(x_target, y_target, 'bo', markersize=6, color="green")
 
         # track
         X, Y = [], []
@@ -417,22 +428,18 @@ class OffshoreRegatta(AbstractGame):
             X.append(x)
             Y.append(self.numpy_grib.latitudes.shape[0] - y)
 
-        plt.plot(X, Y, '-', color="red")
-        plt.xlabel('Longitude')
-        plt.ylabel('Latitude')
+        fig.plot(X, Y, '-', color="red")
+        fig.xlabel('Longitude')
+        fig.ylabel('Latitude')
 
-        plt.suptitle('Offshore Regatta (at ' + str(self.start_timestamp + self.timedelta) + ')', y=1, fontsize=12)
+        fig.suptitle('Offshore Regatta (at ' + str(self.start_timestamp + self.timedelta) + ')', y=1, fontsize=12)
 
-        if save:
-            plt.savefig('regatta.pdf')
-        if show:
-            plt.show()
-        plt.close()
+        save_fig(figure_name=figure_name)
 
     def save_plot(self, path):
         pass
 
-    def show_view(self):
+    def show_view(self, figure_name='regatta_view', show=False):
         view = self.get_view()
 
         uwind = view[0, :, :]
@@ -441,20 +448,23 @@ class OffshoreRegatta(AbstractGame):
 
         print(view.shape)
 
-        plt.subplot(1, 3, 1)
-        plt.imshow(np.squeeze(uwind))
-        plt.title('u wind (m.s-1)')
+        fig = plt(figure_name)
 
-        plt.subplot(1, 3, 2)
-        plt.imshow(np.squeeze(vwind))
-        plt.title('v wind (m.s-1)')
+        # ax = fig.gca()
 
-        plt.subplot(1, 3, 3)
-        plt.imshow(np.squeeze(mask))
-        plt.title('mask')
+        fig.subplot(1, 3, 1)
+        fig.imshow(np.squeeze(uwind))
+        fig.title('u wind (m.s-1)')
 
-        plt.show()
-        plt.close()
+        fig.subplot(1, 3, 2)
+        fig.imshow(np.squeeze(vwind))
+        fig.title('v wind (m.s-1)')
+
+        fig.subplot(1, 3, 3)
+        fig.imshow(np.squeeze(mask))
+        fig.title('mask')
+
+        save_fig(figure_name=figure_name)
 
 
 # playing test
