@@ -1,0 +1,1 @@
+from datascience.ml.neural.reinforcement.game.offshore_regatta import OffshoreRegatta
