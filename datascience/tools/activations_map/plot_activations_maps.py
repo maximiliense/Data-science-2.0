@@ -56,7 +56,7 @@ def plot_species_on_map(grid_points, label_species=None, species=0, log_scale=Fa
 
 
 @module
-def select_species_by_neuron(grid_points, label_species, neuron, figsize=5, mean_size=1, type='correlation'):
+def select_species_by_neuron(grid_points, label_species, neuron, figsize=5, mean_size=1, type='correlation', b_name=True):
     if type == 'correlation':
         result_path = output_path('correlation_activations.npy')
         matrix = np.load(result_path)
@@ -92,7 +92,10 @@ def select_species_by_neuron(grid_points, label_species, neuron, figsize=5, mean
 
     for label in test:
         true_label = index_dic[str(label)]
-        legend.append(label_name_dic[true_label])
+        if b_name:
+            legend.append("_".join(label_name_dic[true_label].split()[0:2]))
+        else:
+            legend.append(label_name_dic[true_label])
         legend3.append(true_label)
 
     for i in range(len(legend)):

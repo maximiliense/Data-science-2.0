@@ -102,7 +102,6 @@ def plot_on_map(activations, map_ids, n_cols=1, n_rows=1, figsize=4, log_scale=F
                                                              axis=2), height // mean_size, axis=1), axis=2)
         else:
             act_map_j = act_map[j]
-        print(act_map_j[2, 572])
         masked_array = np.ma.array(act_map_j, mask=np.isnan(act_map_j))
         if cmap is None:
             if style == "grey":
