@@ -6,24 +6,13 @@ from datascience.data.loader import occurrence_loader
 from datascience.data.datasets import EnvironmentalDataset
 from datascience.ml.neural.supervised import fit
 from sklearn.model_selection import train_test_split
+from projects.ecography.configs.inception import training_params, optim_params
 
 
 model_params = {
     'dropout': 0.7,
     'n_labels': 4520,
     'n_input': 77
-}
-
-training_params = {
-    'batch_size': 128,
-    'lr': 0.1,
-    'iterations': [90, 130, 150, 170, 180],
-    'log_modulo': 200,
-    'val_modulo': 5,
-}
-
-optim_params = {
-    'lr': 0.1
 }
 
 # loading/creating model
