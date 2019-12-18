@@ -12,9 +12,10 @@ from projects.web_service.configs.inception import training_params, optim_params
 
 
 patch_size = get_parameters('patch_size', 64)
+do = get_parameters('do', 0.7)
 
 model_params = {
-    'dropout': 0.7,
+    'dropout': 0.5,
     'n_labels': 4520,
     'n_input': 77
 }
