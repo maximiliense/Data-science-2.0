@@ -6,8 +6,12 @@ from datascience.data.loader import occurrence_loader
 from datascience.data.datasets import EnvironmentalDataset
 from datascience.ml.neural.supervised import fit
 from sklearn.model_selection import train_test_split
-from projects.ecography.configs.inception import training_params, optim_params
 
+from engine.parameters import get_parameters
+from projects.web_service.configs.inception import training_params, optim_params
+
+
+patch_size = get_parameters('patch_size', 64)
 
 model_params = {
     'dropout': 0.7,
@@ -19,7 +23,8 @@ model_params = {
 model = create_model(model_class=InceptionEnv, model_params=model_params)
 
 # loading dataset
-train, val, test = occurrence_loader(EnvironmentalDataset, source='gbif_taxref', splitter=train_test_split)
+train, val, test = occurrence_loader(EnvironmentalDataset, source='gbif_taxref',
+                                     splitter=train_test_split, size_patch=patch_size)
 
 # training model
 validation_params = {

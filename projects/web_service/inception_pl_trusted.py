@@ -6,7 +6,7 @@ from datascience.data.loader import occurrence_loader
 from datascience.data.datasets import EnvironmentalDataset
 from datascience.ml.neural.supervised import fit
 from sklearn.model_selection import train_test_split
-from projects.ecography.configs.inception import training_params, optim_params
+from projects.web_service.configs.inception import training_params, optim_params
 
 
 model_params = {
