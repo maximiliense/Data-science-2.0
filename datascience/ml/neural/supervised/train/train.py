@@ -4,7 +4,7 @@ import torch
 from torch.optim.lr_scheduler import MultiStepLR
 
 from datascience.ml.neural.supervised.callbacks import init_callbacks, run_callbacks, finish_callbacks
-from datascience.ml.neural.loss import CELoss, load_loss, save_loss
+from datascience.ml.neural.loss import load_loss, save_loss
 from datascience.ml.neural.supervised.predict import predict
 from datascience.ml.evaluation import validate, export_results
 from datascience.ml.neural.checkpoints.checkpoints import create_optimizer, save_checkpoint
@@ -17,7 +17,7 @@ from engine.path.path import export_epoch
 from engine.util.log_email import send_email
 from engine.util.log_file import save_file
 from engine.logging import print_h1, print_h2, print_notification
-from engine.util.merge_dict import merge_smooth
+from engine.util.merge_dict import merge_dict_set
 from engine.tensorboard import add_scalar
 from engine.core import module
 
@@ -38,8 +38,13 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
     :param model_z: the model that should be trained
     """
     # configuration
-    training_params, predict_params, validation_params, export_params, optim_params = _configure(
-        training_params, predict_params, validation_params, export_params, optim_params
+
+    training_params, predict_params, validation_params, export_params, optim_params = merge_dict_set(
+        training_params, TRAINING_PARAMS,
+        predict_params, PREDICT_PARAMS,
+        validation_params, VALIDATION_PARAMS,
+        export_params, EXPORT_PARAMS,
+        optim_params, OPTIM_PARAMS
     )
 
     train_loader, test_loader, val_loader = _dataset_setup(train, test, val, **training_params)
@@ -200,50 +205,6 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
         export_results(test_loader.dataset, predictions, **export_params)
 
     return predictions
-
-
-def _configure(training_params, predict_params, validation_params, export_params, optim_params):
-    """
-    configure default parameters
-    :param training_params:
-    :param predict_params:
-    :param validation_params:
-    :param export_params:
-    :param optim_params:
-    :return:
-    """
-    training_params = {} if training_params is None else training_params
-    merge_smooth(
-        training_params,
-        TRAINING_PARAMS
-    )
-
-    predict_params = {} if predict_params is None else predict_params
-
-    merge_smooth(
-        predict_params,
-        PREDICT_PARAMS
-    )
-
-    validation_params = {} if validation_params is None else validation_params
-    merge_smooth(
-        validation_params,
-        VALIDATION_PARAMS
-    )
-
-    export_params = {} if export_params is None else export_params
-    merge_smooth(
-        export_params,
-        EXPORT_PARAMS
-    )
-
-    optim_params = {} if optim_params is None else optim_params
-    merge_smooth(
-        optim_params,
-        OPTIM_PARAMS
-    )
-
-    return training_params, predict_params, validation_params, export_params, optim_params
 
 
 def _dataset_setup(train, test, val=None, batch_size=32, bs_test=None,
