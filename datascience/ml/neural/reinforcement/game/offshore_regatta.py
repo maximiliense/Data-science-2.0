@@ -273,8 +273,8 @@ class OffshoreRegatta(AbstractGame):
 
     def distance(self, node=None):
         """
-        Provide the distance (m) between the current position of the boat and the target.
-        :return: a distance (m) between the current position and the target
+        Provide the distance (nautical miles) between the current position of the boat and the target.
+        :return: a distance (nautical miles) between the current position and the target
         """
 
         if node is not None:
@@ -293,7 +293,7 @@ class OffshoreRegatta(AbstractGame):
             np.sin(rad_position_lat) * np.sin(rad_target_lat) +
             np.cos(rad_position_lat) * np.cos(rad_target_lat) * np.cos(rad_position_lon-rad_target_lon)
         )
-        return dist
+        return dist/1852.
 
     def move_boat(self, sog, interval_sec, cog):
         """
