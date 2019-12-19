@@ -19,7 +19,7 @@ _checkpoint = {}
 
 
 @module
-def create_model(model_class, model_params, model_name='model'):
+def create_model(model_class, model_params=None, model_name='model'):
     """
     create and eventually load model
     :param model_name:
@@ -28,6 +28,9 @@ def create_model(model_class, model_params, model_name='model'):
     :param model_name:
     :return:
     """
+
+    model_params = {} if model_params is None else model_params
+
     model = model_class(**model_params)
 
     if not from_scratch:  # recover from checkpoint

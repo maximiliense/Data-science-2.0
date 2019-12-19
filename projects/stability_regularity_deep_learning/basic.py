@@ -4,7 +4,7 @@ from datascience.ml.neural.supervised import fit
 from datascience.ml.neural.models.cnn import CustomizableCNN
 from datascience.ml.neural.supervised.callbacks import NewStatCallback
 from datascience.ml.neural.checkpoints import create_model
-from datascience.ml.neural.supervised.callbacks.callbacks import FilterVarianceCallback
+from datascience.ml.neural.supervised.callbacks.callbacks import ParameterVarianceCallback
 from engine.parameters import get_parameters
 
 import torch
@@ -38,7 +38,7 @@ optim_params = {
 
 validation_params = {
     'metrics': (ValidationAccuracy(1),),
-    'vcallback': (FilterVarianceCallback(averaged=False),)  # (NewStatCallback(train),)
+    'vcallback': (ParameterVarianceCallback(averaged=False),)  # (NewStatCallback(train),)
 }
 
 fit(

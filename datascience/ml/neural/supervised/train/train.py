@@ -1,7 +1,6 @@
 import warnings
 
 import torch
-import torch.optim as optimizer
 from torch.optim.lr_scheduler import MultiStepLR
 
 from datascience.ml.neural.supervised.callbacks import init_callbacks, run_callbacks, finish_callbacks
@@ -9,6 +8,8 @@ from datascience.ml.neural.loss import CELoss, load_loss, save_loss
 from datascience.ml.neural.supervised.predict import predict
 from datascience.ml.evaluation import validate, export_results
 from datascience.ml.neural.checkpoints.checkpoints import create_optimizer, save_checkpoint
+from datascience.ml.neural.supervised.train.default_params import TRAINING_PARAMS, OPTIM_PARAMS, EXPORT_PARAMS, \
+    VALIDATION_PARAMS, PREDICT_PARAMS
 from engine.hardware import use_gpu
 from engine.parameters import special_parameters
 from engine.path import output_path
@@ -214,26 +215,33 @@ def _configure(training_params, predict_params, validation_params, export_params
     training_params = {} if training_params is None else training_params
     merge_smooth(
         training_params,
-        {
-            'batch_size': 32,
-            'lr': 0.1,
-            'iterations': None,
-            'gamma': 0.1,
-            'loss': CELoss(),
-            'val_modulo': 1,
-            'log_modulo': -1,
-            'first_epoch': special_parameters.first_epoch
-        }
+        TRAINING_PARAMS
     )
 
     predict_params = {} if predict_params is None else predict_params
+
+    merge_smooth(
+        predict_params,
+        PREDICT_PARAMS
+    )
+
     validation_params = {} if validation_params is None else validation_params
-    merge_smooth(validation_params, {'metrics': tuple()})
+    merge_smooth(
+        validation_params,
+        VALIDATION_PARAMS
+    )
 
     export_params = {} if export_params is None else export_params
+    merge_smooth(
+        export_params,
+        EXPORT_PARAMS
+    )
 
     optim_params = {} if optim_params is None else optim_params
-    merge_smooth(optim_params, {'momentum': 0.9, 'weight_decay': 0, 'optimizer': optimizer.SGD})
+    merge_smooth(
+        optim_params,
+        OPTIM_PARAMS
+    )
 
     return training_params, predict_params, validation_params, export_params, optim_params
 

@@ -7,6 +7,9 @@ from torch.optim.lr_scheduler import MultiStepLR
 import numpy as np
 
 from datascience.ml.neural.reinforcement.game.util.replay_memory import ReplayMemory
+from datascience.ml.neural.reinforcement.train.default_params import TRAINING_PARAMS, PREDICT_PARAMS, VALIDATION_PARAMS, \
+    EXPORT_PARAMS, OPTIM_PARAMS, GAME_PARAMS
+from datascience.ml.neural.reinforcement.train.play import play
 from datascience.ml.neural.reinforcement.train.util import process_state, construct_action, process_state_back, \
     unsqueeze, init_game
 from datascience.ml.neural.loss import CELoss, load_loss, save_loss
@@ -119,7 +122,7 @@ def fit(model_z, game_class, game_params=None, training_params=None, predict_par
 
     validation_path = output_path('validation.txt')
 
-    output_size = model_z.n_labels if hasattr(model_z, 'n_labels') else model_z.module.output_size
+    output_size = model_z.output_size if hasattr(model_z, 'output_size') else model_z.module.output_size
 
     # training parameters
     optim = optim_params.pop('optimizer')
@@ -143,7 +146,7 @@ def fit(model_z, game_class, game_params=None, training_params=None, predict_par
 
     replay_memory = ReplayMemory(rm_size)
 
-    if play_only and first_epoch < max(iterations):
+    if not play_only and first_epoch < max(iterations):
         print_h1('Training: ' + special_parameters.setup_name)
 
         state = unsqueeze(init_game(game, replay_memory, output_size, len(replay_memory)))
@@ -214,7 +217,7 @@ def fit(model_z, game_class, game_params=None, training_params=None, predict_par
 
             if epoch % log_modulo == log_modulo - 1:
                 print('[%d, %5d]\tloss: %.5f' % (epoch + 1, idx + 1, running_loss / log_modulo))
-                print('\t\t reward: %.5f' % (epoch + 1, idx + 1, running_reward / log_modulo))
+                print('\t\t reward: %.5f' % (running_reward / log_modulo))
                 loss_logs.append(running_loss / log_modulo)
                 rewards_logs.append(running_reward / log_modulo)
                 running_loss = 0.0
@@ -233,12 +236,11 @@ def fit(model_z, game_class, game_params=None, training_params=None, predict_par
                 validation_id = str(int((epoch + 1) / val_modulo))
 
                 # validation call
-                predictions, labels, loss_val = predict(
-                    model_z, val_loader, loss, **predict_params, compute_loss=True
-                )
+                loss_val = play(model_z, output_size, game_class, game_params, 500)
+
                 loss_val_logs.append(loss_val)
 
-                res = '\n[validation_id:' + validation_id + ']\n' + validate(predictions, labels, **validation_params)
+                res = '\n[validation_id:' + validation_id + ']\n' + loss_val
 
                 print_notification(res)
 
@@ -267,25 +269,16 @@ def fit(model_z, game_class, game_params=None, training_params=None, predict_par
     # final validation
     print_h1('Validation/Export: ' + special_parameters.setup_name)
 
-    predictions, labels, val_loss = predict(model_z, test_loader, loss, validation_size=-1, **predict_params)
+    loss_val = play(model_z, output_size, game_class, game_params, 500)
 
-    if special_parameters.validation_only or not special_parameters.export:
+    res = '' + loss_val
 
-        res = validate(predictions, labels, **validation_params, final=True)
+    print_notification(res, end='')
 
-        print_notification(res, end='')
-
-        if special_parameters.mail >= 1:
-            send_email('Final results for XP ' + special_parameters.setup_name, res)
-        if special_parameters.file:
-            save_file(validation_path, 'Final results for XP ' + special_parameters.setup_name, res)
-        # callback
-        if vcallback is not None and not (validation_only or export or len(iterations) == 0):
-            finish_callbacks(vcallback)
-    if special_parameters.export:
-        export_results(test_loader.dataset, predictions, **export_params)
-
-    return predictions
+    if special_parameters.mail >= 1:
+        send_email('Final results for XP ' + special_parameters.setup_name, res)
+    if special_parameters.file:
+        save_file(validation_path, 'Final results for XP ' + special_parameters.setup_name, res)
 
 
 def _configure(game_params, training_params, predict_params, validation_params, export_params, optim_params):
@@ -299,32 +292,41 @@ def _configure(game_params, training_params, predict_params, validation_params, 
     :return:
     """
     game_params = {} if game_params is None else game_params
+    merge_smooth(
+        game_params,
+        GAME_PARAMS
+    )
+
     training_params = {} if training_params is None else training_params
     merge_smooth(
         training_params,
-        {
-            'batch_size': 32,
-            'lr': 0.1,
-            'iterations': None,
-            'gamma': 0.1,
-            'loss': CELoss(),
-            'val_modulo': 1,
-            'log_modulo': -1,
-            'first_epoch': special_parameters.first_epoch,
-            'rm_size': 1000,
-            'epsilon_start': 0.9,
-            'epsilon_end': 0.1
-        }
+        TRAINING_PARAMS
     )
 
     predict_params = {} if predict_params is None else predict_params
+
+    merge_smooth(
+        predict_params,
+        PREDICT_PARAMS
+    )
+
     validation_params = {} if validation_params is None else validation_params
-    merge_smooth(validation_params, {'metrics': tuple()})
+    merge_smooth(
+        validation_params,
+        VALIDATION_PARAMS
+    )
 
     export_params = {} if export_params is None else export_params
+    merge_smooth(
+        export_params,
+        EXPORT_PARAMS
+    )
 
     optim_params = {} if optim_params is None else optim_params
-    merge_smooth(optim_params, {'momentum': 0.9, 'weight_decay': 0, 'optimizer': optimizer.SGD})
+    merge_smooth(
+        optim_params,
+        OPTIM_PARAMS
+    )
 
     return game_params, training_params, predict_params, validation_params, export_params, optim_params
 

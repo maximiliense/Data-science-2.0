@@ -134,6 +134,51 @@ class FilterVarianceCallback(Callback):
         )
 
 
+class ParameterVarianceCallback(Callback):
+    """
+    Analysis the variance of the filter of 1 hidden layer convolutional network
+    """
+    def __init__(self, window_size=5, averaged=True, fig_name='ParameterVarianceCallback'):
+        super().__init__()
+        self.window_size = window_size
+        self.parameters_history = []
+        self.averaged = averaged
+        self.fig_name = fig_name
+
+    def initial_call(self, modulo, nb_calls, dataset, model):
+        super().initial_call(modulo, nb_calls, dataset, model)
+        assert (type(self.model) is CustomizableCNN), "ParameterVarianceCallback only works with CustomizableCNN."
+        # assert (len(self.model.conv_layers) == 1), "VarianceCallback only works with 1 convolutional layer networks."
+
+    def last_call(self):
+        # transform data into matrix
+
+        matrix = np.array(self.parameters_history)
+        matrix = matrix.reshape((matrix.shape[0], matrix.shape[1]))
+        matrix = np.transpose(matrix, (1, 0))
+        iterations = max(matrix.shape[1] - self.window_size + 1, 1)
+        scatter_points = []
+        # the number of iterations depend on the window size
+        for i in range(iterations):
+            variance = np.var(matrix[:, i:(i+self.window_size)], axis=1)
+
+            if self.averaged:
+                variance = [np.average(variance)]
+            scatter_points.append(variance)
+        scatter_points = np.array(scatter_points)
+
+        fig = get_figure(self.fig_name)
+        ax = fig.gca()
+        for i in range(scatter_points.shape[1]):
+            ax.plot(scatter_points[:, i])
+        save_fig_direct_call(figure_name=self.fig_name)
+
+    def __call__(self, validation_id):
+        self.parameters_history.append(
+            self.model.conv_layers[0][0].weight[:, 0, 0, 0].unsqueeze(dim=-1).detach().cpu().numpy()
+        )
+
+
 class NewStatCallback(Callback):
     def __init__(self, dataset=None):
         super().__init__()

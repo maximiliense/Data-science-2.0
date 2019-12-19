@@ -78,6 +78,19 @@ class CELoss(Loss):
         return 'Cross Entropy'
 
 
+class MSELoss(Loss):
+    def __init__(self):
+        super().__init__()
+
+        self.criterion = nn.MSELoss()
+
+    def loss(self, output, label):
+        return self.criterion(output, label)
+
+    def __repr__(self):
+        return 'MSE'
+
+
 class CategoricalPoissonLoss(Loss):
     def __init__(self, log_input=True):
         super().__init__()
