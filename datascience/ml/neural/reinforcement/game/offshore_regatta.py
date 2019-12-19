@@ -8,7 +8,7 @@ from datascience.data.datasets.util.numpy_grib import project, NumpyGrib
 from datascience.data.util.source_management import check_source
 from datascience.ml.neural.reinforcement.game.util.abstract_game import AbstractGame
 from datascience.data.datasets.util.polar_to_numpy import Polar
-from datascience.visu.util import plt, save_fig
+from datascience.visu.util import plt, save_fig, get_figure
 import pandas as pd
 import bisect
 
@@ -211,7 +211,7 @@ class OffshoreRegatta(AbstractGame):
             dead = True
 
         # test if we found the target (an area close by, round to 1000m)
-        if self.dist <= 1000:
+        if self.dist <= 1.:
             self.score_ = self.score
             if auto_restart:
                 self.start()
@@ -402,9 +402,9 @@ class OffshoreRegatta(AbstractGame):
         if plot_weather:
             # current simulation timestamp
             t_idx = self.numpy_grib.physical_time_to_idx(self.start_timestamp + self.timedelta)
-            self.numpy_grib.print_wind(show=False, save=False, idx=t_idx)
+            self.numpy_grib.print_wind(show=False, save=False, idx=t_idx, figure_name=figure_name)
         else:
-            self.numpy_grib.print_mask(show=False, save=False)
+            self.numpy_grib.print_mask(show=False, save=False, figure_name=figure_name)
 
         # current position
         y_position, x_position = project(latitude=self.position[1], longitude=self.position[0], grib=self.numpy_grib)

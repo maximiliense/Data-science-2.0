@@ -1,10 +1,10 @@
 from datascience.ml.neural.reinforcement.game.offshore_regatta import OffshoreRegatta
 
-game = OffshoreRegatta(source='grib_gfs_2018')
+game = OffshoreRegatta(source='grib_gfs_2018', nb_try_max=3200)
 game.print()
 
 # play
-n_step = 700
+n_step = 3000
 for i in range(n_step):
     act, _ = game.bearing()
     game.action(act)

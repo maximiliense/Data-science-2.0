@@ -1,10 +1,9 @@
 import matplotlib
-import matplotlib.pyplot as plt
 import numpy as np
 from scipy import interpolate
 import bisect
 
-plt.style.use('fivethirtyeight')
+from datascience.visu.util import plt
 
 
 def project(latitude, longitude, grib, scale=0.5):
@@ -32,11 +31,11 @@ class NumpyGrib(object):
 
         self.granularity = 3
 
-    def print_mask(self, save=False, show=True, color=None):
+    def print_mask(self, save=False, show=True, color=None, figure_name='map_mask'):
         """
         Plot mask (original 1st read layer)
         """
-        plt.figure(figsize=(10, 10))
+        fig = plt(figure_name, figsize=(18, 14))
 
         reverse_mask = (self.mask == 0).astype(np.int)
 
@@ -46,16 +45,16 @@ class NumpyGrib(object):
         reverse_mask = np.ma.masked_where(reverse_mask == 1, reverse_mask)
 
         # Plot
-        plt.imshow(np.flip(reverse_mask, axis=0), cmap=plt.get_cmap('gray'), vmin=-15, vmax=5)
-        plt.xlabel('Longitude')
-        plt.ylabel('Latitude')
-        plt.title('Land-sea mask')
+        fig.imshow(np.flip(reverse_mask, axis=0), cmap=fig.get_cmap('gray'), vmin=-15, vmax=5)
+        fig.xlabel('Longitude')
+        fig.ylabel('Latitude')
+        fig.title('Land-sea mask')
         if save:
-            plt.savefig(self.name + '_mask.pdf')
+            fig.savefig(self.name + '_mask.pdf')
         if show:
-            plt.show()
+            fig.show()
 
-    def print_wind(self, idx, save=False, show=True):
+    def print_wind(self, idx, save=False, show=True, figure_name='map_wind'):
         """
         Plot the u_v_wind components as quiver (basemap) from the 1st u, v components read
         """
@@ -80,21 +79,23 @@ class NumpyGrib(object):
 
         sm = matplotlib.cm.ScalarMappable(cmap=cm, norm=norm)
         sm.set_array([])
-        plt.pcolormesh(x_mesh, y_mesh, intensity, alpha=0.5, cmap=cm)
+        fig = plt(figure_name, figsize=(18, 14))
+
+        fig.pcolormesh(x_mesh, y_mesh, intensity, alpha=0.5, cmap=cm)
 
         # Plot
         Y, X = np.mgrid[0:self.gribs[idx, 0].shape[0]:self.granularity, 0:self.gribs[idx, 0].shape[1]:self.granularity]
-        q = plt.barbs(X, Y, np.flip(self.gribs[idx, 0, ::self.granularity, ::self.granularity], axis=0),
+        q = fig.barbs(X, Y, np.flip(self.gribs[idx, 0, ::self.granularity, ::self.granularity], axis=0),
                       np.flip(self.gribs[idx, 1, ::self.granularity, ::self.granularity], axis=0),
                       length=3, linewidths=0.5)
 
-        plt.xlabel('Longitude')
-        plt.ylabel('Latitude')
+        fig.xlabel('Longitude')
+        fig.ylabel('Latitude')
 
-        cbar = plt.colorbar(sm)
+        cbar = fig.colorbar(sm)
         cbar.set_label('velocity (m.s-1)')
 
-        plt.title('Wind velocity  ' + str(self.time_refs[idx, 3]))
+        fig.title('Wind velocity  ' + str(self.time_refs[idx, 3]))
         if save:
             plt.savefig(self.name + '_wind.pdf')
         if show:
