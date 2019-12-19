@@ -384,7 +384,7 @@ class OffshoreRegatta(AbstractGame):
         result = color.BLUE + "Date: " + color.END + str(self.start_timestamp + self.timedelta) + '\n'
         result += color.BLUE + "Position (lon, lat): " + color.END + str(self.position) + '\n'
         result += color.BLUE + "Target (lon,lat): " + color.END + str(self.target) + '\n'
-        result += color.BLUE + "Distance to target: " + color.END + str(round(self.dist)) + "m" + '\n'
+        result += color.BLUE + "Distance to target: " + color.END + str(round(self.dist)) + " nautical miles" + '\n'
         result += color.BLUE + "Bearing to target: " + color.END + str(round(self.dir)) + "°" + '\n'
         result += color.BLUE + "SOG, COG: " + color.END + str(round(self.sog)) + "," + str(round(self.cog)) + "°\n"
         result += color.BLUE + "TWA, TWS, TWD: " + color.END + str(round(self.twa[0])) + "°,"

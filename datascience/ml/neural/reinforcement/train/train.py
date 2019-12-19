@@ -236,11 +236,11 @@ def fit(model_z, game_class, game_params=None, training_params=None, predict_par
                 validation_id = str(int((epoch + 1) / val_modulo))
 
                 # validation call
-                loss_val = play(model_z, output_size, game_class, game_params, 500)
+                loss_val = play(model_z, output_size, game_class, game_params, 2)
 
                 loss_val_logs.append(loss_val)
 
-                res = '\n[validation_id:' + validation_id + ']\n' + loss_val
+                res = '\n[validation_id:' + validation_id + ']\n' + str(loss_val)
 
                 print_notification(res)
 
