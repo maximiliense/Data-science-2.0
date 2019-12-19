@@ -16,6 +16,7 @@ import bisect
 # very first implementation (no lag, no inception ; idea=instead of lag use forecast ;
 # pressure fields could be useful aswell)
 from engine.logging import print_errors
+from engine.parameters import special_parameters
 from engine.util.console.print_colors import color
 
 
@@ -398,28 +399,27 @@ class OffshoreRegatta(AbstractGame):
         if track is not None:
             self.track = track
 
+        ax = plt(figure_name, figsize=special_parameters.plt_default_size).gca()
         # draw land
         if plot_weather:
             # current simulation timestamp
             t_idx = self.numpy_grib.physical_time_to_idx(self.start_timestamp + self.timedelta)
-            self.numpy_grib.print_wind(show=False, save=False, idx=t_idx, figure_name=figure_name)
+            self.numpy_grib.print_wind(show=False, save=False, idx=t_idx, ax=ax)
         else:
-            self.numpy_grib.print_mask(show=False, save=False, figure_name=figure_name)
+            self.numpy_grib.print_mask(show=False, save=False, figure_name=figure_name, ax=ax)
 
         # current position
         y_position, x_position = project(latitude=self.position[1], longitude=self.position[0], grib=self.numpy_grib)
 
         y_position = self.numpy_grib.latitudes.shape[0] - y_position
 
-        fig = plt(figure_name)
-
-        fig.plot(x_position, y_position, 's', markersize=4, color="blue")
+        ax.plot(x_position, y_position, 's', markersize=4, color="blue")
 
         # target
         y_target, x_target = project(latitude=self.target[1], longitude=self.target[0], grib=self.numpy_grib)
 
         y_target = self.numpy_grib.latitudes.shape[0] - y_target
-        fig.plot(x_target, y_target, 'bo', markersize=6, color="green")
+        ax.plot(x_target, y_target, 'bo', markersize=6, color="green")
 
         # track
         X, Y = [], []
@@ -428,11 +428,11 @@ class OffshoreRegatta(AbstractGame):
             X.append(x)
             Y.append(self.numpy_grib.latitudes.shape[0] - y)
 
-        fig.plot(X, Y, '-', color="red")
-        fig.xlabel('Longitude')
-        fig.ylabel('Latitude')
+        ax.plot(X, Y, '-', color="red")
+        ax.set_xlabel('Longitude')
+        ax.set_ylabel('Latitude')
 
-        fig.suptitle('Offshore Regatta (at ' + str(self.start_timestamp + self.timedelta) + ')', y=1, fontsize=12)
+        ax.set_title('Offshore Regatta (at ' + str(self.start_timestamp + self.timedelta) + ')', y=1, fontsize=12)
 
         save_fig(figure_name=figure_name)
 

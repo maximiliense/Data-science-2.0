@@ -45,6 +45,7 @@ to_mail = ''
 to_name = 'John Smith'
 
 plt_style = 'dark_background'
+plt_default_size = (18, 14)
 
 other_options = []
 

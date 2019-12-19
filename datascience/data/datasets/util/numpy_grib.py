@@ -4,6 +4,7 @@ from scipy import interpolate
 import bisect
 
 from datascience.visu.util import plt
+from engine.parameters import special_parameters
 
 
 def project(latitude, longitude, grib, scale=0.5):
@@ -31,11 +32,12 @@ class NumpyGrib(object):
 
         self.granularity = 3
 
-    def print_mask(self, save=False, show=True, color=None, figure_name='map_mask'):
+    def print_mask(self, save=False, show=True, color=None, figure_name='map_mask', ax=None):
         """
         Plot mask (original 1st read layer)
         """
-        fig = plt(figure_name, figsize=(18, 14))
+        if ax is None:
+            ax = plt(figure_name, figsize=special_parameters.plt_default_size).gca()
 
         reverse_mask = (self.mask == 0).astype(np.int)
 
@@ -45,20 +47,19 @@ class NumpyGrib(object):
         reverse_mask = np.ma.masked_where(reverse_mask == 1, reverse_mask)
 
         # Plot
-        fig.imshow(np.flip(reverse_mask, axis=0), cmap=fig.get_cmap('gray'), vmin=-15, vmax=5)
-        fig.xlabel('Longitude')
-        fig.ylabel('Latitude')
-        fig.title('Land-sea mask')
-        if save:
-            fig.savefig(self.name + '_mask.pdf')
-        if show:
-            fig.show()
+        ax.imshow(np.flip(reverse_mask, axis=0), cmap=matplotlib.pyplot.get_cmap('gray'), vmin=-15, vmax=5)
+        ax.set_xlabel('Longitude')
+        ax.set_ylabel('Latitude')
+        ax.set_title('Land-sea mask')
 
-    def print_wind(self, idx, save=False, show=True, figure_name='map_wind'):
+    def print_wind(self, idx, save=False, show=True, figure_name='map_wind', ax=None):
         """
         Plot the u_v_wind components as quiver (basemap) from the 1st u, v components read
         """
-        self.print_mask(show=False, save=False)
+        if ax is None:
+            ax = plt(figure_name, figsize=special_parameters.plt_default_size).gca()
+
+        self.print_mask(show=False, save=False, ax=ax)
 
         x_grid = np.arange(0, self.mask.shape[1])
         y_grid = np.arange(0, self.mask.shape[0])
@@ -79,27 +80,22 @@ class NumpyGrib(object):
 
         sm = matplotlib.cm.ScalarMappable(cmap=cm, norm=norm)
         sm.set_array([])
-        fig = plt(figure_name, figsize=(18, 14))
 
-        fig.pcolormesh(x_mesh, y_mesh, intensity, alpha=0.5, cmap=cm)
+        ax.pcolormesh(x_mesh, y_mesh, intensity, alpha=0.5, cmap=cm)
 
         # Plot
         Y, X = np.mgrid[0:self.gribs[idx, 0].shape[0]:self.granularity, 0:self.gribs[idx, 0].shape[1]:self.granularity]
-        q = fig.barbs(X, Y, np.flip(self.gribs[idx, 0, ::self.granularity, ::self.granularity], axis=0),
+        q = ax.barbs(X, Y, np.flip(self.gribs[idx, 0, ::self.granularity, ::self.granularity], axis=0),
                       np.flip(self.gribs[idx, 1, ::self.granularity, ::self.granularity], axis=0),
                       length=3, linewidths=0.5)
 
-        fig.xlabel('Longitude')
-        fig.ylabel('Latitude')
+        ax.set_xlabel('Longitude')
+        ax.set_ylabel('Latitude')
 
-        cbar = fig.colorbar(sm)
+        cbar = ax.figure.colorbar(sm)
         cbar.set_label('velocity (m.s-1)')
 
-        fig.title('Wind velocity  ' + str(self.time_refs[idx, 3]))
-        if save:
-            plt.savefig(self.name + '_wind.pdf')
-        if show:
-            plt.show()
+        ax.set_title('Wind velocity  ' + str(self.time_refs[idx, 3]))
 
     def out_of_envelope(self, lon, lat, ):
         """
