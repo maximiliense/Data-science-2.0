@@ -1,5 +1,5 @@
 from datascience.ml.neural.checkpoints.checkpoints import load_checkpoint
-from engine.logging import print_notification
+from engine.logging import print_notification, print_info
 from engine.parameters.special_parameters import restart_experiment
 
 import pickle
@@ -53,10 +53,12 @@ class Statistics(object):
             'best_statistics': self.best_statistics,
             'best_model_id': self.best_model_id
         }
+        print_info('Saving statistics at ' + self.statistics_path)
         with open(self.statistics_path, 'wb') as f:
             pickle.dump(statistic, f)
 
     def load(self):
+        print_info('Loading statistics from ' + self.statistics_path)
         with open(self.statistics_path, 'rb') as f:
             statistics = pickle.load(f)
         self.best_statistics = statistics['best_statistics']
