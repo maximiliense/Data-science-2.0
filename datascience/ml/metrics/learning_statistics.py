@@ -47,8 +47,6 @@ class Statistics(object):
                 print_notification(
                     '*Best validation: \'' + str(self.best_model_id) + '\'*'
                 )
-        else:
-            print('best model is current model')
 
     def save(self):
         statistic = {

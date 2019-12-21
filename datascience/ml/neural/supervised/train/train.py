@@ -37,7 +37,8 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
     :param validation_params:
     :param predict_params:
     :param model_z: the model that should be trained
-    :param cross_validation:
+    :param cross_validation: if cross validation is True, then the first crossvalidable metric will be used to select
+                             the best model.
     """
     # configuration
 
@@ -142,9 +143,6 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
                     add_scalar('Loss/train', running_loss / log_modulo)
                     loss_logs.append(running_loss / log_modulo)
                     running_loss = 0.0
-
-            # train_loader.data.reverse = not train_loader.data.reverse  # This is to check
-            # the oscillating loss probably due to SGD and momentum...
 
             # end of epoch update of learning rate scheduler
             scheduler.step(epoch + 1)
