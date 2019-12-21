@@ -1,4 +1,5 @@
 from datascience.data.synthetize.create_dataset import create_dataset
+from datascience.ml.metrics import ValidationAccuracy
 from datascience.ml.neural.supervised import fit
 from datascience.ml.neural.models import FullyConnectedDeepAnalysis
 from datascience.ml.neural.checkpoints import create_model
@@ -18,7 +19,7 @@ model = create_model(model_class=FullyConnectedDeepAnalysis, model_params=model_
 
 # optimization
 training_params = {
-    'iterations': [50, 80, 100],
+    'iterations': [5, 8, 10],
     'log_modulo': -1,
     'val_modulo': 1,
 }
@@ -28,8 +29,13 @@ optim_params = {
     'lr': 0.1,
 }
 
+validation_params = {
+    'metrics': (ValidationAccuracy(1),)
+}
+
 fit(
-    model, train=train, test=test, training_params=training_params, optim_params=optim_params
+    model, train=train, test=test, training_params=training_params, optim_params=optim_params,
+    validation_params=validation_params, cross_validation=True
 )
 
 # plot results

@@ -111,7 +111,6 @@ def print_errors(log, end='\n', do_exit=False, exception=None):
     if do_exit:
         exit()
     if exception is not None:
-        traceback.print_stack()
         raise exception
 
 

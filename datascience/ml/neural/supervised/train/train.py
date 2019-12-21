@@ -3,6 +3,7 @@ import warnings
 import torch
 from torch.optim.lr_scheduler import MultiStepLR
 
+from datascience.ml.metrics.learning_statistics import Statistics
 from datascience.ml.neural.supervised.callbacks import init_callbacks, run_callbacks, finish_callbacks
 from datascience.ml.neural.loss import load_loss, save_loss
 from datascience.ml.neural.supervised.predict import predict
@@ -16,7 +17,7 @@ from engine.path import output_path
 from engine.path.path import export_epoch
 from engine.util.log_email import send_email
 from engine.util.log_file import save_file
-from engine.logging import print_h1, print_h2, print_notification
+from engine.logging import print_h1, print_h2, print_notification, print_errors
 from engine.util.merge_dict import merge_dict_set
 from engine.tensorboard import add_scalar
 from engine.core import module
@@ -24,7 +25,7 @@ from engine.core import module
 
 @module
 def fit(model_z, train, test, val=None, training_params=None, predict_params=None, validation_params=None,
-        export_params=None, optim_params=None):
+        export_params=None, optim_params=None, cross_validation=False):
     """
     This function is the core of an experiment. It performs the ml procedure as well as the call to validation.
     :param training_params: parameters for the training procedure
@@ -36,6 +37,7 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
     :param validation_params:
     :param predict_params:
     :param model_z: the model that should be trained
+    :param cross_validation:
     """
     # configuration
 
@@ -48,6 +50,10 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
     )
 
     train_loader, test_loader, val_loader = _dataset_setup(train, test, val, **training_params)
+
+    statistics_path = output_path('metric_statistics.dump')
+
+    metrics_statistics = Statistics(model_z, statistics_path) if cross_validation else None
 
     validation_path = output_path('validation.txt')
 
@@ -62,6 +68,9 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
 
     # callbacks for ml tests
     vcallback = validation_params.pop('vcallback') if 'vcallback' in validation_params else None
+
+    if iterations is None:
+        print_errors('Iterations must be set', exception=TrainingConfigurationException('Iterations is None'))
 
     # before ml callback
     if vcallback is not None and not (special_parameters.validation_only or
@@ -153,7 +162,13 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
                 )
                 loss_val_logs.append(loss_val)
 
-                res = '\n[validation_id:' + validation_id + ']\n' + validate(predictions, labels, **validation_params)
+                res = '\n[validation_id:' + validation_id + ']\n' + validate(
+                    predictions, labels, validation_id=validation_id, statistics=metrics_statistics, **validation_params
+                )
+
+                # save statistics for robust cross validation
+                if metrics_statistics:
+                    metrics_statistics.save()
 
                 print_notification(res)
 
@@ -185,6 +200,9 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
 
     # final validation
     print_h1('Validation/Export: ' + special_parameters.setup_name)
+    if metrics_statistics is not None:
+        # change the parameter states of the model to best model
+        metrics_statistics.switch_to_best_model()
 
     predictions, labels, val_loss = predict(model_z, test_loader, loss, validation_size=-1, **predict_params)
 
@@ -204,7 +222,7 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
     if special_parameters.export:
         export_results(test_loader.dataset, predictions, **export_params)
 
-    return predictions
+    return metrics_statistics
 
 
 def _dataset_setup(train, test, val=None, batch_size=32, bs_test=None,
@@ -246,3 +264,8 @@ def _skip_step(lr_scheduler, epoch):
     warnings.filterwarnings("ignore")
     lr_scheduler.step(epoch + 1)
     warnings.filterwarnings("default")
+
+
+class TrainingConfigurationException(Exception):
+    def __init__(self, message):
+        super(TrainingConfigurationException, self).__init__(message)

@@ -55,7 +55,7 @@ def plot_decision_boundary(model, figure_name='pdb', ax=None):
     xx, yy = np.meshgrid(np.linspace(x_min, x_max, num),
                          np.linspace(y_min, y_max, num))
 
-    zz = pred_func(np.c_[xx.ravel(), yy.ravel()])
+    zz = pred_func(np.c_[xx.ravel(), yy.ravel()]).cpu()
 
     zz = zz.reshape(xx.shape)
 

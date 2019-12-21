@@ -6,7 +6,7 @@ from engine.logging import print_info, print_errors
 
 import torch
 
-from engine.parameters.special_parameters import from_scratch
+from engine.parameters.special_parameters import from_scratch, restart_experiment
 from engine.path import output_path
 
 
@@ -76,7 +76,7 @@ def _load_optimizer(optimizer, model_name):
         optimizer.load_state_dict(_checkpoint[model_name]['optimizer_state_dict'])
 
 
-def _load_model(model, model_name):
+def _load_model(model, model_name, path=None, reload=False):
     """
     load checkpoint
     :param model:
@@ -84,8 +84,8 @@ def _load_model(model, model_name):
     :return:
     """
     global _checkpoint
-    if model_name not in _checkpoint:
-        _load_checkpoint(model_name)
+    if model_name not in _checkpoint or reload:
+        _load_checkpoint(model_name, path=path)
 
     if 'model_state_dict' in _checkpoint[model_name]:
         model.load_state_dict(_checkpoint[model_name]['model_state_dict'])
@@ -93,14 +93,23 @@ def _load_model(model, model_name):
         model.load_state_dict(_checkpoint[model_name])
 
 
-def _load_checkpoint(model_name):
-    path = output_path(_checkpoint_path.format(model_name), have_validation=True)
+def _load_checkpoint(model_name, path=None):
+    if path is None:
+        path = output_path(_checkpoint_path.format(model_name), have_validation=True)
 
     global _checkpoint
     if not os.path.isfile(path):
         print_errors('{} does not exist'.format(path), do_exit=True)
     print_info('Loading checkpoint from ' + path)
     _checkpoint[model_name] = torch.load(path)
+
+
+def load_checkpoint(model, model_name='model', validation_id=None):
+    """
+    change state of the model
+    """
+    path = output_path(_checkpoint_path.format(model_name), validation_id=validation_id, have_validation=True)
+    _load_model(model.module if type(model) is torch.nn.DataParallel else model, model_name, path=path, reload=True)
 
 
 def save_checkpoint(model, optimizer=None, model_name='model', validation_id=None):

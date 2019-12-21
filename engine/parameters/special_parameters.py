@@ -25,6 +25,7 @@ export = False
 first_epoch = 0
 
 from_scratch = True
+restart_experiment = False
 
 machine = 'auto'
 

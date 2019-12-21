@@ -120,6 +120,7 @@ def configure_engine():
 
         if args.restart:
             special_parameters.first_epoch = load_last_epoch()
+            special_parameters.restart_experiment = True
             print_debug('Restarting experiment at last epoch: {}'.format(special_parameters.first_epoch))
     else:
         special_parameters.experiment_name = special_parameters.output_name + '_' + start_dt.strftime('%Y%m%d%H%M%S')
