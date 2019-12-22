@@ -8,6 +8,7 @@ import pickle
 class Statistics(object):
     def __init__(self, last_model, statistics_path=None):
         self.last_model = last_model
+        self.final_statistics = None
         self.best_statistics = None
         self.best_model_id = None
 
@@ -34,6 +35,11 @@ class Statistics(object):
 
                 self.best_statistics = best_statistics
                 self.best_model_id = validation_id
+
+    def set_final_statistics(self, metrics):
+        self.best_statistics = {}
+        for m in metrics:
+            self.best_statistics[m.__class__.__name__] = (m.metric_score(), str(m))
 
     def switch_to_best_model(self):
         if self.best_model_id is not None:
@@ -63,3 +69,12 @@ class Statistics(object):
             statistics = pickle.load(f)
         self.best_statistics = statistics['best_statistics']
         self.best_model_id = statistics['best_model_id']
+
+    def __repr__(self):
+        return str(self)
+
+    def __str__(self):
+        r = ''
+        for k in self.best_statistics.keys():
+            r += str(self.best_statistics[k][1]) + '\n'
+        return r

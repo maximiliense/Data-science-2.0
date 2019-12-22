@@ -206,7 +206,7 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
 
     if special_parameters.validation_only or not special_parameters.export:
 
-        res = validate(predictions, labels, **validation_params, final=True)
+        res = validate(predictions, labels, statistics=metrics_statistics, **validation_params, final=True)
 
         print_notification(res, end='')
 

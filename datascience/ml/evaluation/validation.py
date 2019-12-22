@@ -33,6 +33,9 @@ def validate(predictions, labels, metrics=tuple(), final=False, statistics=None,
     result += '```\n\n'
 
     if statistics is not None:
-        statistics.update_statistics(metrics, validation_id)
+        if final:
+            statistics.set_final_statistics(metrics)
+        else:
+            statistics.update_statistics(metrics, validation_id)
 
     return result

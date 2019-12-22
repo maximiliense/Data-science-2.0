@@ -90,7 +90,7 @@ class PaintingDatasetGenerator(object):
         """
         dataset = {
             'train': [],
-            'val': [] if painter_val == '' else None,
+            'val': [] if painter_val is not None else None,
             'test': []
         }
         index = {}
