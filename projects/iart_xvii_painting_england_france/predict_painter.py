@@ -1,4 +1,4 @@
-from datascience.data.loader.paintings import PaintingDatasetGenerator
+from datascience.data.loader import PaintingDatasetGenerator
 from datascience.ml.neural.supervised import fit
 from datascience.ml.metrics import ValidationAccuracy
 from datascience.ml.neural.checkpoints import create_model
