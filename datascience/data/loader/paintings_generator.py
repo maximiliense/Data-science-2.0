@@ -75,7 +75,7 @@ class PaintingDatasetGenerator(object):
         train, test = train_test_split(dataset, test_size=test_size)
         train, val = train_test_split(
             train, test_size=val_size) if val_size > 0. else (train, None)
-        print(train, val, test)
+
         return (ImageDataset(train, self.train_transform),
                 ImageDataset(val, self.test_transform),
                 ImageDataset(test, self.test_transform))
