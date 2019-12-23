@@ -120,8 +120,9 @@ class FilterVarianceCallback(Callback):
             if self.averaged:
                 variance = [np.average(variance)]
             scatter_points.append(variance)
+
         scatter_points = np.array(scatter_points)
-        print(scatter_points.shape)
+
         fig = get_figure(self.fig_name)
         ax = fig.gca()
         for i in range(scatter_points.shape[1]):
@@ -130,7 +131,7 @@ class FilterVarianceCallback(Callback):
 
     def __call__(self, validation_id):
         self.filters_history.append(
-            torch.flatten(self.model.conv_layers[0][0].weight, start_dim=1).detach().cpu().numpy()
+            torch.flatten(self.model.conv_layers[0][0].weight, start_dim=1).detach().clone().cpu().numpy()
         )
 
 
