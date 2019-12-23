@@ -23,7 +23,7 @@ generator = PaintingDatasetGenerator(source='paintings_xviii', input_size=input_
 train, val, test = generator.painter_dataset()
 
 training_params = {
-    'iterations': [50, 75, 100],
+    'iterations': [90, 120, 130],
     'batch_size': 512,
 }
 

@@ -2,7 +2,7 @@ import os
 
 from engine.core import module
 from engine.hardware import use_gpu, first_device, all_devices, device_description
-from engine.logging import print_info, print_errors
+from engine.logging import print_info, print_errors, print_debug
 
 import torch
 
@@ -100,7 +100,7 @@ def _load_checkpoint(model_name, path=None):
     global _checkpoint
     if not os.path.isfile(path):
         print_errors('{} does not exist'.format(path), do_exit=True)
-    print_info('Loading checkpoint from ' + path)
+    print_debug('Loading checkpoint from ' + path)
     _checkpoint[model_name] = torch.load(path)
 
 
@@ -123,7 +123,7 @@ def save_checkpoint(model, optimizer=None, model_name='model', validation_id=Non
     """
     path = output_path(_checkpoint_path.format(model_name), validation_id=validation_id, have_validation=True)
 
-    print_info('Saving checkpoint: ' + path)
+    print_debug('Saving checkpoint: ' + path)
 
     model = model.module if type(model) is torch.nn.DataParallel else model
 
