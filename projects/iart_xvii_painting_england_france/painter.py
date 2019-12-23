@@ -24,7 +24,7 @@ train, val, test = generator.painter_dataset()
 
 training_params = {
     'iterations': [50, 75, 100],
-    'batch_size': 256,
+    'batch_size': 512,
 }
 
 optim_params = {

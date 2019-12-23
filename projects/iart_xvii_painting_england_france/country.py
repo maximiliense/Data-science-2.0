@@ -14,7 +14,7 @@ model_params = {
     'num_classes': 2,
     'feature_extract': True
 }
-
+input_size = 299  # inception
 generator = PaintingDatasetGenerator(source='paintings_xviii')
 
 painter_list = generator.unique_painters()
@@ -47,3 +47,5 @@ for i in range(len(painter_list)):
         optim_params=optim_params, cross_validation=True
     )
     print(stats)
+    del stats
+    del model

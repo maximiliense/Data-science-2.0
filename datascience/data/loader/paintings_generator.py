@@ -6,6 +6,7 @@ from torchvision import transforms
 
 from datascience.data.datasets.image_dataset import ImageDataset
 from datascience.data.util.source_management import check_source
+from engine.logging import print_dataset_statistics
 
 
 class PaintingDatasetGenerator(object):
@@ -14,6 +15,7 @@ class PaintingDatasetGenerator(object):
     """
     def __init__(self, source, transform=None, input_size=299):
         r = check_source(source)
+        self.source = source
         path = r['path']
         if transform is None:
             self.train_transform = transforms.Compose([
@@ -76,6 +78,10 @@ class PaintingDatasetGenerator(object):
         train, val = train_test_split(
             train, test_size=val_size) if val_size > 0. else (train, None)
 
+        print_dataset_statistics(
+            len(train), len(val), len(test), self.source, len(index)
+        )
+
         return (ImageDataset(train, self.train_transform),
                 ImageDataset(val, self.test_transform),
                 ImageDataset(test, self.test_transform))
@@ -103,6 +109,11 @@ class PaintingDatasetGenerator(object):
                 dataset['test'].append((self.path[i], index[self.country[i]]))
             else:
                 dataset['train'].append((self.path[i], index[self.country[i]]))
+
+        print_dataset_statistics(
+            len(dataset['train']), len(dataset['val']), len(dataset['test']), self.source, len(index)
+        )
+
         return (ImageDataset(dataset['train'], self.train_transform),
                 ImageDataset(dataset['val'], self.test_transform),
                 ImageDataset(dataset['test'], self.test_transform))
@@ -144,6 +155,12 @@ class PaintingDatasetGenerator(object):
             dataset[index_split[self.painter[i]]].append((
                 self.path[i], index_labels[labels]
             ))
+        print_dataset_statistics(
+            len(dataset['train']),
+            len(dataset['val']),
+            len(dataset['test']),
+            self.source, len(index_labels)
+        )
         return (ImageDataset(dataset['train'], self.train_transform),
                 ImageDataset(dataset['val'], self.test_transform),
                 ImageDataset(dataset['test'], self.test_transform))

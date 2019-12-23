@@ -2,9 +2,9 @@ from datascience.data.loader import cifar10, mnist
 from datascience.ml.metrics import ValidationAccuracy
 from datascience.ml.neural.supervised import fit
 from datascience.ml.neural.models.cnn import CustomizableCNN
-from datascience.ml.neural.supervised.callbacks import NewStatCallback
+# from datascience.ml.neural.supervised.callbacks import NewStatCallback
 from datascience.ml.neural.checkpoints import create_model
-from datascience.ml.neural.supervised.callbacks.callbacks import ParameterVarianceCallback, FilterVarianceCallback
+from datascience.ml.neural.supervised.callbacks.callbacks import FilterVarianceCallback  # ParameterVarianceCallback,
 from engine.parameters import get_parameters
 
 import torch
@@ -24,7 +24,7 @@ model_params = {
 model = create_model(model_class=CustomizableCNN, model_params=model_params)
 
 training_params = {
-    'iterations': [100],  # iterations with learning rate decay
+    'iterations': [120],  # iterations with learning rate decay
     'log_modulo': -1,  # print loss once per epoch
     'val_modulo': 1,  # run a validation on the validation set every 5 epochs
     'batch_size': 512
