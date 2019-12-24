@@ -7,6 +7,20 @@ from datascience.ml.neural.models.pretrained import initialize_model
 import torch
 
 from engine.logging import print_h1
+from engine.path import output_path
+
+training_params = {
+    'iterations': [100, 130, 150, 160],
+    'batch_size': 256,
+}
+
+optim_params = {
+    'lr': 0.001
+}
+
+validation_params = {
+    'metrics': (ValidationAccuracy(1),)
+}
 
 model_params = {
     # for inception, aux_logits must be False
@@ -17,25 +31,16 @@ model_params = {
 input_size = 299  # inception
 generator = PaintingDatasetGenerator(source='paintings_xviii')
 
+export_result = output_path('result.txt')
+
 painter_list = generator.unique_painters()
 for i in range(len(painter_list)):
     painter_val = painter_list[i]
     painter_test = painter_list[(i+1) % len(painter_list)]
     print_h1('||| PAINTER VAL: ' + painter_val + ', PAINTER TEST: ' + painter_test + ' |||')
+    with open(export_result, 'a') as f:
+        f.write('||| PAINTER VAL: ' + painter_val + ', PAINTER TEST: ' + painter_test + ' |||' + '\n')
     train, val, test = generator.country_dataset_one_fold(painter_val=painter_val, painter_test=painter_test)
-
-    training_params = {
-        'iterations': [5],
-        'batch_size': 256,
-    }
-
-    optim_params = {
-        'lr': 0.001
-    }
-
-    validation_params = {
-        'metrics': (ValidationAccuracy(1),)
-    }
 
     model = create_model(model_class=initialize_model, model_params=model_params)
     mmodel = model.module if type(model) is torch.nn.DataParallel else model
@@ -46,6 +51,7 @@ for i in range(len(painter_list)):
         model, train=train, val=val, test=test, training_params=training_params, validation_params=validation_params,
         optim_params=optim_params, cross_validation=True
     )
-    print(stats)
+    with open(export_result, 'a') as f:
+        f.write(str(stats) + '\n\n')
     del stats
     del model
