@@ -6,11 +6,13 @@ import pickle
 
 
 class Statistics(object):
-    def __init__(self, last_model, statistics_path=None):
+    def __init__(self, last_model, statistics_path=None, min_epochs=0):
         self.last_model = last_model
         self.final_statistics = None
         self.best_statistics = None
         self.best_model_id = None
+
+        self.min_epochs = min_epochs
 
         self.cv_metric = None
         self.statistics_path = statistics_path
@@ -28,7 +30,7 @@ class Statistics(object):
             else:
                 better_validation = self.cv_metric.is_better(self.best_statistics[self.cv_metric.__class__.__name__][0])
 
-            if better_validation:
+            if better_validation or validation_id < self.min_epochs:
                 best_statistics = {}
                 for m in metrics:
                     best_statistics[m.__class__.__name__] = (m.metric_score(), str(m))

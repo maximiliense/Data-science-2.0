@@ -30,3 +30,7 @@ OPTIM_PARAMS = {
     'optimizer': optimizer.SGD,
     'lr': 0.1
 }
+
+CROSS_VALIDATION_PARAMS = {
+    'cross_validation': False
+}

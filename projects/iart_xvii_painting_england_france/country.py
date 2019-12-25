@@ -47,9 +47,14 @@ for i in range(len(painter_list)):
         'metrics': (ValidationAccuracy(1),)
     }
 
+    cross_validation_params = {
+        'cross_validation': True,
+        'min_epochs': 50
+    }
+
     stats = fit(
         model, train=train, val=val, test=test, training_params=training_params, validation_params=validation_params,
-        optim_params=optim_params, cross_validation=True
+        optim_params=optim_params, cross_validation_params=cross_validation_params
     )
     with open(export_result, 'a') as f:
         f.write(str(stats) + '\n\n')
