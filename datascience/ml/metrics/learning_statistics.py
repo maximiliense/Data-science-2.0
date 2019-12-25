@@ -30,7 +30,7 @@ class Statistics(object):
             else:
                 better_validation = self.cv_metric.is_better(self.best_statistics[self.cv_metric.__class__.__name__][0])
 
-            if better_validation or validation_id < self.min_epochs:
+            if better_validation or int(validation_id) < self.min_epochs:
                 best_statistics = {}
                 for m in metrics:
                     best_statistics[m.__class__.__name__] = (m.metric_score(), str(m))
