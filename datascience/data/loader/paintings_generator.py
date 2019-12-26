@@ -97,7 +97,7 @@ class PaintingDatasetGenerator(object):
         dataset = {
             'train': [],
             'val': [] if painter_val is not None else None,
-            'test': []
+            'test': [] if painter_test is not None else None,
         }
         index = {}
         for i in range(len(self.path)):
@@ -111,7 +111,8 @@ class PaintingDatasetGenerator(object):
                 dataset['train'].append((self.path[i], index[self.country[i]]))
 
         print_dataset_statistics(
-            len(dataset['train']), len(dataset['val']), len(dataset['test']), self.source, len(index)
+            len(dataset['train']), len(dataset['val']) if dataset['val'] is not None else 0,
+            0 if dataset['test'] is None else len(dataset['test']), self.source, len(index)
         )
 
         return (ImageDataset(dataset['train'], self.train_transform),
