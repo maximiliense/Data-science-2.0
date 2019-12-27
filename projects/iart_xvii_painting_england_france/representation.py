@@ -15,7 +15,7 @@ model_params = {
     # for inception, aux_logits must be False
     'model_name': 'inception',
     'num_classes': 2,
-    'feature_extract': True
+    'feature_extract': False
 }
 
 model = create_model(model_class=initialize_model, model_params=model_params)
@@ -28,8 +28,8 @@ generator = PaintingDatasetGenerator(source='paintings_xviii')
 train, _, _ = generator.country_dataset_one_fold(painter_val=None, painter_test=None)
 
 training_params = {
-    'iterations': [1],
-    'batch_size': 256,
+    'iterations': [100, 130, 150, 160],
+    'batch_size': 64,
 }
 
 optim_params = {
@@ -46,19 +46,26 @@ cross_validation_params = {
     'min_epochs': 50
 }
 
-# stats = fit(
-#     model, train=train, test=train, training_params=training_params, validation_params=validation_params,
-#     optim_params=optim_params, cross_validation_params=cross_validation_params
-# )
 
-representation, colors = extract_representation(train, model)
-print(representation.shape, colors.shape)
-representation_embedded = TSNE(n_components=2).fit_transform(representation)
+def do_extraction(fig_name='representation_tsne'):
+    representation, colors = extract_representation(train, model)
+    print(representation.shape, colors.shape)
+    representation_embedded = TSNE(n_components=2).fit_transform(representation)
 
-ax = plt('representation_tsne').gca()
+    ax = plt(fig_name).gca()
 
-ax.scatter(representation_embedded[:, 0], representation_embedded[:, 1], c=colors)
+    ax.scatter(representation_embedded[:, 0], representation_embedded[:, 1], c=colors)
 
-ax.set_title('Painting representation')
+    ax.set_title('Painting representation')
+
+
+do_extraction()
+
+stats = fit(
+    model, train=train, test=train, training_params=training_params, validation_params=validation_params,
+    optim_params=optim_params, cross_validation_params=cross_validation_params
+)
+
+do_extraction(fig_name='representation_tsne_final')
 
 save_fig()

@@ -1,4 +1,5 @@
 import torch.nn as nn
+from torch.nn import DataParallel
 
 from engine.core import module
 from engine.parameters import special_parameters
@@ -16,7 +17,8 @@ def extract_representation(dataset, model, batch_size=32):
     :param batch_size:
     :return:
     """
-    fc = model.fc
+
+    fc = model.module.fc if type(model) is DataParallel else model.fc
     model.fc = nn.Sequential()
     extraction = []
     labels_ext = []
@@ -34,8 +36,8 @@ def extract_representation(dataset, model, batch_size=32):
         extraction.append(outputs.detach().cpu().numpy())
         labels_ext.append(labels.detach().cpu().numpy())
 
-        if idx == 3:
-            break
-
-    model.fc = fc
+    if type(model) is DataParallel:
+        model.module.fc = fc
+    else:
+        model.fc = fc
     return np.concatenate(extraction), np.concatenate(labels_ext)
