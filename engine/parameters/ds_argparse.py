@@ -42,8 +42,8 @@ def get_argparse():
     group.add_argument('-t', '--do_train', dest='train', action='store_true', default=False,
                        help='Train the model (default: False)')
 
-    group.add_argument('-ov', '--do_validation', dest='validation', action='store_true', default=False,
-                       help='Validate the model (default: False)')
+    group.add_argument('-ov', '--do_eval', dest='eval', action='store_true', default=False,
+                       help='Evaluate the model (default: False)')
 
     group.add_argument('-p', '--params', dest='params', type=str, default='',
                        help='Parameters to override module calls (default=\'\')')

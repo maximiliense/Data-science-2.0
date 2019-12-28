@@ -75,8 +75,7 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
         print_errors('Iterations must be set', exception=TrainingConfigurationException('Iterations is None'))
 
     # before ml callback
-    if vcallback is not None and not (special_parameters.validation_only or
-                                      special_parameters.export or len(iterations) == 0):
+    if vcallback is not None and special_parameters.train and first_epoch < max(iterations):
         init_callbacks(vcallback, val_modulo, max(iterations) // val_modulo, train_loader.dataset, model_z)
 
     max_iterations = max(iterations)
@@ -196,7 +195,7 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
         export_epoch(epoch + 1)  # if --restart is set, the train will not be executed
 
     # final validation
-    if special_parameters.validation or special_parameters.export:
+    if special_parameters.evaluate or special_parameters.export:
         print_h1('Validation/Export: ' + special_parameters.setup_name)
         if metrics_stats is not None:
             # change the parameter states of the model to best model
@@ -204,7 +203,7 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
 
         predictions, labels, val_loss = predict(model_z, test_loader, loss, validation_size=-1, **predict_params)
 
-        if special_parameters.validation:
+        if special_parameters.evaluate:
 
             res = validate(predictions, labels, statistics=metrics_stats, **validation_params, final=True)
 

@@ -74,12 +74,12 @@ class PaintingDatasetGenerator(object):
 
         dataset = [(self.path[i], index[self.painter[i]]) for i in range(len(self.path))]
 
-        train, test = train_test_split(dataset, test_size=test_size)
+        train, test = train_test_split(dataset, test_size=test_size) if test_size > 0. else (dataset, None)
         train, val = train_test_split(
             train, test_size=val_size) if val_size > 0. else (train, None)
 
         print_dataset_statistics(
-            len(train), len(val), len(test), self.source, len(index)
+            len(train), 0 if val is None else len(val), 0 if test is None else len(test), self.source, len(index)
         )
 
         return (ImageDataset(train, self.train_transform),

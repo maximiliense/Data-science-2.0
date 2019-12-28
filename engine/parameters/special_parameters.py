@@ -19,7 +19,7 @@ experiment_name = None
 validation_id = None
 
 train = False
-validation = False
+evaluate = False
 export = False
 
 first_epoch = 0

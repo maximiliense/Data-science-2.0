@@ -111,7 +111,9 @@ def configure_engine():
 
     # configuring experiment
     special_parameters.load_model = (
-            args.epoch != 1 or args.validation or args.export or args.restart or args.load_model)
+            args.epoch != 1 or (args.eval and not args.train) or (args.export and not args.train)
+            or args.restart or args.load_model
+    )
 
     if special_parameters.load_model:
         _, special_parameters.experiment_name = last_experiment(special_parameters.output_name)

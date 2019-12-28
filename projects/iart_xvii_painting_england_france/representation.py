@@ -14,7 +14,7 @@ from datascience.visu.util import plt, save_fig
 model_params = {
     # for inception, aux_logits must be False
     'model_name': 'inception',
-    'num_classes': 2,
+    'num_classes': 60,
     'feature_extract': False
 }
 
@@ -25,7 +25,7 @@ input_size = mmodel.input_size
 
 generator = PaintingDatasetGenerator(source='paintings_xviii')
 
-train, _, _ = generator.country_dataset_one_fold(painter_val=None, painter_test=None)
+train, _, _ = generator.painter_dataset(test_size=0., val_size=0.)
 
 training_params = {
     'iterations': [100, 130, 150, 160],
