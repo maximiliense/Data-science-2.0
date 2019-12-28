@@ -80,6 +80,7 @@ class Statistics(object):
 
     def __str__(self):
         r = ''
-        for k in self.best_statistics.keys():
-            r += str(self.best_statistics[k][1]) + '\n'
+        if self.best_statistics is not None:
+            for k in self.best_statistics.keys():
+                r += str(self.best_statistics[k][1]) + '\n'
         return r

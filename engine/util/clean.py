@@ -12,7 +12,7 @@ def clean(path, name, disp_only=True):
         name = '.*'
     else:
         name += '.*'
-
+    print(path, name)
     torch_re = re.compile(r'{}.*\.torch$'.format(name))
     csv_re = re.compile(r'{}.*\.csv$'.format(name))
     image_re = re.compile(r'{}.*\.[jpegpnif]*$'.format(name))
@@ -20,8 +20,9 @@ def clean(path, name, disp_only=True):
     txt_re = re.compile(r'{}.*\.txt$'.format(name))
     json_re = re.compile(r'{}.*\.json$'.format(name))
     pyc_re = re.compile(r'{}.*\.pyc$'.format(name))
+    dump_re = re.compile(r'{}.*\.dump$'.format(name))
 
-    total = recursive_clean(path, (torch_re, csv_re, image_re, logs_re, txt_re, json_re, pyc_re), disp_only)
+    total = recursive_clean(path, (torch_re, csv_re, image_re, logs_re, txt_re, json_re, pyc_re, dump_re), disp_only)
 
     print('Total amount: ' + _size(total))
 

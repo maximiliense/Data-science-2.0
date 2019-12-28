@@ -6,7 +6,7 @@ from engine.logging import print_info, print_errors, print_debug
 
 import torch
 
-from engine.parameters.special_parameters import from_scratch, restart_experiment
+from engine.parameters import special_parameters
 from engine.path import output_path
 
 
@@ -33,7 +33,7 @@ def create_model(model_class, model_params=None, model_name='model'):
 
     model = model_class(**model_params)
 
-    if not from_scratch:  # recover from checkpoint
+    if special_parameters.load_model:  # recover from checkpoint
         _load_model(model, model_name)
 
     # configure usage on GPU
@@ -57,7 +57,7 @@ def create_optimizer(parameters, optimizer_class, optim_params, model_name='mode
     :return:
     """
     opt = optimizer_class(parameters, **optim_params)
-    if not from_scratch:
+    if special_parameters.load_model:
         _load_optimizer(opt, model_name)
     return opt
 

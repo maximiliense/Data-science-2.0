@@ -78,8 +78,6 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
     if vcallback is not None and not (special_parameters.validation_only or
                                       special_parameters.export or len(iterations) == 0):
         init_callbacks(vcallback, val_modulo, max(iterations) // val_modulo, train_loader.dataset, model_z)
-    validation_only = special_parameters.validation_only
-    export = special_parameters.export
 
     max_iterations = max(iterations)
 
@@ -217,7 +215,7 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
             if special_parameters.file:
                 save_file(validation_path, 'Final results for XP ' + special_parameters.setup_name, res)
             # callback
-            if vcallback is not None and not (validation_only or export or len(iterations) == 0):
+            if vcallback is not None and not special_parameters.train:
                 finish_callbacks(vcallback)
 
         if special_parameters.export:
