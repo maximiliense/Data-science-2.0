@@ -36,12 +36,14 @@ def get_argparse():
     group.add_argument('-i', '--validation-id', dest='validation_id', type=int, default=None,
                        help='when loading a specific model, use the one used at a specific validation (default: None)')
 
-    group.add_argument('-x', '--export', dest='export', action='store_true', default=False,
-                       help='At the end of the training (if training there is), export the results in a file ('
-                            'default: False)')
+    group.add_argument('-x', '--do_export', dest='export', action='store_true', default=False,
+                       help='Export the results in a file (default: False)')
 
-    group.add_argument('-vo', '--validation', dest='validation_only', action='store_true', default=False,
-                       help='Do not train the model and execute a validation only (default: False)')
+    group.add_argument('-t', '--do_train', dest='train', action='store_true', default=False,
+                       help='Train the model (default: False)')
+
+    group.add_argument('-ov', '--do_validation', dest='validation', action='store_true', default=False,
+                       help='Validate the model (default: False)')
 
     group.add_argument('-p', '--params', dest='params', type=str, default='',
                        help='Parameters to override module calls (default=\'\')')
@@ -49,8 +51,10 @@ def get_argparse():
     group.add_argument('-c', '--config', nargs='+', dest='config', default=None,
                        help='Use configs to override module calls. Multiple configs can be given (default: None)')
 
+    group = parser.add_argument_group('Files management')
+
     group.add_argument('--clean', dest='clean', action='store_true', default=False,
-                       help='Clean generated files (default: False).')
+                       help='Remove generated files (default: False).')
 
     group.add_argument('--show', dest='show', action='store_true', default=False,
                        help='Show generated files (default: False).')
@@ -61,8 +65,8 @@ def get_argparse():
     group.add_argument('-w', '--workers', dest='nb_workers', type=int, default=16,
                        help='Change the default number of parallel workers (default: 16)')
 
-    group.add_argument('-no', '--nodes', dest='nb_nodes', type=int, default=1,
-                       help='Ask for multiple nodes on a cluster (default: 1)')
+    # group.add_argument('-no', '--nodes', dest='nb_nodes', type=int, default=1,
+    #                    help='Ask for multiple nodes on a cluster (default: 1)')
 
     group = parser.add_argument_group('Specials')
 
@@ -82,7 +86,9 @@ def get_argparse():
 
     group.add_argument('--style', dest='style', type=str, default='dark_background',
                        help='Change the plots style (default: dark_background)')
+
     group.add_argument('-m', '--more', nargs='+', help='Additional attributes for special_parameters', required=False)
+
     group.add_argument('-la', '--list-aliases', dest='list_aliases', action='store_true', default=False,
                        help='List parameters aliases.', required=False)
 

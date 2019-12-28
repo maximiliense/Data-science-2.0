@@ -38,6 +38,9 @@ class Statistics(object):
                 self.best_statistics = best_statistics
                 self.best_model_id = validation_id
 
+    def best_metric(self):
+        return self.cv_metric
+
     def set_final_statistics(self, metrics):
         self.best_statistics = {}
         for m in metrics:

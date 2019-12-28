@@ -2,7 +2,7 @@ from engine.logging import print_debug, is_warning
 from engine.machines import detect_machine, check_interactive_cluster
 from engine.parameters.ds_argparse import ask_general_config_default
 from engine.parameters.hyper_parameters import list_aliases
-from engine.path.path import export_config, output_directory, load_last_epoch
+from engine.path.path import export_config, output_directory, load_last_epoch, configure_homex, last_experiment
 from engine.logging.verbosity import set_verbose, is_info
 
 
@@ -13,7 +13,6 @@ def configure_engine():
 
     from engine.hardware import set_devices
     from engine.parameters import special_parameters
-    from engine.parameters.special_parameters import last_experiment, configure_homex
     # from engine.tensorboard import initialize_tensorboard
     from engine.util.clean import clean
     from engine.logging.logs import print_h1, print_info, print_durations, print_info, print_errors, print_info
@@ -71,14 +70,16 @@ def configure_engine():
     # hardware
     set_devices(args.gpu)
     special_parameters.nb_workers = args.nb_workers
-    special_parameters.nb_nodes = args.nb_nodes
+    # special_parameters.nb_nodes = args.nb_nodes
 
     special_parameters.first_epoch = args.epoch - 1  # to be user friendly, we start at 1
     special_parameters.validation_id = args.validation_id
 
     config_name = hp.check_config(args)
     hp.check_parameters(args)
+
     default_name = os.path.split(sys.argv[0])[-1].replace('.py', '')
+
     if args.output_name == '*':
         if config_name is None:
             special_parameters.output_name = default_name
@@ -109,10 +110,10 @@ def configure_engine():
     print_info('Starting datetime: ' + start_dt.strftime('%Y-%m-%d %H:%M:%S'))
 
     # configuring experiment
-    load_model = (args.epoch != 1 or args.validation_only or args.export or args.restart)
-    special_parameters.from_scratch = not args.load_model if args.load_model is not None else not load_model
+    special_parameters.load_model = (
+            args.epoch != 1 or args.validation or args.export or args.restart or args.load_model)
 
-    if not special_parameters.from_scratch:
+    if special_parameters.load_model:
         _, special_parameters.experiment_name = last_experiment(special_parameters.output_name)
         # special_parameters.output_name = name
         if special_parameters.experiment_name is None:

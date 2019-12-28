@@ -80,10 +80,10 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
         init_callbacks(vcallback, val_modulo, max(iterations) // val_modulo, train_loader.dataset, model_z)
     validation_only = special_parameters.validation_only
     export = special_parameters.export
-    do_train = not (validation_only or export or len(iterations) == 0 or train_loader is None)
+
     max_iterations = max(iterations)
 
-    if do_train and first_epoch < max(iterations):
+    if special_parameters.train and first_epoch < max(iterations):
         print_h1('Training: ' + special_parameters.setup_name)
 
         loss_logs = [] if first_epoch < 1 else load_loss('train_loss')
@@ -198,28 +198,30 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
         export_epoch(epoch + 1)  # if --restart is set, the train will not be executed
 
     # final validation
-    print_h1('Validation/Export: ' + special_parameters.setup_name)
-    if metrics_stats is not None:
-        # change the parameter states of the model to best model
-        metrics_stats.switch_to_best_model()
+    if special_parameters.validation or special_parameters.export:
+        print_h1('Validation/Export: ' + special_parameters.setup_name)
+        if metrics_stats is not None:
+            # change the parameter states of the model to best model
+            metrics_stats.switch_to_best_model()
 
-    predictions, labels, val_loss = predict(model_z, test_loader, loss, validation_size=-1, **predict_params)
+        predictions, labels, val_loss = predict(model_z, test_loader, loss, validation_size=-1, **predict_params)
 
-    if special_parameters.validation_only or not special_parameters.export:
+        if special_parameters.validation:
 
-        res = validate(predictions, labels, statistics=metrics_stats, **validation_params, final=True)
+            res = validate(predictions, labels, statistics=metrics_stats, **validation_params, final=True)
 
-        print_notification(res, end='')
+            print_notification(res, end='')
 
-        if special_parameters.mail >= 1:
-            send_email('Final results for XP ' + special_parameters.setup_name, res)
-        if special_parameters.file:
-            save_file(validation_path, 'Final results for XP ' + special_parameters.setup_name, res)
-        # callback
-        if vcallback is not None and not (validation_only or export or len(iterations) == 0):
-            finish_callbacks(vcallback)
-    if special_parameters.export:
-        export_results(test_loader.dataset, predictions, **export_params)
+            if special_parameters.mail >= 1:
+                send_email('Final results for XP ' + special_parameters.setup_name, res)
+            if special_parameters.file:
+                save_file(validation_path, 'Final results for XP ' + special_parameters.setup_name, res)
+            # callback
+            if vcallback is not None and not (validation_only or export or len(iterations) == 0):
+                finish_callbacks(vcallback)
+
+        if special_parameters.export:
+            export_results(test_loader.dataset, predictions, **export_params)
 
     return metrics_stats
 

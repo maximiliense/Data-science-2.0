@@ -18,21 +18,23 @@ model_params = {
 input_size = 299  # inception
 generator = PaintingDatasetGenerator(source='paintings_xviii')
 
-export_result = output_path('result.txt')
+export_result = output_path('results.csv')
 
 painter_list = generator.unique_painters()
+
+with open(export_result, 'w') as f:
+    f.write('painter,prediction,true_label\n')
+
 for i in range(len(painter_list)):
     painter_val = painter_list[i]
     painter_test = painter_list[(i+1) % len(painter_list)]
     print_h1('||| PAINTER VAL: ' + painter_val + ', PAINTER TEST: ' + painter_test + ' |||')
-    with open(export_result, 'a') as f:
-        f.write('||| PAINTER VAL: ' + painter_val + ', PAINTER TEST: ' + painter_test + ' |||' + '\n')
+
     train, val, test = generator.country_dataset_one_fold(painter_val=painter_val, painter_test=painter_test)
 
     model = create_model(model_class=initialize_model, model_params=model_params)
     mmodel = model.module if type(model) is torch.nn.DataParallel else model
     mmodel.aux_logits = False
-    input_size = mmodel.input_size
 
     training_params = {
         'iterations': [100, 130, 150, 160],
@@ -56,7 +58,12 @@ for i in range(len(painter_list)):
         model, train=train, val=val, test=test, training_params=training_params, validation_params=validation_params,
         optim_params=optim_params, cross_validation_params=cross_validation_params
     )
-    with open(export_result, 'a') as f:
-        f.write(str(stats) + '\n\n')
+    score = stats.best_metric().metric_score()
+    score = score if test[0][1] == 1. else 1. - score
+
+    # write the score in a csv
+    with open(export_result, 'a'):
+        f.write('%s,%.5f,%ld\n' % (painter_test, score, test[0][1]))
+
     del stats
     del model
