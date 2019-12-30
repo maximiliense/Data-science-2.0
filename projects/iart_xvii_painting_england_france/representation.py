@@ -7,12 +7,15 @@ from datascience.ml.neural.checkpoints import create_model
 from datascience.ml.neural.models.pretrained import initialize_model
 from datascience.ml.neural.representation.representation import extract_representation
 from datascience.ml.neural.supervised import fit
+import pickle
 
 import numpy as np
 
 from sklearn.manifold import TSNE
 
 from datascience.visu.util import plt, save_fig
+from engine.logging import print_info
+from engine.path import output_path
 
 model_params = {
     # for inception, aux_logits must be False
@@ -50,18 +53,8 @@ cross_validation_params = {
 }
 
 
-def clean_labels(label):
-    if label == 'french_painter':
-        return 'French'
-    elif label == 'english_painter':
-        return 'English'
-    else:
-        return label
-
-
-def do_extraction(dataset, labels_index, fig_name='representation_tsne'):
+def do_extraction(dataset, labels_index, file_name='representation_tsne'):
     representation, colors, labels = extract_representation(dataset, model, labels_index=labels_index)
-    count_labels = {k: True for k in labels}
 
     representation_embedded = TSNE(n_components=2).fit_transform(representation)
 
@@ -72,36 +65,32 @@ def do_extraction(dataset, labels_index, fig_name='representation_tsne'):
     col, rep = [], []
 
     artists.append((rep, col, c))
-    colors = cm.rainbow(np.linspace(0, 1, len(count_labels)))
+
     for row in zipped:
         if row[2] != c:
             col, rep = [], []
             c = row[2]
             artists.append((rep, col, c))
-        col.append(colors[row[1]])
+        col.append(row[1])
         rep.append(row[0])
 
-    ax = plt(fig_name, figsize=(8, 10)).gca()
+    # converting to numpy
+    for i in range(len(artists)):
+        artists[i] = (np.array(artists[i][0]), np.array(artists[i][1]), artists[i][2])
 
-    for row in artists:
-        col = np.array(row[1])
-        rep = np.array(row[0])
-        ax.scatter(rep[:, 0], rep[:, 1], c=col, label=clean_labels(row[2]))
-
-    ax.legend(bbox_to_anchor=(0, 0, 1, 1), bbox_transform=plt(fig_name).gcf().transFigure, prop={'size': 6},
-              ncol=4, loc=3)
-    ax.set_title('Painting representation')
+    path = output_path(file_name + '.dump')
+    with open(path, 'wb') as f:
+        pickle.dump(artists, f)
+    print_info('Representation saved at: ' + path)
 
 
-do_extraction(representation_dataset, index_country, fig_name='representation_tsne_country')
+do_extraction(representation_dataset, index_country, file_name='representation_tsne_country')
 
 stats = fit(
     model, train=train, test=train, training_params=training_params, validation_params=validation_params,
     optim_params=optim_params, cross_validation_params=cross_validation_params
 )
 
-do_extraction(train, index, fig_name='representation_tsne_final_painter')
+do_extraction(train, index, file_name='representation_tsne_final_painter')
 
-do_extraction(representation_dataset, index_country, fig_name='representation_tsne_final_country')
-
-save_fig()
+do_extraction(representation_dataset, index_country, file_name='representation_tsne_final_country')

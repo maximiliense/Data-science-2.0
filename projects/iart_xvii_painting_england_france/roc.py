@@ -56,7 +56,8 @@ y = np.array([
     [0.9142, 1.],
     [1.-0.8175, 0.],
     [1.-0.4865, 0.],
-    [0.9110, 1.]
+    [0.9110, 1.],
+    [1.-0.2159, 0.]
 ])
 
 fpr, tpr, thresholds = roc_curve(y[:, 1], y[:, 0], pos_label=1)
@@ -76,7 +77,7 @@ ax.plot([0, 0, 1], [0, 1, 1], color='green', linestyle='--', label='Perfect mode
 ax.legend(loc="lower right")
 
 ax = plt('confusion_matrix').gca()
-y_threshold = (y > 0.6).astype(int)
+y_threshold = (y > 0.7).astype(int)
 
 matrix = confusion_matrix(y[:, 1], y_threshold[:, 0])
 
