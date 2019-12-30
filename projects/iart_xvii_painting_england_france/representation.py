@@ -26,6 +26,7 @@ input_size = mmodel.input_size
 generator = PaintingDatasetGenerator(source='paintings_xviii')
 
 train, _, _ = generator.painter_dataset(test_size=0., val_size=0.)
+representation_dataset, _, _ = generator.country_dataset_one_fold(painter_val=None, painter_test=None)
 
 training_params = {
     'iterations': [100, 130, 150, 160],
@@ -48,7 +49,7 @@ cross_validation_params = {
 
 
 def do_extraction(fig_name='representation_tsne'):
-    representation, colors = extract_representation(train, model)
+    representation, colors = extract_representation(representation_dataset, model)
     print(representation.shape, colors.shape)
     representation_embedded = TSNE(n_components=2).fit_transform(representation)
 
