@@ -12,7 +12,7 @@ def clean(path, name, disp_only=True):
         name = '.*'
     else:
         name += '.*'
-    print(path, name)
+
     torch_re = re.compile(r'{}.*\.torch$'.format(name))
     csv_re = re.compile(r'{}.*\.csv$'.format(name))
     image_re = re.compile(r'{}.*\.[jpegpnif]*$'.format(name))
@@ -42,7 +42,7 @@ def recursive_clean(path, regex, disp_only=True):
     total = 0
     for file in os.listdir(path):
         path_file = os.path.join(path, file)
-        if 'final' in path_file or 'keep' in path_file:
+        if '__final__' in path_file or '__keep__' in path_file:
             continue
         elif os.path.isdir(path_file):
             total += recursive_clean(path_file, regex, disp_only)
