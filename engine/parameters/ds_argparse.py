@@ -36,13 +36,13 @@ def get_argparse():
     group.add_argument('-i', '--validation-id', dest='validation_id', type=int, default=None,
                        help='when loading a specific model, use the one used at a specific validation (default: None)')
 
-    group.add_argument('-x', '--do_export', dest='export', action='store_true', default=False,
+    group.add_argument('-x', '--do-export', dest='export', action='store_true', default=False,
                        help='Export the results in a file (default: False)')
 
-    group.add_argument('-t', '--do_train', dest='train', action='store_true', default=False,
+    group.add_argument('-t', '--do-train', dest='train', action='store_true', default=False,
                        help='Train the model (default: False)')
 
-    group.add_argument('-ov', '--do_eval', dest='eval', action='store_true', default=False,
+    group.add_argument('-ov', '--do-eval', dest='eval', action='store_true', default=False,
                        help='Evaluate the model (default: False)')
 
     group.add_argument('-p', '--params', dest='params', type=str, default='',
