@@ -82,9 +82,11 @@ class PaintingDatasetGenerator(object):
             len(train), 0 if val is None else len(val), 0 if test is None else len(test), self.source, len(index)
         )
 
+        inversed_index = {v: k for k, v in index.items()}
+
         return (ImageDataset(train, self.train_transform),
                 ImageDataset(val, self.test_transform),
-                ImageDataset(test, self.test_transform))
+                ImageDataset(test, self.test_transform), inversed_index)
 
     def country_dataset_one_fold(self, painter_val, painter_test):
         """
@@ -115,9 +117,11 @@ class PaintingDatasetGenerator(object):
             0 if dataset['test'] is None else len(dataset['test']), self.source, len(index)
         )
 
+        inversed_index = {v: k for k, v in index.items()}
+
         return (ImageDataset(dataset['train'], self.train_transform),
                 ImageDataset(dataset['val'], self.test_transform),
-                ImageDataset(dataset['test'], self.test_transform))
+                ImageDataset(dataset['test'], self.test_transform), inversed_index)
 
     def country_dataset(self, test_size=0.1, val_size=0.1):
         """
@@ -162,9 +166,10 @@ class PaintingDatasetGenerator(object):
             len(dataset['test']),
             self.source, len(index_labels)
         )
+        inversed_index = {v: k for k, v in index_labels.items()}
         return (ImageDataset(dataset['train'], self.train_transform),
                 ImageDataset(dataset['val'], self.test_transform),
-                ImageDataset(dataset['test'], self.test_transform))
+                ImageDataset(dataset['test'], self.test_transform), inversed_index)
 
     def _painter_split(self, painters_list=None, test_size=0.1, val_size=0.1):
         if painters_list is None:
