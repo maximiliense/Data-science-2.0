@@ -17,6 +17,8 @@ path = os.path.join(last_experiment_path(experiment_name), 'results.csv')
 
 df = pd.read_csv(path, header='infer', sep=',')
 
+print(df)
+
 fpr, tpr, thresholds = roc_curve(df.true_label, df.prediction, pos_label=1)
 
 ax = plt('roc_curve').gca()
