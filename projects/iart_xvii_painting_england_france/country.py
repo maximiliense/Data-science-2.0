@@ -23,7 +23,7 @@ export_result = output_path('results.csv')
 painter_list = generator.unique_painters()
 
 with open(export_result, 'w') as f:
-    f.write('painter_val,painter_test,prediction,true_label\n')
+    f.write('painter_val;painter_test;prediction;true_label\n')
 
 for i in range(len(painter_list)):
     painter_val = painter_list[i]
@@ -63,7 +63,7 @@ for i in range(len(painter_list)):
 
     # write the score in a csv
     with open(export_result, 'a') as f:
-        f.write('%s,%s,%.5f,%ld\n' % (painter_val, painter_test, score, test[0][1]))
+        f.write('%s;%s;%.5f;%ld\n' % (painter_val, painter_test, score, test[0][1]))
 
     del stats
     del model

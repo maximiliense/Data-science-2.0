@@ -15,7 +15,7 @@ from engine.path import last_experiment_path
 experiment_name = get_parameters('roc_experiment', 'country')
 path = os.path.join(last_experiment_path(experiment_name), 'results.csv')
 
-df = pd.read_csv(path, header='infer', sep=',')
+df = pd.read_csv(path, header='infer', sep=';')
 
 print(df)
 
