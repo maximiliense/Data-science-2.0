@@ -34,35 +34,17 @@ class Loss(ABC):
         return 'Loss'
 
 
-class CEMTLossSpeciesArea(Loss):
-    def __init__(self, dim):
+class BCEWithLogitsLoss(Loss):
+    def __init__(self):
         super().__init__()
 
-        self.dim = dim
-        self.configured = False
-        self.criterion_species = None
-        self.criterion_area = None
-        self.r = 0.75
-
-    def configure(self):
-        # this is here because it needs to be done after GPU configuration...
-        weight = torch.FloatTensor([0 if i == 0 else 1 for i in range(self.dim)])
-        weight = weight.cuda()
-        self.criterion_species = nn.CrossEntropyLoss(weight=weight)
-        self.criterion_area = nn.CrossEntropyLoss()
+        self.criterion = nn.BCEWithLogitsLoss()
 
     def loss(self, output, label):
-        if not self.configured:
-            self.configure()
-
-        return self.r*self.criterion_species(output[0], label[0]) + (1-self.r)*self.criterion_area(output[1], label[1])
-
-    @staticmethod
-    def output(output):
-        return output[0]
+        return self.criterion(output, label)
 
     def __repr__(self):
-        return 'Multi-task Cross Entropy (Species/Area)'
+        return 'Binary Cross Entropy'
 
 
 class CELoss(Loss):
