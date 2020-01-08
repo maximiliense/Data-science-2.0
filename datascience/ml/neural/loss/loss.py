@@ -35,10 +35,10 @@ class Loss(ABC):
 
 
 class BCEWithLogitsLoss(Loss):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         super().__init__()
 
-        self.criterion = nn.BCEWithLogitsLoss()
+        self.criterion = nn.BCEWithLogitsLoss(*args, **kwargs)
 
     def loss(self, output, label):
         return self.criterion(output, label)
@@ -48,10 +48,10 @@ class BCEWithLogitsLoss(Loss):
 
 
 class MTBCEWithLogitsLoss(Loss):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         super().__init__()
 
-        self.criterion = nn.BCEWithLogitsLoss()
+        self.criterion = nn.BCEWithLogitsLoss(*args, **kwargs)
 
     def loss(self, output, label):
         _output = torch.mul(output, label[0])
@@ -64,10 +64,10 @@ class MTBCEWithLogitsLoss(Loss):
 
 
 class CELoss(Loss):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         super().__init__()
 
-        self.criterion = nn.CrossEntropyLoss()
+        self.criterion = nn.CrossEntropyLoss(*args, **kwargs)
 
     def loss(self, output, label):
         return self.criterion(output, label)
@@ -77,10 +77,10 @@ class CELoss(Loss):
 
 
 class MSELoss(Loss):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         super().__init__()
 
-        self.criterion = nn.MSELoss()
+        self.criterion = nn.MSELoss(*args, **kwargs)
 
     def loss(self, output, label):
         return self.criterion(output, label)
@@ -90,9 +90,9 @@ class MSELoss(Loss):
 
 
 class CategoricalPoissonLoss(Loss):
-    def __init__(self, log_input=True):
+    def __init__(self, log_input=True, *args, **kwargs):
         super().__init__()
-        self.criterion = nn.PoissonNLLLoss(log_input=log_input)
+        self.criterion = nn.PoissonNLLLoss(log_input=log_input, *args, **kwargs)
 
     def loss(self, output, label):
         # constructing a one hot encoding structure
@@ -114,7 +114,7 @@ class CategoricalPoissonLoss(Loss):
 
 
 class CELossBayesian(Loss):
-    def __init__(self, prior):
+    def __init__(self, prior, *args, **kwargs):
         super().__init__()
         # Variable(torch.from_numpy(np.log(self.prior)).float())
 
@@ -124,7 +124,7 @@ class CELossBayesian(Loss):
         else:
             self.prior = torch.from_numpy(np.log(prior)).float()
 
-        self.criterion = nn.CrossEntropyLoss()
+        self.criterion = nn.CrossEntropyLoss(*args, **kwargs)
 
     def loss(self, output, label):
         return self.criterion(output + self.prior, label)
