@@ -194,6 +194,10 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
         # saving last epoch
         export_epoch(epoch + 1)  # if --restart is set, the train will not be executed
 
+    # callback
+    if vcallback is not None and not special_parameters.train:
+        finish_callbacks(vcallback)
+
     # final validation
     if special_parameters.evaluate or special_parameters.export:
         print_h1('Validation/Export: ' + special_parameters.setup_name)
@@ -213,9 +217,6 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
                 send_email('Final results for XP ' + special_parameters.setup_name, res)
             if special_parameters.file:
                 save_file(validation_path, 'Final results for XP ' + special_parameters.setup_name, res)
-            # callback
-            if vcallback is not None and not special_parameters.train:
-                finish_callbacks(vcallback)
 
         if special_parameters.export:
             export_results(test_loader.dataset, predictions, **export_params)

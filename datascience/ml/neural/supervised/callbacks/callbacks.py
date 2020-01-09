@@ -76,6 +76,41 @@ class StatCallback(Callback):
                 l += 1
 
 
+class AlignmentMetricCallback(Callback):
+    def __init__(self, fig_name='FilterVarianceCallback'):
+        super().__init__()
+        self.alignment_history = []
+        self.figure_name = fig_name
+
+    def initial_call(self, modulo, nb_calls, dataset, model):
+        super().initial_call(modulo, nb_calls, dataset, model)
+        assert (type(self.model) is CustomizableCNN), "VarianceCallback only works with CustomizableCNN."
+
+    def last_call(self):
+        print('here')
+        fig = get_figure(self.figure_name)
+        ax = fig.gca()
+        scatter = np.array(self.alignment_history)
+        ax.plot(scatter)
+        save_fig_direct_call(figure_name=self.figure_name)
+
+    def __call__(self, validation_id):
+        filters = torch.flatten(self.model.conv_layers[0][0].weight, start_dim=1).detach().clone().cpu().numpy()
+        print(filters.shape)
+        scalar_product = []
+        for i in range(filters.shape[0]-1):
+            for j in range(i+1, filters.shape[0]):
+                scalar_product.append(np.abs(
+                    np.dot(filters[i], filters[j])/(np.linalg.norm(filters[i])*np.linalg.norm(filters[j]))
+                ))
+
+        print(np.max(scalar_product))
+        print(np.average(scalar_product))
+        self.alignment_history.append(
+            np.max(scalar_product)
+        )
+
+
 class FilterVarianceCallback(Callback):
     """
     Analysis the variance of the filter of 1 hidden layer convolutional network
