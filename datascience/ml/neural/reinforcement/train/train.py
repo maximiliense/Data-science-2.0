@@ -139,8 +139,8 @@ def fit(model_z, game_class, game_params=None, training_params=None, predict_par
     epsilon_start = training_params.pop('epsilon_start')
     epsilon_end = training_params.pop('epsilon_end')
 
-    validate = special_parameters.evaluate
-    export = special_parameters.export
+    evaluate = special_parameters.evaluate
+    # export = special_parameters.export
     do_train = special_parameters.train
     max_iterations = max(iterations)
 
@@ -238,7 +238,7 @@ def fit(model_z, game_class, game_params=None, training_params=None, predict_par
                 validation_id = str(int((epoch + 1) / val_modulo))
 
                 # validation call
-                loss_val = play(model_z, output_size, game_class, game_params, 2)
+                loss_val = play(model_z, output_size, game_class, game_params, 1)
 
                 loss_val_logs.append(loss_val)
 
@@ -270,17 +270,17 @@ def fit(model_z, game_class, game_params=None, training_params=None, predict_par
 
     # final validation
     print_h1('Validation/Export: ' + special_parameters.setup_name)
+    if evaluate:
+        loss_val = play(model_z, output_size, game_class, game_params, 500)
 
-    loss_val = play(model_z, output_size, game_class, game_params, 500)
+        res = '' + loss_val
 
-    res = '' + loss_val
+        print_notification(res, end='')
 
-    print_notification(res, end='')
-
-    if special_parameters.mail >= 1:
-        send_email('Final results for XP ' + special_parameters.setup_name, res)
-    if special_parameters.file:
-        save_file(validation_path, 'Final results for XP ' + special_parameters.setup_name, res)
+        if special_parameters.mail >= 1:
+            send_email('Final results for XP ' + special_parameters.setup_name, res)
+        if special_parameters.file:
+            save_file(validation_path, 'Final results for XP ' + special_parameters.setup_name, res)
 
 
 def _skip_step(lr_scheduler, epoch):

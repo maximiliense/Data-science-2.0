@@ -6,7 +6,7 @@ from datascience.ml.neural.reinforcement.game import OffshoreRegatta
 model = create_model(model_class=InceptionQRouting)
 
 fit(
-    model, OffshoreRegatta, game_params={'source': 'grib_gfs_2018'},
+    model, OffshoreRegatta, game_params={'source': 'grib_gfs_2018', 'islands_sup': 1000},
     training_params=None, predict_params=None, validation_params=None,
     export_params=None, optim_params=None
 )

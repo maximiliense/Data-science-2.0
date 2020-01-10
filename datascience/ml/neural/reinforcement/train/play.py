@@ -17,7 +17,7 @@ def play(model_z, output_size, game_class, game_params, nb_games):
     """
     total_score = 0.
     for _ in range(nb_games):
-        _, _, score = _play(model_z, output_size, game_class, game_params, plot=True, max_actions=50)
+        _, _, score = _play(model_z, output_size, game_class, game_params, plot=True, max_actions=998)
         total_score += score
     return total_score / nb_games
 
