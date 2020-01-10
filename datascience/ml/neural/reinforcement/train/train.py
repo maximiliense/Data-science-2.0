@@ -139,16 +139,16 @@ def fit(model_z, game_class, game_params=None, training_params=None, predict_par
     epsilon_start = training_params.pop('epsilon_start')
     epsilon_end = training_params.pop('epsilon_end')
 
-    validation_only = special_parameters.validation_only
+    validate = special_parameters.evaluate
     export = special_parameters.export
-    play_only = (validation_only or export or len(iterations) == 0)
+    do_train = special_parameters.train
     max_iterations = max(iterations)
 
     game = game_class(**game_params)
 
     replay_memory = ReplayMemory(rm_size)
 
-    if not play_only and first_epoch < max(iterations):
+    if do_train and first_epoch < max(iterations):
         print_h1('Training: ' + special_parameters.setup_name)
 
         state = unsqueeze(init_game(game, replay_memory, output_size, len(replay_memory)))
