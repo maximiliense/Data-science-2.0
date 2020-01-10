@@ -83,9 +83,9 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
     if special_parameters.train and first_epoch < max(iterations):
         print_h1('Training: ' + special_parameters.setup_name)
 
-        loss_logs = [] if first_epoch < 1 else load_loss('train_loss')
+        loss_logs = [] if first_epoch < 1 else load_loss('loss_train')
 
-        loss_val_logs = [] if first_epoch < 1 else load_loss('validation_loss')
+        loss_val_logs = [] if first_epoch < 1 else load_loss('loss_validation')
 
         opt = create_optimizer(model_z.parameters(), optim, optim_params)
 

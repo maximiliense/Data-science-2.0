@@ -168,4 +168,6 @@ def load_loss(name):
         with open(path) as f:
             loss = json.load(f)
         return loss
+    else:
+        print_debug(path + ' does not exist...')
     return []

@@ -160,9 +160,9 @@ def fit(model_z, game_class, game_params=None, training_params=None, predict_par
         if batch_size > len(replay_memory):
             print_errors('Batch size is bigger than available memory...', do_exit=True)
 
-        loss_logs = [] if first_epoch < 1 else load_loss('train_loss')
+        loss_logs = [] if first_epoch < 1 else load_loss('loss_train')
 
-        loss_val_logs = [] if first_epoch < 1 else load_loss('validation_loss')
+        loss_val_logs = [] if first_epoch < 1 else load_loss('loss_validation')
 
         rewards_logs = [] if first_epoch < 1 else load_loss('train_rewards')
         rewards_val_logs = [] if first_epoch < 1 else load_loss('val_rewards')
@@ -260,7 +260,7 @@ def fit(model_z, game_class, game_params=None, training_params=None, predict_par
             save_loss(
                 {  # // log_modulo * log_modulo in case log_modulo does not divide epoch_size
                     'train': (loss_logs, log_modulo),
-                    'validation': (loss_val_logs, epoch_size // log_modulo * log_modulo * val_modulo)
+                    # 'validation': (loss_val_logs, val_modulo)
                 },
                 ylabel=str(loss)
             )
