@@ -31,6 +31,6 @@ OPTIM_PARAMS = {
     'lr': 0.1
 }
 
-CROSS_VALIDATION_PARAMS = {
+MODEL_SELECTION_PARAMS = {
     'cross_validation': False
 }

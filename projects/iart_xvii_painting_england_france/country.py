@@ -49,14 +49,14 @@ for i in range(len(painter_list)):
         'metrics': (ValidationAccuracy(1),)
     }
 
-    cross_validation_params = {
+    model_selection_params = {
         'cross_validation': True,
         'min_epochs': 50
     }
 
     stats = fit(
         model, train=train, val=val, test=test, training_params=training_params, validation_params=validation_params,
-        optim_params=optim_params, cross_validation_params=cross_validation_params
+        optim_params=optim_params, model_selection_params=model_selection_params
     )
     score = stats.final_metric().metric_score()
     score = score if test[0][1] == 1. else 1. - score

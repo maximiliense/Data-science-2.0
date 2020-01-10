@@ -42,6 +42,6 @@ cross_validation_params = {
 
 stats = fit(
     model, train=train, val=val, test=test, training_params=training_params, validation_params=validation_params,
-    optim_params=optim_params, cross_validation_params=cross_validation_params
+    optim_params=optim_params, model_selection_params=cross_validation_params
 )
 print(stats)

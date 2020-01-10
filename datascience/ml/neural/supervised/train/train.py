@@ -10,7 +10,7 @@ from datascience.ml.neural.supervised.predict import predict
 from datascience.ml.evaluation import validate, export_results
 from datascience.ml.neural.checkpoints.checkpoints import create_optimizer, save_checkpoint
 from datascience.ml.neural.supervised.train.default_params import TRAINING_PARAMS, OPTIM_PARAMS, EXPORT_PARAMS, \
-    VALIDATION_PARAMS, PREDICT_PARAMS, CROSS_VALIDATION_PARAMS
+    VALIDATION_PARAMS, PREDICT_PARAMS, MODEL_SELECTION_PARAMS
 from engine.hardware import use_gpu
 from engine.parameters import special_parameters
 from engine.path import output_path
@@ -25,7 +25,7 @@ from engine.core import module
 
 @module
 def fit(model_z, train, test, val=None, training_params=None, predict_params=None, validation_params=None,
-        export_params=None, optim_params=None, cross_validation_params=None):
+        export_params=None, optim_params=None, model_selection_params=None):
     """
     This function is the core of an experiment. It performs the ml procedure as well as the call to validation.
     :param training_params: parameters for the training procedure
@@ -37,7 +37,7 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
     :param validation_params:
     :param predict_params:
     :param model_z: the model that should be trained
-    :param cross_validation_params:
+    :param model_selection_params:
     """
     # configuration
 
@@ -48,7 +48,7 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
             validation_params, VALIDATION_PARAMS,
             export_params, EXPORT_PARAMS,
             optim_params, OPTIM_PARAMS,
-            cross_validation_params, CROSS_VALIDATION_PARAMS
+            model_selection_params, MODEL_SELECTION_PARAMS
         )
 
     train_loader, test_loader, val_loader = _dataset_setup(train, test, val, **training_params)
