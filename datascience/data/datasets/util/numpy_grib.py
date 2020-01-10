@@ -47,7 +47,7 @@ class NumpyGrib(object):
         reverse_mask = np.ma.masked_where(reverse_mask == 1, reverse_mask)
 
         # Plot
-        ax.imshow(np.flip(reverse_mask, axis=0), cmap=matplotlib.pyplot.get_cmap('gray'), vmin=-15, vmax=5)
+        ax.imshow(reverse_mask, cmap=matplotlib.pyplot.get_cmap('gray'), vmin=-15, vmax=5)
         ax.set_xlabel('Longitude')
         ax.set_ylabel('Latitude')
         ax.set_title('Land-sea mask')
