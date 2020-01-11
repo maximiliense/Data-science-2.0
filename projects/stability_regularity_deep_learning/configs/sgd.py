@@ -3,10 +3,9 @@
 config = {
     'fit': {
         'training_params': {
-            'batch_size': 4
+            'batch_size': 5
             },
         'optim_params': {
-            'lr': 0.2
         }
     }
 }

@@ -16,7 +16,7 @@ train, test = mnist() if get_parameters('mnist', False) else cifar10()
 
 model_params = {
     'im_shape': train[0][0].shape,
-    'conv_layers': (32,),  # (150, 150),
+    'conv_layers': (64,),  # (150, 150),
     'linear_layers': tuple(),  # (128, 128),
     'pooling': torch.nn.AvgPool2d,
     'conv_size': 3
@@ -39,7 +39,7 @@ optim_params = {
 
 validation_params = {
     'metrics': (ValidationAccuracy(1),),
-    'vcallback': (AlignmentMetricCallback(),)  # FilterVarianceCallback(averaged=False, window_size=10),)  # (NewStatCallback(train),)
+    'vcallback': (FilterVarianceCallback(averaged=False, window_size=10),)  # (AlignmentMetricCallback(),NewStatCallback(train),)
 }
 
 fit(
