@@ -194,9 +194,9 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
         # saving last epoch
         export_epoch(epoch + 1)  # if --restart is set, the train will not be executed
 
-    # callback
-    if vcallback is not None and not special_parameters.train:
-        finish_callbacks(vcallback)
+        # callback
+        if vcallback is not None:
+            finish_callbacks(vcallback)
 
     # final validation
     if special_parameters.evaluate or special_parameters.export:
