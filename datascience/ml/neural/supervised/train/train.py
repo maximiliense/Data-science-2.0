@@ -154,7 +154,7 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
 
                 # validation call
                 predictions, labels, loss_val = predict(
-                    model_z, val_loader, loss, **predict_params, compute_loss=True
+                    model_z, val_loader, loss, **predict_params
                 )
                 loss_val_logs.append(loss_val)
 
