@@ -8,11 +8,11 @@ from datascience.visu.deep_test_plots import plot_db_partitions_gradients, plot_
 from datascience.visu.util.util import save_fig, remove_axis
 
 # constructing the dataset
-train, test = create_dataset(param_train=(50, 50), poly=True)
+train, test = create_dataset(param_train=(250, 250), poly=True)
 
 # creating/loading a model
 model_params = {
-    'architecture': (75,),  # play with config GD and SGD + architecture for the first figures
+    'architecture': (10, 10, 10),  # play with config GD and SGD + architecture for the first figures
     'dropout': 0.0,
 }
 model = create_model(model_class=FullyConnectedDeepAnalysis, model_params=model_params)
