@@ -43,8 +43,11 @@ class ImageDatasetMTBernoulli(Dataset):
         if self.transform is not None:
             img = self.transform(img)
 
-        labels = torch.from_numpy(np.array(
+        mask = torch.from_numpy(np.array(
             [1 if self.classes[idx][1] == i else 0 for i in range(self.nb_classes)]
         )).float()
+        labels = torch.from_numpy(np.array(
+            [self.labels[idx][1] if self.classes[idx][1] == i else 0 for i in range(self.nb_classes)]
+        )).float()
 
-        return img, labels
+        return img, torch.stack([mask, labels])
