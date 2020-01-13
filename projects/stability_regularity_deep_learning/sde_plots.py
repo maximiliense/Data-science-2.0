@@ -1,31 +1,36 @@
 from datascience.visu.util import plt, save_fig
 import numpy as np
 
-ax = plt('sde_kappa').gca()
+ax = plt('sde_omega').gca()
 
 x = np.linspace(0, 3500, 5000)
 
 
-def f(t, kappa=0.2, lambda_jk=1., b=10.):
-    eta = 0.001
-    var_x = 1.
+def f(t, omega=32, eta=0.1, b=10.):
+    kappa = 0.015
+    kappa_k = kappa
+
+    var_x_delta = 1.
+    lambda_jk = 1.
     w_0 = 1.
-    result = (eta / b) * (var_x/lambda_jk)
-    result *= (1/(kappa**2) * np.log(kappa ** 2 * t + np.exp(kappa*w_0))/(1+kappa ** 2 * t + np.exp(kappa * w_0))) ** 2
+    result = eta/(b * 2) * (var_x_delta/lambda_jk)
+    w_t = np.log(kappa * omega * kappa_k * t + np.exp(kappa * omega * w_0))
+    w_t /= (kappa*omega + (kappa ** 2) * kappa_k * (omega ** 2) * t + np.exp(kappa * omega * w_0))
+    result *= w_t ** 2
     result *= (1 - np.exp(-2*lambda_jk*eta*t))
     return result
 
 
-for k in np.linspace(0.1, 0.2, 10):
-    ax.plot(x, f(x, k), label='%.2f' % k)
+for width in [16*i for i in range(2, 5)]:
+    ax.plot(x, f(x, width), label='$\\omega$=%ld' % width)
 ax.legend()
-save_fig('sde_kappa')
+save_fig('sde_omega')
 
-ax = plt('sde_lambda').gca()
+ax = plt('sde_eta_b').gca()
 
 x = np.linspace(0, 3500, 5000)
 
-for la in np.linspace(0.5, 10, 5):
-    ax.plot(x, f(x, lambda_jk=la), label='%.2f' % la)
+for batch_size in np.linspace(64, 512, 8):
+    ax.plot(x, f(x, b=batch_size), label='$\\eta$/B=%.4lf' % (0.1/float(batch_size)))
 ax.legend()
-save_fig('sde_lambda')
+save_fig('sde_eta_b')

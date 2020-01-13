@@ -52,7 +52,7 @@ def predict(model, loader, loss, export=False, filters=tuple(), validation_size=
             outputs = model(inputs)
 
             # if not test set
-            if labels[0] != -1:
+            if compute_loss and labels[0] != -1:
                 loss_value = loss(outputs, labels)
                 running_loss += loss_value.item()
             outputs = loss.output(outputs)
