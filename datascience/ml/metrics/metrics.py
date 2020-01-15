@@ -76,7 +76,7 @@ class F1Score(ValidationMetric):
         true_negative = 0
         false_negative = 0
         for i, pred in enumerate(predictions):
-            for j in range(predictions.size(1)):
+            for j in range(predictions.shape[1]):
                 if labels[i, 0, j] == 1:
                     if labels[i, 1, j] == 1 and predictions[i, j] >= self.threshold:
                         true_positive += 1
