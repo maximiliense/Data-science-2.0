@@ -88,7 +88,8 @@ class F1Score(ValidationMetric):
                         false_positive += 1
         precision = float(true_positive) / (true_positive + false_positive)
         recall = float(true_positive) / (true_positive + false_negative)
-        return 2. * precision * recall / (precision + recall)
+        self.score =  2. * precision * recall / (precision + recall)
+        return self.metric_score(), str(self)
 
     def is_better(self, score):
         return self.metric_score() > score
