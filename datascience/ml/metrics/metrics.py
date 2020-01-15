@@ -65,9 +65,10 @@ class ValidationAccuracy(ValidationMetric):
 
 
 class F1Score(ValidationMetric):
-    def __init__(self, final_validation=False):
+    def __init__(self, final_validation=False, threshold=0):
         super().__init__(final_validation)
         self.cv_metric = True
+        self.threshold = threshold
 
     def __call__(self, predictions, labels):
         true_positive = 0
@@ -77,11 +78,11 @@ class F1Score(ValidationMetric):
         for i, pred in enumerate(predictions):
             for j in range(predictions.size(1)):
                 if labels[i, 0, j] == 1:
-                    if labels[i, 1, j] == 1and predictions[i, j] >= 0.5:
+                    if labels[i, 1, j] == 1and predictions[i, j] >= self.threshold:
                         true_positive += 1
-                    elif labels[i, 1, j] == 1 and predictions[i, j] < 0.5:
+                    elif labels[i, 1, j] == 1 and predictions[i, j] < self.threshold:
                         false_negative += 1
-                    elif labels[i, 1, j] == 0 and predictions[i, j] < 0.5:
+                    elif labels[i, 1, j] == 0 and predictions[i, j] < self.threshold:
                         true_negative += 1
                     else:
                         false_positive += 1
