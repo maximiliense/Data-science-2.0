@@ -54,6 +54,9 @@ class MTBCEWithLogitsLoss(Loss):
         self.criterion = nn.BCEWithLogitsLoss(*args, **kwargs)
 
     def loss(self, output, label):
+        print('VALENTIN!!')
+        print(output.size(), label.size())
+        exit()
         _output = torch.mul(output, label[0])
         # bias because the criterion should not take into account the masked values
         bias = torch.log(torch.sigmoid(_output[label[0] == 0])).sum()/(output.size(0)*_output.size(1))
@@ -100,7 +103,7 @@ class HebbLoss(Loss):
                 result -= output[i][0] + output[i][1] * -1
             else:
                 result -= output[i][1] + output[i][0] * -1
-        return result
+        return result/output.size(0)
 
     def __repr__(self):
         return 'Hebb Loss'
