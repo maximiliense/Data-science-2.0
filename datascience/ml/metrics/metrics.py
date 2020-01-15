@@ -65,7 +65,7 @@ class ValidationAccuracy(ValidationMetric):
 
 
 class F1Score(ValidationMetric):
-    def __init__(self, final_validation=False, threshold=0):
+    def __init__(self, final_validation=False, threshold=0.):
         super().__init__(final_validation)
         self.cv_metric = True
         self.threshold = threshold
