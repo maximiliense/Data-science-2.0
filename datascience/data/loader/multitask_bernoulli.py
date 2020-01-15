@@ -30,7 +30,12 @@ def load_multitask_bernoulli_dataset(source, test_size=0.1, val_size=0.1, transf
             if label not in labels_index:
                 if len(labels_index) >= 2:
                     raise PosNegLabelException('All positive and negative labels folder must have the same name...')
-                labels_index[label] = len(labels_index)
+                if 'pos' in label:
+                    labels_index[label] = 1
+                elif 'neg' in label:
+                    labels_index[label] = 0
+                else:
+                    labels_index[label] = len(labels_index)
             for image in os.listdir(path_label):
                 labels.append((label, labels_index[label]))  # label name, label ID
                 classes.append((c, classes_index[c]))  # class name, class ID

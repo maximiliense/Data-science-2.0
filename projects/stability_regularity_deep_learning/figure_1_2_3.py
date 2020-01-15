@@ -5,7 +5,7 @@ from datascience.ml.neural.supervised import fit
 from datascience.ml.neural.models import FullyConnectedDeepAnalysis
 from datascience.ml.neural.checkpoints import create_model
 
-from datascience.visu.deep_test_plots import plot_db_partitions_gradients, plot_separator
+from datascience.visu.deep_test_plots import plot_db_partitions_gradients, plot_separator, plot_db_partitions
 from datascience.visu.util.util import save_fig, remove_axis
 
 # constructing the dataset
@@ -20,7 +20,7 @@ model = create_model(model_class=FullyConnectedDeepAnalysis, model_params=model_
 
 # optimization
 training_params = {
-    'iterations': [100],
+    'iterations': [120],
     'log_modulo': -1,
     'val_modulo': 1,
     'loss': HebbLoss()
@@ -41,7 +41,7 @@ fit(
 )
 
 # plot results
-ax = plot_db_partitions_gradients(train.dataset, train.labels, model)
+ax = plot_db_partitions(train.dataset, train.labels, model)  # plot_db_partitions_gradients
 
 plot_separator(train.separator, ax=ax)
 

@@ -27,6 +27,22 @@ def plot_db_partitions_gradients(dataset, labels, model):
 
 
 @module
+def plot_db_partitions(dataset, labels, model):
+    """
+    Plot the decision boundary, the partitions and the gradients. Works for 2D datasets.
+    :param dataset: the dataset (must be 2D)
+    :param labels: the labels
+    :param model: the model
+    :return:
+    """
+    ax = plot_dataset.func(dataset, labels)
+    plot_activation_rate.func(dataset, labels, model, ax=ax)
+
+    plot_decision_boundary.func(model, ax=ax)
+    return ax
+
+
+@module
 def plot_separator(separator, figure_name='separator', ax=None, **kwargs):
     if ax is None:
         ax = plt(figure_name).gca()

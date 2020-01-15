@@ -64,6 +64,38 @@ class ValidationAccuracy(ValidationMetric):
         return 'Top-'+str(self.top_k) + ' accuracy of the model on the test set: %.4f' % self.score
 
 
+class F1Score(ValidationMetric):
+    def __init__(self, final_validation=False):
+        super().__init__(final_validation)
+        self.cv_metric = True
+
+    def __call__(self, predictions, labels):
+        true_positive = 0
+        false_positive = 0
+        true_negative = 0
+        false_negative = 0
+        for i, pred in enumerate(predictions):
+            for j in range(predictions.size(1)):
+                if labels[i, 0, j] == 1:
+                    if labels[i, 1, j] == 1and predictions[i, j] >= 0.5:
+                        true_positive += 1
+                    elif labels[i, 1, j] == 1 and predictions[i, j] < 0.5:
+                        false_negative += 1
+                    elif labels[i, 1, j] == 0 and predictions[i, j] < 0.5:
+                        true_negative += 1
+                    else:
+                        false_positive += 1
+        precision = float(true_positive) / (true_positive + false_positive)
+        recall = float(true_positive) / (true_positive + false_negative)
+        return 2. * precision * recall / (precision + recall)
+
+    def is_better(self, score):
+        return self.metric_score() > score
+
+    def __str__(self):
+        return 'F1 Metric: ' + str(self.metric_score())
+
+
 class ValidationAccuracyMultiple(ValidationMetric):
     def __init__(self, list_top_k=(10,), final_validation=False):
         super().__init__(final_validation, True)
