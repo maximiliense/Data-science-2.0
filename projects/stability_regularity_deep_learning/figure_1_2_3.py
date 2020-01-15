@@ -1,5 +1,6 @@
 from datascience.data.synthetize.create_dataset import create_dataset
 from datascience.ml.metrics import ValidationAccuracy
+from datascience.ml.neural.loss.loss import HebbLoss
 from datascience.ml.neural.supervised import fit
 from datascience.ml.neural.models import FullyConnectedDeepAnalysis
 from datascience.ml.neural.checkpoints import create_model
@@ -19,9 +20,10 @@ model = create_model(model_class=FullyConnectedDeepAnalysis, model_params=model_
 
 # optimization
 training_params = {
-    'iterations': [50, 80, 100],
+    'iterations': [100],
     'log_modulo': -1,
     'val_modulo': 1,
+    'loss': HebbLoss()
 }
 
 optim_params = {

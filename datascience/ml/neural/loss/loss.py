@@ -89,6 +89,23 @@ class MSELoss(Loss):
         return 'MSE'
 
 
+class HebbLoss(Loss):
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+
+    def loss(self, output, label):
+        result = 0.
+        for i in range(output.size(0)):
+            if label[i] == 0:
+                result -= output[i][0] + output[i][1] * -1
+            else:
+                result -= output[i][1] + output[i][0] * -1
+        return result
+
+    def __repr__(self):
+        return 'Hebb Loss'
+
+
 class CategoricalPoissonLoss(Loss):
     def __init__(self, log_input=True, *args, **kwargs):
         super().__init__()
