@@ -56,7 +56,7 @@ def load_multitask_bernoulli_dataset(source, test_size=0.1, val_size=0.1, transf
     print_dataset_statistics(
         len(train), len(val), len(test), source, len(classes_index)
     )
-    return train, val, test
+    return train, val, test, len(classes_index)
 
 
 class PosNegLabelException(Exception):
