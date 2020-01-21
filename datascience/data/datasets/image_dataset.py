@@ -15,11 +15,13 @@ class ImageDataset(Dataset):
     def __len__(self):
         return len(self.dataset)
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx, transform=None):
         img = Image.open(self.dataset[idx][0]).convert('RGB')
 
-        if self.transform is not None:
+        if self.transform is not None and transform is None:
             img = self.transform(img)
+        elif transform is not None:
+            img = transform(img)
         return img, self.dataset[idx][1]
 
 

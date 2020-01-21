@@ -6,6 +6,7 @@ from datascience.ml.neural.models.pretrained import initialize_model
 
 import torch
 
+from datascience.visu.deep.input_importance import plot_input_importance
 from engine.logging import print_h1
 from engine.path import output_path
 
@@ -64,6 +65,9 @@ for i in range(len(painter_list)):
     # write the score in a csv
     with open(export_result, 'a') as f:
         f.write('%s;%s;%.5f;%ld\n' % (painter_val, painter_test, score, test[0][1]))
+
+    for j in range(50):
+        plot_input_importance(model, test, j, dest='gif/' + painter_test)
 
     del stats
     del model
