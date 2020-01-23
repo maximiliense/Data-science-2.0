@@ -17,5 +17,5 @@ def detect_machine():
             if found_machine:
                 break
     if not found_machine:
-        special_parameters.machine = 'unknown'
+        special_parameters.machine = hostname
     print_info('The machine was identified as ' + special_parameters.machine)

@@ -16,6 +16,7 @@ import pandas as pd
 
 from datascience.visu.util.util import plt, get_figure
 from engine.logging.logs import print_debug
+from engine.parameters import special_parameters
 
 MIN_ALLOWED_VALUE = -10000
 EPS = 1
@@ -118,7 +119,7 @@ class Raster(object):
             self.y_resolution = src.res[1]
             self.n_rows = src.height
             self.n_cols = src.width
-
+        print(self.x_min, self.y_min, self.x_resolution, self.y_resolution, self.n_rows, self.n_cols)
         # some tiff do not contain geo data (stored in the file GeoMetaData)
         # loading the raster
         self.raster = np.squeeze(src.read())
@@ -299,7 +300,8 @@ class PatchExtractor(object):
         """
         return len(self.rasters)
 
-    def plot(self, item, cancel_one_hot=True, return_fig=False, style='fivethirtyeight', nb_cols=5, alpha=1.):
+    def plot(self, item, cancel_one_hot=True, return_fig=False,
+             style=special_parameters.plt_style, nb_cols=5, alpha=1.):
         """
         Plot an environmental tensor (size > 1)...
 

@@ -8,7 +8,8 @@ usage(){
 	echo "optional arguments:";
 	small_indentation="         ";
 	echo "  -h, --help$small_indentation   show this help message and exit";
-	echo "  --no-screen$small_indentation  run job without screen.";
+	echo "  --screen$small_indentation  run job without screen.";
+	echo "  --screen-name$small_indentation  set the screen name.";
 }
 
 execute() {
@@ -19,17 +20,18 @@ execute() {
     # parameters
     python_file=NULL;
 
-    runScreen=true
+    runScreen=false;
 
     options="";
     help=false;
+    name="default";
     # setting options
     while [[ "$1" != "" ]]; do
         case $1 in
-            --no-screen )           runScreen=false;
+            --screen )           runScreen=true;
                                     ;;
-            --show | --clean )      runScreen=False;  # if clean or show.. The user wants direct output...
-                                    options="$options $1";
+            --screen-name )           shift;
+                                    name=$1;
                                     ;;
             -h | --help )           help=true;
                                     ;;
@@ -48,7 +50,7 @@ execute() {
         usage;
         if [[ "${python_file}" != NULL ]];
         then
-            $(findPython) "${python_file}" -h | sed  '1,11d;$d';
+            $(findPython) "${python_file}" -h | sed  '1,10d;$d';
         fi
         exit 1;
     fi
@@ -57,7 +59,8 @@ execute() {
     if [[ ${runScreen} = true ]];
     then
         echo "Submitting command: ${command};";
-        screen -dm bash -c "${command}";
+        echo "screen -S ${name} -dm bash -c \"${command}\"";
+        screen -S "${name}" -dm bash -c "${command}";
         echo "Job submitted in a screen.";
     else
         echo "Executing command: ${command};";

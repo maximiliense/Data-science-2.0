@@ -14,5 +14,7 @@ model = create_model(model_class=InceptionEnv, model_params=model_params)
 # loading dataset
 train, val, test = occurrence_loader(EnvironmentalDataset, source='glc19_fulldataset')
 
+test.limit = 30000
+
 fit(model, train=train, val=val, test=test, training_params=training_params,
     validation_params=validation_params, optim_params=optim_params)
