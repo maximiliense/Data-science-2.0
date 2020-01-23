@@ -143,8 +143,8 @@ class Raster(object):
                     else:
                         self.raster[self.raster == line[1]['storage_8bit']] = line[1][attrib_column]
         # if the file does not exist, then correct values must be reconstructed....
-        #else:
-            #self.raster = min_val + (max_val - min_val)*((self.raster/255) - 0.1) / 0.8
+        else:
+            self.raster = min_val + (max_val - min_val)*((self.raster/255) - 0.1) / 0.8
 
         if normalized and dtype != rasterio.ubyte:
             # normalizing the whole raster given available data (therefore avoiding no_data)...
