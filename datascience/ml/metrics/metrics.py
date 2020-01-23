@@ -5,16 +5,25 @@ import math
 
 from engine.path import output_path
 from engine.tensorboard import add_scalar
-from engine.flags import incorrect_io
+from engine.flags import incorrect_io, deprecated
 
 
 class ValidationMetric(ABC):
     def __init__(self, final_validation=False, sort_needed=False):
         self.final_validation = final_validation
         self.sort_needed = sort_needed
+        self.score = None
+        self.cv_metric = False
 
+    def metric_score(self):
+        return self.score
+
+    @deprecated(comment='switch to metric_score')
     def get_result(self):
-        return self.result
+        return self.metric_score()
+
+    def is_better(self, score):
+        raise NotImplemented()
 
     def __repr__(self):
         return self.__class__.__name__
@@ -36,7 +45,7 @@ class ValidationAccuracy(ValidationMetric):
     def __init__(self, top_k=10, final_validation=False):
         super().__init__(final_validation, True)
         self.top_k = top_k
-        self.result = 0
+        self.cv_metric = True
 
     def __call__(self, predictions, labels):
         res = 0
@@ -44,12 +53,49 @@ class ValidationAccuracy(ValidationMetric):
             answer = pred[0:self.top_k]
             if labels[i] in answer:
                 res += 1
-        self.result = res / labels.shape[0]
-        add_scalar('Accuracy/top-{}'.format(self.top_k), self.result)
-        return self.__str__()
+        self.score = res / labels.shape[0]
+        add_scalar('Accuracy/top-{}'.format(self.top_k), self.score)
+        return self.metric_score(), str(self)
+
+    def is_better(self, score):
+        return self.metric_score() > score
 
     def __str__(self):
-        return 'Top-'+str(self.top_k) + ' accuracy of the model on the test set: %.4f' % self.result
+        return 'Top-'+str(self.top_k) + ' accuracy of the model on the test set: %.4f' % self.score
+
+
+class F1Score(ValidationMetric):
+    def __init__(self, final_validation=False, threshold=0.):
+        super().__init__(final_validation)
+        self.cv_metric = True
+        self.threshold = threshold
+
+    def __call__(self, predictions, labels):
+        true_positive = 0
+        false_positive = 0
+        true_negative = 0
+        false_negative = 0
+        for i, pred in enumerate(predictions):
+            for j in range(predictions.shape[1]):
+                if labels[i, 0, j] == 1:
+                    if labels[i, 1, j] == 1 and predictions[i, j] >= self.threshold:
+                        true_positive += 1
+                    elif labels[i, 1, j] == 1 and predictions[i, j] < self.threshold:
+                        false_negative += 1
+                    elif labels[i, 1, j] == 0 and predictions[i, j] < self.threshold:
+                        true_negative += 1
+                    else:
+                        false_positive += 1
+        precision = float(true_positive) / (true_positive + false_positive)
+        recall = float(true_positive) / (true_positive + false_negative)
+        self.score =  2. * precision * recall / (precision + recall)
+        return self.metric_score(), str(self)
+
+    def is_better(self, score):
+        return self.metric_score() > score
+
+    def __str__(self):
+        return 'F1 Metric: ' + str(self.metric_score())
 
 
 class ValidationAccuracyMultiple(ValidationMetric):

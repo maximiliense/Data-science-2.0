@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 
+from engine.hardware import use_gpu
 from engine.tensorboard import add_scalar
 from engine.logging import print_info, print_warning
 
@@ -44,13 +45,14 @@ def predict(model, loader, loss, export=False, filters=tuple(), validation_size=
         for idx, data in enumerate(loader):
 
             inputs, labels = data
+            if use_gpu():
+                labels = labels.cuda()
             # wrap them in Variable
-            labels_variable = loss.output(model.p_label(labels))
-            labels = model.p_label(labels)
+            labels_variable = loss.output(labels)
             outputs = model(inputs)
 
             # if not test set
-            if labels[0] != -1:
+            if compute_loss and labels[0] != -1:
                 loss_value = loss(outputs, labels)
                 running_loss += loss_value.item()
             outputs = loss.output(outputs)

@@ -8,7 +8,8 @@ usage(){
 	echo "optional arguments:";
 	small_indentation="         ";
 	echo "  -h, --help$small_indentation   show this help message and exit";
-	echo "  --no-screen$small_indentation  run job without screen.";
+	echo "  --screen$small_indentation  run job without screen.";
+	echo "  --screen-name$small_indentation  set the screen name.";
 }
 
 execute() {
@@ -19,7 +20,7 @@ execute() {
     # parameters
     python_file=NULL;
 
-    runScreen=true
+    runScreen=false;
 
     options="";
     help=false;
@@ -27,7 +28,7 @@ execute() {
     # setting options
     while [[ "$1" != "" ]]; do
         case $1 in
-            --no-screen )           runScreen=false;
+            --screen )           runScreen=true;
                                     ;;
             --screen-name )           shift;
                                     name=$1;
@@ -49,7 +50,7 @@ execute() {
         usage;
         if [[ "${python_file}" != NULL ]];
         then
-            $(findPython) "${python_file}" -h | sed  '1,11d;$d';
+            $(findPython) "${python_file}" -h | sed  '1,10d;$d';
         fi
         exit 1;
     fi

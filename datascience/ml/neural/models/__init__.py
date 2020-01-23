@@ -5,3 +5,4 @@ from .inception_env_coocs import InceptionEnvCoocs
 from .nn_coocs import NNCoocs
 from .inception import Inception3
 from .cnn import CNN
+from .inception_qrouting import Inception as InceptionQRouting

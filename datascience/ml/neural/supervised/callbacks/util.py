@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from torch.nn import DataParallel
+
 from engine.logging import print_info
 
 
@@ -31,7 +33,7 @@ class Callback(ABC):
         self.nb_calls = nb_calls
         if self.dataset is None:
             self.dataset = dataset
-        self.model = model
+        self.model = model.module if type(model) is DataParallel else model
 
     @abstractmethod
     def __call__(self, validation_id):

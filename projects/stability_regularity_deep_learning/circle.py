@@ -1,6 +1,7 @@
 import torch
 
 from datascience.data.synthetize.create_dataset import create_dataset
+from datascience.ml.neural.loss.loss import HebbLoss
 from datascience.ml.neural.supervised.callbacks.circle import CircleCallback
 from datascience.ml.neural.supervised import fit
 from datascience.ml.neural.models import FullyConnected
@@ -34,6 +35,7 @@ training_params = {
     'iterations': [70, 90, 100],
     'log_modulo': -1,
     'val_modulo': 1,
+    'loss': HebbLoss()
 }
 validation_params = {
     'vcallback': (CircleCallback(bias=False, wk=True),),

@@ -32,10 +32,10 @@ def overriding_parameters():
 
 def check_aliases(args):
     params = args.params
-    if args.validation_only:
-        special_parameters.validation_only = True
-    if args.export:
-        special_parameters.export = True
+    special_parameters.evaluate = args.eval
+    special_parameters.train = args.train
+    special_parameters.export = args.export
+
     return params
 
 

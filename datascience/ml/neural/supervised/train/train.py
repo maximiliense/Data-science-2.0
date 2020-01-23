@@ -1,28 +1,31 @@
 import warnings
 
 import torch
-import torch.optim as optimizer
 from torch.optim.lr_scheduler import MultiStepLR
 
+from datascience.ml.metrics.learning_statistics import Statistics
 from datascience.ml.neural.supervised.callbacks import init_callbacks, run_callbacks, finish_callbacks
-from datascience.ml.neural.loss import CELoss, load_loss, save_loss
+from datascience.ml.neural.loss import load_loss, save_loss
 from datascience.ml.neural.supervised.predict import predict
 from datascience.ml.evaluation import validate, export_results
 from datascience.ml.neural.checkpoints.checkpoints import create_optimizer, save_checkpoint
+from datascience.ml.neural.supervised.train.default_params import TRAINING_PARAMS, OPTIM_PARAMS, EXPORT_PARAMS, \
+    VALIDATION_PARAMS, PREDICT_PARAMS, MODEL_SELECTION_PARAMS
+from engine.hardware import use_gpu
 from engine.parameters import special_parameters
 from engine.path import output_path
 from engine.path.path import export_epoch
 from engine.util.log_email import send_email
 from engine.util.log_file import save_file
-from engine.logging import print_h1, print_h2, print_notification
-from engine.util.merge_dict import merge_smooth
+from engine.logging import print_h1, print_h2, print_notification, print_errors
+from engine.util.merge_dict import merge_dict_set
 from engine.tensorboard import add_scalar
 from engine.core import module
 
 
 @module
 def fit(model_z, train, test, val=None, training_params=None, predict_params=None, validation_params=None,
-        export_params=None, optim_params=None):
+        export_params=None, optim_params=None, model_selection_params=None):
     """
     This function is the core of an experiment. It performs the ml procedure as well as the call to validation.
     :param training_params: parameters for the training procedure
@@ -34,13 +37,25 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
     :param validation_params:
     :param predict_params:
     :param model_z: the model that should be trained
+    :param model_selection_params:
     """
     # configuration
-    training_params, predict_params, validation_params, export_params, optim_params = _configure(
-        training_params, predict_params, validation_params, export_params, optim_params
-    )
+
+    training_params, predict_params, validation_params, export_params, optim_params, \
+        cv_params = merge_dict_set(
+            training_params, TRAINING_PARAMS,
+            predict_params, PREDICT_PARAMS,
+            validation_params, VALIDATION_PARAMS,
+            export_params, EXPORT_PARAMS,
+            optim_params, OPTIM_PARAMS,
+            model_selection_params, MODEL_SELECTION_PARAMS
+        )
 
     train_loader, test_loader, val_loader = _dataset_setup(train, test, val, **training_params)
+
+    statistics_path = output_path('metric_statistics.dump')
+
+    metrics_stats = Statistics(model_z, statistics_path, **cv_params) if cv_params.pop('cross_validation') else None
 
     validation_path = output_path('validation.txt')
 
@@ -56,21 +71,21 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
     # callbacks for ml tests
     vcallback = validation_params.pop('vcallback') if 'vcallback' in validation_params else None
 
+    if iterations is None:
+        print_errors('Iterations must be set', exception=TrainingConfigurationException('Iterations is None'))
+
     # before ml callback
-    if vcallback is not None and not (special_parameters.validation_only or
-                                      special_parameters.export or len(iterations) == 0):
+    if vcallback is not None and special_parameters.train and first_epoch < max(iterations):
         init_callbacks(vcallback, val_modulo, max(iterations) // val_modulo, train_loader.dataset, model_z)
-    validation_only = special_parameters.validation_only
-    export = special_parameters.export
-    do_train = not (validation_only or export or len(iterations) == 0 or train_loader is None)
+
     max_iterations = max(iterations)
 
-    if do_train and first_epoch < max(iterations):
+    if special_parameters.train and first_epoch < max(iterations):
         print_h1('Training: ' + special_parameters.setup_name)
 
-        loss_logs = [] if first_epoch < 1 else load_loss('train_loss')
+        loss_logs = [] if first_epoch < 1 else load_loss('loss_train')
 
-        loss_val_logs = [] if first_epoch < 1 else load_loss('validation_loss')
+        loss_val_logs = [] if first_epoch < 1 else load_loss('loss_validation')
 
         opt = create_optimizer(model_z.parameters(), optim, optim_params)
 
@@ -105,7 +120,9 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
                 inputs, labels = data
 
                 # wrap labels in Variable as input is managed through a decorator
-                labels = model_z.p_label(labels)
+                # labels = model_z.p_label(labels)
+                if use_gpu():
+                    labels = labels.cuda()
 
                 # zero the parameter gradients
                 opt.zero_grad()
@@ -125,9 +142,6 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
                     loss_logs.append(running_loss / log_modulo)
                     running_loss = 0.0
 
-            # train_loader.data.reverse = not train_loader.data.reverse  # This is to check
-            # the oscillating loss probably due to SGD and momentum...
-
             # end of epoch update of learning rate scheduler
             scheduler.step(epoch + 1)
 
@@ -140,11 +154,17 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
 
                 # validation call
                 predictions, labels, loss_val = predict(
-                    model_z, val_loader, loss, **predict_params, compute_loss=True
+                    model_z, val_loader, loss, **predict_params
                 )
                 loss_val_logs.append(loss_val)
 
-                res = '\n[validation_id:' + validation_id + ']\n' + validate(predictions, labels, **validation_params)
+                res = '\n[validation_id:' + validation_id + ']\n' + validate(
+                    predictions, labels, validation_id=validation_id, statistics=metrics_stats, **validation_params
+                )
+
+                # save statistics for robust cross validation
+                if metrics_stats:
+                    metrics_stats.save()
 
                 print_notification(res)
 
@@ -174,65 +194,34 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
         # saving last epoch
         export_epoch(epoch + 1)  # if --restart is set, the train will not be executed
 
-    # final validation
-    print_h1('Validation/Export: ' + special_parameters.setup_name)
-
-    predictions, labels, val_loss = predict(model_z, test_loader, loss, validation_size=-1, **predict_params)
-
-    if special_parameters.validation_only or not special_parameters.export:
-
-        res = validate(predictions, labels, **validation_params, final=True)
-
-        print_notification(res, end='')
-
-        if special_parameters.mail >= 1:
-            send_email('Final results for XP ' + special_parameters.setup_name, res)
-        if special_parameters.file:
-            save_file(validation_path, 'Final results for XP ' + special_parameters.setup_name, res)
         # callback
-        if vcallback is not None and not (validation_only or export or len(iterations) == 0):
+        if vcallback is not None:
             finish_callbacks(vcallback)
-    if special_parameters.export:
-        export_results(test_loader.dataset, predictions, **export_params)
 
-    return predictions
+    # final validation
+    if special_parameters.evaluate or special_parameters.export:
+        print_h1('Validation/Export: ' + special_parameters.setup_name)
+        if metrics_stats is not None:
+            # change the parameter states of the model to best model
+            metrics_stats.switch_to_best_model()
 
+        predictions, labels, val_loss = predict(model_z, test_loader, loss, validation_size=-1, **predict_params)
 
-def _configure(training_params, predict_params, validation_params, export_params, optim_params):
-    """
-    configure default parameters
-    :param training_params:
-    :param predict_params:
-    :param validation_params:
-    :param export_params:
-    :param optim_params:
-    :return:
-    """
-    training_params = {} if training_params is None else training_params
-    merge_smooth(
-        training_params,
-        {
-            'batch_size': 32,
-            'lr': 0.1,
-            'iterations': None,
-            'gamma': 0.1,
-            'loss': CELoss(),
-            'val_modulo': 1,
-            'log_modulo': -1,
-            'first_epoch': special_parameters.first_epoch
-        }
-    )
+        if special_parameters.evaluate:
 
-    predict_params = {} if predict_params is None else predict_params
-    validation_params = {} if validation_params is None else validation_params
-    merge_smooth(validation_params, {'metrics': tuple()})
+            res = validate(predictions, labels, statistics=metrics_stats, **validation_params, final=True)
 
-    export_params = {} if export_params is None else export_params
+            print_notification(res, end='')
 
-    optim_params = {} if optim_params is None else optim_params
-    merge_smooth(optim_params, {'momentum': 0.9, 'weight_decay': 0, 'optimizer': optimizer.SGD})
+            if special_parameters.mail >= 1:
+                send_email('Final results for XP ' + special_parameters.setup_name, res)
+            if special_parameters.file:
+                save_file(validation_path, 'Final results for XP ' + special_parameters.setup_name, res)
 
-    return training_params, predict_params, validation_params, export_params, optim_params
+        if special_parameters.export:
+            export_results(test_loader.dataset, predictions, **export_params)
+
+    return metrics_stats
 
 
 def _dataset_setup(train, test, val=None, batch_size=32, bs_test=None,
@@ -274,3 +263,8 @@ def _skip_step(lr_scheduler, epoch):
     warnings.filterwarnings("ignore")
     lr_scheduler.step(epoch + 1)
     warnings.filterwarnings("default")
+
+
+class TrainingConfigurationException(Exception):
+    def __init__(self, message):
+        super(TrainingConfigurationException, self).__init__(message)

@@ -1,8 +1,9 @@
 import os
 import sys
 
-from engine.parameters import special_parameters
 from engine.logging import print_info
+import re
+from engine.parameters import special_parameters
 
 
 def output_directory():
@@ -104,3 +105,57 @@ def load_last_epoch():
         return int(last_epoch)
     else:
         return 0
+
+
+def last_experiment_path(name):
+    """
+    return the path to the last experiment with name 'name'
+    :param name:
+    :return:
+    """
+    _, folder_name = last_experiment(name)
+    return os.path.join(special_parameters.homex, folder_name)
+
+
+def last_experiment(name):
+    """
+    returns the path to the last experiment to have the name set
+    :param name:
+    :return:
+    """
+    last = _last_experiment(name)
+    if last is None:
+        regex = '^(.*)_[0-9]+$'
+        name = re.sub(regex, r'\1', name)
+        last = _last_experiment(name)
+    return name, last
+
+
+def _last_experiment(name):
+    experiment = None
+    timestamp = 0
+    for l in os.listdir(special_parameters.homex):
+        regex = '^' + name + '_20[0-9]{10,13}$'
+        if os.path.isdir(os.path.join(special_parameters.homex, l)) and re.match(regex, l) is not None:
+            t = most_recent_file(os.path.join(special_parameters.homex, l))
+            if experiment is None or t > timestamp:
+                experiment = l
+                timestamp = t
+    return experiment
+
+
+def most_recent_file(path):
+    f = max([os.path.join(path, l) for l in os.listdir(path)], key=os.path.getctime)
+    return os.path.getctime(f)
+
+
+def configure_homex():
+    if special_parameters.homex is None:
+        special_parameters.homex = os.path.join(special_parameters.root_path,
+                                                special_parameters.project_path,
+                                                special_parameters.setup_name)
+    else:
+        special_parameters.homex = os.path.join(special_parameters.homex,
+                                                special_parameters.setup_name)
+        if not os.path.exists(special_parameters.homex):
+            os.mkdir(special_parameters.homex)

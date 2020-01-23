@@ -20,8 +20,9 @@ def clean(path, name, disp_only=True):
     txt_re = re.compile(r'{}.*\.txt$'.format(name))
     json_re = re.compile(r'{}.*\.json$'.format(name))
     pyc_re = re.compile(r'{}.*\.pyc$'.format(name))
+    dump_re = re.compile(r'{}.*\.dump$'.format(name))
 
-    total = recursive_clean(path, (torch_re, csv_re, image_re, logs_re, txt_re, json_re, pyc_re), disp_only)
+    total = recursive_clean(path, (torch_re, csv_re, image_re, logs_re, txt_re, json_re, pyc_re, dump_re), disp_only)
 
     print('Total amount: ' + _size(total))
 
@@ -41,7 +42,7 @@ def recursive_clean(path, regex, disp_only=True):
     total = 0
     for file in os.listdir(path):
         path_file = os.path.join(path, file)
-        if 'final' in path_file or 'keep' in path_file:
+        if '__final__' in path_file or '__keep__' in path_file:
             continue
         elif os.path.isdir(path_file):
             total += recursive_clean(path_file, regex, disp_only)

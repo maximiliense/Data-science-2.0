@@ -1,2 +1,3 @@
 from .environmental_dataset import EnvironmentalDataset
 from .environmental_ign_dataset import EnvironmentalIGNDataset
+from .image_dataset import ImageDatasetMTBernoulli
