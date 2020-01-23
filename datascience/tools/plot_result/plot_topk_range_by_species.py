@@ -12,7 +12,7 @@ class ModelPrint(object):
         self.list_curves = []
 
 
-def print_topk_range_plot(list_models, path="/home/bdeneu/results/"):
+def print_topk_range_plot(list_models, path="/home/bdeneu/old_computer/home/results/"):
     grad = np.arange(100)+1
 
     for model in list_models:
@@ -43,12 +43,12 @@ def print_topk_range_plot(list_models, path="/home/bdeneu/results/"):
 
 if __name__ == "__main__":
     list_models = []
-    list_models.append(ModelPrint("CNN", "inception_rs_normal_do07_4_result_range_top100_by_species.npy", "g", "-"))
-    list_models.append(ModelPrint("DNN", "inception_rs_constant_do05_result_range_top100_by_species.npy", "b", "-"))
+    list_models.append(ModelPrint("Unmodified (classical CNN-SDM)", "inception_rs_normal_do07_4_result_range_top100_by_species.npy", "g", "-"))
+    list_models.append(ModelPrint("Central value (DNN-SDM)", "inception_rs_constant_do05_result_range_top100_by_species.npy", "b", "-"))
     list_models.append(ModelPrint("Rotations", "inception_rs_rotation_do07_result_range_top100_by_species.npy", "k", "-"))
     list_models.append(ModelPrint("Permutations", "inception_rs_permutation_do07_result_range_top100_by_species.npy", "y", "-"))
-    list_models.append(ModelPrint("Structure", "inception_rs_structure_do08_result_range_top100_by_species.npy", "r", "-"))
     list_models.append(ModelPrint("Mean", "inception_rs_mean_do05_result_range_top100_by_species.npy", "m", "-"))
+    list_models.append(ModelPrint("Standardization (Structure Only)", "inception_rs_structure_do08_result_range_top100_by_species.npy", "r", "-"))
 
     # list_models.append(ModelPrint("CNN-structure", "inception_structure_do06_result_range_top100_by_species.npy", "y", "-"))
 

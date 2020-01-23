@@ -1,5 +1,5 @@
 from datascience.ml.metrics.metrics import ValidationAccuracyMultipleBySpecies, ValidationMRRBySpecies
-from datascience.ml.metrics.metrics import ValidationAccuracyRangeBySpecies, ValidationAccuracyForAllSpecies
+from datascience.ml.metrics.metrics import ValidationAccuracyRangeBySpecies, ValidationAccuracyForAllSpecies, JustExportPredictions
 from datascience.data.loader import occurrence_loader
 from datascience.data.datasets import EnvironmentalDataset
 from datascience.ml.sklearn.train import fit
@@ -22,6 +22,7 @@ model = load_or_create(RandomForestClassifier, n_estimators=100, max_depth=max_d
 training_params = {
     'metrics': (ValidationAccuracyMultipleBySpecies([1, 10, 30]), ValidationMRRBySpecies(),
                 ValidationAccuracyRangeBySpecies(max_top_k=100, final_validation=True),
-                ValidationAccuracyForAllSpecies(train=train, final_validation=True))
+                ValidationAccuracyForAllSpecies(train=train, final_validation=True),
+                JustExportPredictions(save_true_labels=True))
 }
 fit(model, train=train, test=test, training_params=training_params, save=save)

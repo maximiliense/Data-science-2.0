@@ -1,7 +1,11 @@
+import math
+import PIL.Image
 import os
 import numpy as np
 import matplotlib.pyplot as plt
 import datetime
+from scipy.sparse import bsr_matrix, lil_matrix, save_npz
+
 from engine.path import list_files, output_path
 from engine.logging.logs import print_info, print_info, print_errors
 from pyproj import Transformer, Proj
@@ -31,10 +35,17 @@ class ExtractionError(Exception):
             self.identifier = "NA"
 
 
-# resolutions of the IGN maps
+# resolutions of the IGN maps // size (m), size (px), resolution (m)
 resolution_details = {
-    '5M00': (10000, 2000),
-    '0M50': (5000, 10000)
+    '5M00': (10000, 2000, 5.0),
+    '0M50': (5000, 10000, 0.5),
+    '0M20': (5000, 25000, 0.2)
+}
+
+# image types and layers
+image_type_details = {
+    'RVB': ('red', 'green', 'blue'),
+    'IRC': ('near_ir', 'red', 'green')
 }
 
 
@@ -60,6 +71,12 @@ class Tile(object):
         self.x_max = int(data_value[3]) * 1000
         self.x_min = None
         self.date = str("".join(self.decomposed_name[-3].split("_")[-1].split("-")[0:2]))
+
+        info_image = self.decomposed_name[-2].split("_")
+        self.image_resolution = info_image[2]
+        self.image_type = info_image[1]
+        self.image_encoding = info_image[3]
+        self.image_projection = info_image[4]
 
     def set_x_min(self, x_min):
         self.x_min = x_min
@@ -111,6 +128,7 @@ class IGNImageManager(object):
         
         # get all files in the folder image directory
         files = list_files(self.image_dir)
+        print(files)
         
         # construct tile object for all tile images in the list of files
         self.list_tile, \
@@ -132,7 +150,9 @@ class IGNImageManager(object):
 
         # size and range of images depends on the ign dataset
         global resolution_details
-        self.image_range, self.image_size = resolution_details[self.image_resolution]
+        self.image_range, self.image_size, self.resolution = resolution_details[self.image_resolution]
+
+        PIL.Image.MAX_IMAGE_PIXELS = self.image_size**2
 
         # configure the spatial area containing all tiles
         self.max_y = self.max_y + self.image_range
@@ -205,6 +225,7 @@ class IGNImageManager(object):
             print_errors("Outside study zone...", do_exit=True)
         return self.map[x, y]
 
+    # TODO: resizing/resampling
     def read_tile(self, pos):
         if pos in self.cache_dic:
             im_tile = self.cache_dic[pos]
@@ -380,37 +401,112 @@ class IGNImageManager(object):
 
         error_manager = _ErrorManager(self.in_proj,
                                       self.ign_proj,
-                                      output_path() if error_extract_folder is None else error_extract_folder,
+                                      output_path('errors/') if error_extract_folder is None else error_extract_folder,
                                       cache_size=error_cache_size
                                       )
+
+        """
+        max_lat_loc = long_lat_df.loc[[long_lat_df['Latitude'].idxmax()]]
+        max_lat_long, max_lat_lat = float(max_lat_loc['Longitude']), float(max_lat_loc['Latitude'])
+
+        min_lat_loc = long_lat_df.loc[[long_lat_df['Latitude'].idxmin()]]
+        min_lat_long, min_lat_lat = float(min_lat_loc['Longitude']), float(min_lat_loc['Latitude'])
+
+        max_long_loc = long_lat_df.loc[[long_lat_df['Longitude'].idxmax()]]
+        max_long_long, max_long_lat = float(max_long_loc['Longitude']), float(max_long_loc['Latitude'])
+
+        min_long_loc = long_lat_df.loc[[long_lat_df['Longitude'].idxmin()]]
+        min_long_long, min_long_lat = float(min_long_loc['Longitude']), float(min_long_loc['Latitude'])
+
+        print(max_lat_lat, min_long_long)
+        print(min_lat_lat, max_long_long)
+
+        top_left = self.transformer.transform(min_long_long, max_lat_lat)
+        bottom_right = self.transformer.transform(max_long_long, min_lat_lat)
+
+        print("top_left", top_left)
+        print("bottom_right", bottom_right)
+
+        res = 10000
+        top_left = (int((top_left[0]-res)/res)*res, math.ceil((top_left[1]+res)/res)*res)
+        bottom_right = (math.ceil((bottom_right[0]+res)/res)*res, int((bottom_right[1]-res)/res)*res)
+
+        print("top_left", top_left)
+        print("bottom_right", bottom_right)
+        """
+
+        top_left = (-360000, 7240000)
+        bottom_right = (1320000, 6030000)
+
+        print("top_left", top_left)
+        print("bottom_right", bottom_right)
+
+        modulo = size % 2
+        half_size = int(size / 2)
+
+        print(self.resolution)
+
+        """
+        top_left = (top_left[0] - (top_left[0] % self.resolution), top_left[1] + (self.resolution - (top_left[1] % self.resolution)))
+        bottom_right = (bottom_right[0] + (self.resolution - (bottom_right[0] % self.resolution)), bottom_right[1] - (bottom_right[1] % self.resolution))
+
+        print(top_left)
+        print(bottom_right)
+
+        top_left = (top_left[0]-(half_size*self.resolution), top_left[1]+(half_size*self.resolution))
+        bottom_right = (bottom_right[0]+((half_size+modulo)*self.resolution), bottom_right[1]-((half_size+modulo)*self.resolution))
+
+        print(top_left)
+        print(bottom_right)
+        """
+
+
+        print((bottom_right[0] - top_left[0]) / self.resolution)
+        print((top_left[1] - bottom_right[1]) / self.resolution)
+
+        list_raster = [lil_matrix((int((top_left[1] - bottom_right[1]) / self.resolution),
+                       (int((bottom_right[0] - top_left[0]) / self.resolution))), dtype='uint8') for _ in range(3)]
+
+        print(self.image_type)
 
         total = long_lat_df.shape[0]
         start = datetime.datetime.now()
         extract_time = 0
 
-        for idx, row in enumerate(long_lat_df.iterrows()):
-            longitude, latitude = row[1][0], row[1][1]
-            patch_id = int(row[1][2])
+        modulo = size % 2
+        half_size = int(size / 2)
 
-            if idx % 100000 == 99999:
+        for idx, row in enumerate(long_lat_df.iterrows()):
+            longitude, latitude = row[1][1], row[1][0]
+
+            if idx % 10000 == 9999:
                 _print_details(idx+1, total, start, extract_time, latitude, longitude, len(error_manager))
 
             t1 = ti.time()
             t2 = 0
+            y, x = self.transformer.transform(longitude, latitude)
             try:
-                patch = self.extract_patch(latitude, longitude, size, step, identifier=int(patch_id),
-                                           white_percent_allowed=white_percent_allowed)
+                patch = self.extract_patch_lambert93(x, y, size, step, white_percent_allowed=white_percent_allowed)
             except ExtractionError as err:
                 t2 = ti.time()
                 error_manager.append(err)
             else:
                 t2 = ti.time()
+                pos_x = int((top_left[1] - x)/self.resolution)
+                pos_y = int((y - top_left[0])/self.resolution)
+                for i in range(len(list_raster)):
+                    list_raster[i][pos_x-half_size:pos_x+half_size+modulo, pos_y-half_size:pos_y+half_size+modulo] = patch[:, :, i]
 
             finally:
                 delta = t2 - t1
                 extract_time += delta
-
         error_manager.write_errors()
+        for i in range(len(list_raster)):
+            r = list_raster[i].tobsr()
+            out = output_path(image_type_details[self.image_type][i]+".npz")
+            print_info(image_type_details[self.image_type][i]+" channel saved at: "+out)
+            save_npz(out, r)
+
 
 class _ErrorManager(object):
     def __init__(self, in_proj, out_proj, path, cache_size=1000):
@@ -482,16 +578,19 @@ if __name__ == "__main__":
     # im_manager = IGNImageManager("/home/data/5M00/")
     # im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/5M00/")  # "/home/bdeneu/Desktop/IGN/5M00/"
     # im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/0M50/")
-    im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/BDORTHO_2-0_IRC-0M50_JP2-E080_LAMB93_D011_2015-01-01/")
+    #im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/BDORTHO_2-0_IRC-0M50_JP2-E080_LAMB93_D011_2015-01-01/")
+    im_manager = IGNImageManager("/home/bdeneu/data/ign/ORTHOHR_1-0_IRC-0M20_JP2-E080_LAMB93_D034_2018-01-01")
 
     print(im_manager.map)
 
-    lat, long = 43.203517, 2.361891
+    lat, long = 43.611330, 3.869580
 
     im = im_manager.get_image_at_location(lat, long)
     print(im.department, im.date, im.image_name)
 
     print(im_manager.map.shape)
+
+    print(im_manager.image_type)
 
     im = im_manager.extract_patch(lat, long, 512, 1)
     print(im)

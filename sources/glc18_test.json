@@ -1,10 +1,14 @@
 {
   "gpu4": {
     "occurrences": "/home/data/occurrences_glc18_test_withlabel.csv",
-    "rasters": "/home/data/rasters_GLC19/"
+    "rasters": "/home/data/rasters_GLC19/",
+    "id_name": "patch_id",
+    "label_name": "species_glc_id"
   },
   "nef": {
     "occurrences":"/data/zenith/share/GeoLifeCLEF/occurrences_glc18_test_withlabel.csv",
-    "rasters": "/data/zenith/share/GeoLifeCLEF/rasters_GLC19/"
+    "rasters": "/data/zenith/share/GeoLifeCLEF/rasters_GLC19/",
+    "id_name": "patch_id",
+    "label_name": "species_glc_id"
   }
 }

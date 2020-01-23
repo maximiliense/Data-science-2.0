@@ -1,10 +1,14 @@
 {
   "gpu4": {
     "occurrences": "/home/data/occurrences_GLC19/PL_trusted.csv",
-    "rasters": "/home/data/rasters_GLC19/"
+    "rasters": "/home/data/rasters_GLC19/",
+    "id_name": "X_key",
+    "label_name": "glc19SpId"
   },
   "nef": {
     "occurrences":"/data/zenith/share/GeoLifeCLEF/occurrences_GLC19/PL_trusted.csv",
-    "rasters": "/data/zenith/share/GeoLifeCLEF/rasters_GLC19/"
+    "rasters": "/data/zenith/share/GeoLifeCLEF/rasters_GLC19/",
+    "id_name": "X_key",
+    "label_name": "glc19SpId"
   }
 }

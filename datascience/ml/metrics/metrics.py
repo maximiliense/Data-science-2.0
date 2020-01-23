@@ -30,11 +30,14 @@ class ValidationMetric(ABC):
 
 
 class JustExportPredictions(ValidationMetric):
-    def __init__(self, final_validation=False):
+    def __init__(self, save_true_labels=False, final_validation=False):
         super().__init__(final_validation)
+        self.save_true_labels = save_true_labels
 
     def __call__(self, predictions, labels):
         np.save(output_path('predictions.npy'), predictions)
+        if self.save_true_labels:
+            np.save(output_path('true_labels.npy'), labels)
         return self.__str__()
 
     def __str__(self):
