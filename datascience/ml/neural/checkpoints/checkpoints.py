@@ -1,13 +1,12 @@
 import os
 
-from datascience.ml.neural.models.util import one_label
 from engine.core import module
 from engine.hardware import use_gpu, first_device, all_devices, device_description
-from engine.logging import print_info, print_errors
+from engine.logging import print_info, print_errors, print_debug
 
 import torch
 
-from engine.parameters.special_parameters import from_scratch
+from engine.parameters import special_parameters
 from engine.path import output_path
 
 
@@ -20,27 +19,27 @@ _checkpoint = {}
 
 
 @module
-def create_model(model_class, model_params, model_name='model', p_label=one_label):
+def create_model(model_class, model_params=None, model_name='model'):
     """
     create and eventually load model
     :param model_name:
     :param model_class:
     :param model_params:
     :param model_name:
-    :param p_label:
     :return:
     """
+
+    model_params = {} if model_params is None else model_params
+
     model = model_class(**model_params)
 
-    if not from_scratch:  # recover from checkpoint
+    if special_parameters.load_model:  # recover from checkpoint
         _load_model(model, model_name)
 
     # configure usage on GPU
     if use_gpu():
         model.to(first_device())
         model = torch.nn.DataParallel(model, device_ids=all_devices())
-
-    model.p_label = p_label
 
     # print info about devices
     print_info('Device(s)): ' + str(device_description()))
@@ -58,7 +57,7 @@ def create_optimizer(parameters, optimizer_class, optim_params, model_name='mode
     :return:
     """
     opt = optimizer_class(parameters, **optim_params)
-    if not from_scratch:
+    if special_parameters.load_model:
         _load_optimizer(opt, model_name)
     return opt
 
@@ -77,7 +76,7 @@ def _load_optimizer(optimizer, model_name):
         optimizer.load_state_dict(_checkpoint[model_name]['optimizer_state_dict'])
 
 
-def _load_model(model, model_name):
+def _load_model(model, model_name, path=None, reload=False):
     """
     load checkpoint
     :param model:
@@ -85,8 +84,8 @@ def _load_model(model, model_name):
     :return:
     """
     global _checkpoint
-    if model_name not in _checkpoint:
-        _load_checkpoint(model_name)
+    if model_name not in _checkpoint or reload:
+        _load_checkpoint(model_name, path=path)
 
     if 'model_state_dict' in _checkpoint[model_name]:
         model.load_state_dict(_checkpoint[model_name]['model_state_dict'])
@@ -94,14 +93,23 @@ def _load_model(model, model_name):
         model.load_state_dict(_checkpoint[model_name])
 
 
-def _load_checkpoint(model_name):
-    path = output_path(_checkpoint_path.format(model_name), have_validation=True)
+def _load_checkpoint(model_name, path=None):
+    if path is None:
+        path = output_path(_checkpoint_path.format(model_name), have_validation=True)
 
     global _checkpoint
     if not os.path.isfile(path):
         print_errors('{} does not exist'.format(path), do_exit=True)
-    print_info('Loading checkpoint from ' + path)
+    print_debug('Loading checkpoint from ' + path)
     _checkpoint[model_name] = torch.load(path)
+
+
+def load_checkpoint(model, model_name='model', validation_id=None):
+    """
+    change state of the model
+    """
+    path = output_path(_checkpoint_path.format(model_name), validation_id=validation_id, have_validation=True)
+    _load_model(model.module if type(model) is torch.nn.DataParallel else model, model_name, path=path, reload=True)
 
 
 def save_checkpoint(model, optimizer=None, model_name='model', validation_id=None):
@@ -115,7 +123,7 @@ def save_checkpoint(model, optimizer=None, model_name='model', validation_id=Non
     """
     path = output_path(_checkpoint_path.format(model_name), validation_id=validation_id, have_validation=True)
 
-    print_info('Saving checkpoint: ' + path)
+    print_debug('Saving checkpoint: ' + path)
 
     model = model.module if type(model) is torch.nn.DataParallel else model
 

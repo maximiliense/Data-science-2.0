@@ -96,9 +96,10 @@ def print_durations(duration, text='duration', end='\n'):
     print_info('[' + text + ': %s:%s:%s]' % (h, m, s), end=end)
 
 
-def print_errors(log, end='\n', do_exit=False):
+def print_errors(log, end='\n', do_exit=False, exception=None):
     """
-
+    print error and eventually raise exceptions
+    :param exception:
     :param do_exit:
     :param log:
     :param end:
@@ -109,6 +110,8 @@ def print_errors(log, end='\n', do_exit=False):
     print(color.RED + '\t*** ' + log + ' ***' + color.END, end=end)
     if do_exit:
         exit()
+    if exception is not None:
+        raise exception
 
 
 def print_dataset_statistics(train_size, validation_size, test_size, source_name, labels_size):

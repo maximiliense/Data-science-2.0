@@ -75,5 +75,19 @@ def save_fig_direct_call(path=None, figure_name=None, extension='jpeg'):
 
 
 @module
+def remove_axis(figure_name=None):
+    """
+    remove axis
+    :param figure_name:
+    :return:
+    """
+    if figure_name is None:
+        for k in figures.keys():
+            plt(k).axis('off')
+    else:
+        plt(figure_name).axis('off')
+
+
+@module
 def save_fig(path=None, figure_name=None, extension='jpeg'):
     save_fig_direct_call(path, figure_name, extension)

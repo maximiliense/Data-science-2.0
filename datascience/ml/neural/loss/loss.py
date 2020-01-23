@@ -34,42 +34,40 @@ class Loss(ABC):
         return 'Loss'
 
 
-class CEMTLossSpeciesArea(Loss):
-    def __init__(self, dim):
+class BCEWithLogitsLoss(Loss):
+    def __init__(self, *args, **kwargs):
         super().__init__()
 
-        self.dim = dim
-        self.configured = False
-        self.criterion_species = None
-        self.criterion_area = None
-        self.r = 0.75
-
-    def configure(self):
-        # this is here because it needs to be done after GPU configuration...
-        weight = torch.FloatTensor([0 if i == 0 else 1 for i in range(self.dim)])
-        weight = weight.cuda()
-        self.criterion_species = nn.CrossEntropyLoss(weight=weight)
-        self.criterion_area = nn.CrossEntropyLoss()
+        self.criterion = nn.BCEWithLogitsLoss(*args, **kwargs)
 
     def loss(self, output, label):
-        if not self.configured:
-            self.configure()
-
-        return self.r*self.criterion_species(output[0], label[0]) + (1-self.r)*self.criterion_area(output[1], label[1])
-
-    @staticmethod
-    def output(output):
-        return output[0]
+        return self.criterion(output, label)
 
     def __repr__(self):
-        return 'Multi-task Cross Entropy (Species/Area)'
+        return 'Binary Cross Entropy'
+
+
+class MTBCEWithLogitsLoss(Loss):
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+
+        self.criterion = nn.BCEWithLogitsLoss(*args, **kwargs)
+
+    def loss(self, output, label):
+        _output = torch.mul(output, label[:, 0])
+        # bias because the criterion should not take into account the masked values
+        bias = torch.log(torch.sigmoid(_output[label[:, 0] == 0])).sum()/(output.size(0)*_output.size(1))
+        return self.criterion(_output, label[:, 1]) + bias
+
+    def __repr__(self):
+        return 'Multi-task Binary Cross Entropy'
 
 
 class CELoss(Loss):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         super().__init__()
 
-        self.criterion = nn.CrossEntropyLoss()
+        self.criterion = nn.CrossEntropyLoss(*args, **kwargs)
 
     def loss(self, output, label):
         return self.criterion(output, label)
@@ -78,10 +76,40 @@ class CELoss(Loss):
         return 'Cross Entropy'
 
 
-class CategoricalPoissonLoss(Loss):
-    def __init__(self, log_input=True):
+class MSELoss(Loss):
+    def __init__(self, *args, **kwargs):
         super().__init__()
-        self.criterion = nn.PoissonNLLLoss(log_input=log_input)
+
+        self.criterion = nn.MSELoss(*args, **kwargs)
+
+    def loss(self, output, label):
+        return self.criterion(output, label)
+
+    def __repr__(self):
+        return 'MSE'
+
+
+class HebbLoss(Loss):
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+
+    def loss(self, output, label):
+        result = 0.
+        for i in range(output.size(0)):
+            if label[i] == 0:
+                result -= output[i][0] + output[i][1] * -1
+            else:
+                result -= output[i][1] + output[i][0] * -1
+        return result/output.size(0)
+
+    def __repr__(self):
+        return 'Hebb Loss'
+
+
+class CategoricalPoissonLoss(Loss):
+    def __init__(self, log_input=True, *args, **kwargs):
+        super().__init__()
+        self.criterion = nn.PoissonNLLLoss(log_input=log_input, *args, **kwargs)
 
     def loss(self, output, label):
         # constructing a one hot encoding structure
@@ -103,7 +131,7 @@ class CategoricalPoissonLoss(Loss):
 
 
 class CELossBayesian(Loss):
-    def __init__(self, prior):
+    def __init__(self, prior, *args, **kwargs):
         super().__init__()
         # Variable(torch.from_numpy(np.log(self.prior)).float())
 
@@ -113,7 +141,7 @@ class CELossBayesian(Loss):
         else:
             self.prior = torch.from_numpy(np.log(prior)).float()
 
-        self.criterion = nn.CrossEntropyLoss()
+        self.criterion = nn.CrossEntropyLoss(*args, **kwargs)
 
     def loss(self, output, label):
         return self.criterion(output + self.prior, label)
@@ -157,4 +185,6 @@ def load_loss(name):
         with open(path) as f:
             loss = json.load(f)
         return loss
+    else:
+        print_debug(path + ' does not exist...')
     return []

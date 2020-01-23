@@ -1,8 +1,11 @@
+import torch
 from numpy.linalg import norm
 from torch.nn import Linear, BatchNorm1d, Conv2d
 import numpy as np
 
 from datascience.math import compute_filters
+from datascience.ml.neural.models.cnn import CustomizableCNN
+from datascience.ml.neural.models.fully_connected import FullyConnected
 from datascience.ml.neural.supervised.callbacks.util import Callback
 from datascience.visu.deep_test_plots import plot_dataset, plot_activation_rate, plot_decision_boundary, \
     plot_gradient_field, compute_neural_directions
@@ -71,6 +74,145 @@ class StatCallback(Callback):
                 self.dir_variances[l].append(-np.log(pca_dir.explained_variance_ratio_[0]))
 
                 l += 1
+
+
+class AlignmentMetricCallback(Callback):
+    def __init__(self, fig_name='FilterVarianceCallback'):
+        super().__init__()
+        self.alignment_history = []
+        self.figure_name = fig_name
+
+    def initial_call(self, modulo, nb_calls, dataset, model):
+        super().initial_call(modulo, nb_calls, dataset, model)
+        assert (type(self.model) is CustomizableCNN), "VarianceCallback only works with CustomizableCNN."
+
+    def last_call(self):
+        print('here')
+        fig = get_figure(self.figure_name)
+        ax = fig.gca()
+        scatter = np.array(self.alignment_history)
+        ax.plot(scatter)
+        save_fig_direct_call(figure_name=self.figure_name)
+
+    def __call__(self, validation_id):
+        filters = torch.flatten(self.model.conv_layers[0][0].weight, start_dim=1).detach().clone().cpu().numpy()
+        print(filters.shape)
+        scalar_product = []
+        for i in range(filters.shape[0]-1):
+            for j in range(i+1, filters.shape[0]):
+                scalar_product.append(np.abs(
+                    np.dot(filters[i], filters[j])/(np.linalg.norm(filters[i])*np.linalg.norm(filters[j]))
+                ))
+
+        print(np.max(scalar_product))
+        print(np.average(scalar_product))
+        self.alignment_history.append(
+            np.max(scalar_product)
+        )
+
+
+class FilterVarianceCallback(Callback):
+    """
+    Analysis the variance of the filter of 1 hidden layer convolutional network
+    """
+    def __init__(self, window_size=5, averaged=True, fig_name='FilterVarianceCallback'):
+        super().__init__()
+        self.window_size = window_size
+        self.filters_history = []
+        self.averaged = averaged
+        self.fig_name = fig_name
+
+    def initial_call(self, modulo, nb_calls, dataset, model):
+        super().initial_call(modulo, nb_calls, dataset, model)
+        assert (type(self.model) is CustomizableCNN), "VarianceCallback only works with CustomizableCNN."
+        # assert (len(self.model.conv_layers) == 1), "VarianceCallback only works with 1 convolutional layer networks."
+
+    def last_call(self):
+        # transform data into matrix
+        matrix = np.transpose(np.array(self.filters_history), (1, 0, 2))
+
+        iterations = max(matrix.shape[1] - self.window_size + 1, 1)
+        scatter_points = []
+        # the number of iterations depend on the window size
+        for i in range(iterations):
+            current_time_window = matrix[:, i:(i+self.window_size), :]
+
+            # for each window what is the average filter
+            mean_filters = np.average(current_time_window, axis=1)
+            variance = []
+            # for each filter
+            for j in range(mean_filters.shape[0]):
+                one_filter = []
+                variance.append(one_filter)
+
+                # for each occurrence of the filter in the time window
+                for z in range(current_time_window.shape[1]):
+                    # dot product
+                    one_filter.append(np.dot(current_time_window[j, z], mean_filters[j]))
+
+            # compute the variance of the dot product per filter
+            variance = np.var(np.array(variance), axis=1)
+            if self.averaged:
+                variance = [np.average(variance)]
+            scatter_points.append(variance)
+
+        scatter_points = np.array(scatter_points)
+
+        fig = get_figure(self.fig_name)
+        ax = fig.gca()
+        for i in range(scatter_points.shape[1]):
+            ax.plot(scatter_points[:, i])
+        save_fig_direct_call(figure_name=self.fig_name)
+
+    def __call__(self, validation_id):
+        self.filters_history.append(
+            torch.flatten(self.model.conv_layers[0][0].weight, start_dim=1).detach().clone().cpu().numpy()
+        )
+
+
+class ParameterVarianceCallback(Callback):
+    """
+    Analysis the variance of the filter of 1 hidden layer convolutional network
+    """
+    def __init__(self, window_size=5, averaged=True, fig_name='ParameterVarianceCallback'):
+        super().__init__()
+        self.window_size = window_size
+        self.parameters_history = []
+        self.averaged = averaged
+        self.fig_name = fig_name
+
+    def initial_call(self, modulo, nb_calls, dataset, model):
+        super().initial_call(modulo, nb_calls, dataset, model)
+        assert (type(self.model) is CustomizableCNN), "ParameterVarianceCallback only works with CustomizableCNN."
+        # assert (len(self.model.conv_layers) == 1), "VarianceCallback only works with 1 convolutional layer networks."
+
+    def last_call(self):
+        # transform data into matrix
+
+        matrix = np.array(self.parameters_history)
+        matrix = matrix.reshape((matrix.shape[0], matrix.shape[1]))
+        matrix = np.transpose(matrix, (1, 0))
+        iterations = max(matrix.shape[1] - self.window_size + 1, 1)
+        scatter_points = []
+        # the number of iterations depend on the window size
+        for i in range(iterations):
+            variance = np.var(matrix[:, i:(i+self.window_size)], axis=1)
+
+            if self.averaged:
+                variance = [np.average(variance)]
+            scatter_points.append(variance)
+        scatter_points = np.array(scatter_points)
+
+        fig = get_figure(self.fig_name)
+        ax = fig.gca()
+        for i in range(scatter_points.shape[1]):
+            ax.plot(scatter_points[:, i])
+        save_fig_direct_call(figure_name=self.fig_name)
+
+    def __call__(self, validation_id):
+        self.parameters_history.append(
+            self.model.conv_layers[0][0].weight[:, 0, 0, 0].unsqueeze(dim=-1).detach().cpu().numpy()
+        )
 
 
 class NewStatCallback(Callback):
