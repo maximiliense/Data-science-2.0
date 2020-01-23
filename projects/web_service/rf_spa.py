@@ -9,10 +9,10 @@ from sklearn.ensemble.forest import RandomForestClassifier
 
 # loading dataset
 train, _, test = occurrence_loader(
-    GeoLifeClefDataset, source='glc19_pl_complete', validation_size=0
+    GeoLifeClefDataset, source='glc19_pl_complete', validation_size=0, test_size=0
 )
 
-model = load_or_create(RandomForestClassifier, n_estimators=100, max_depth=12)
+model = load_or_create(RandomForestClassifier, n_estimators=100, max_depth=8)
 
 # training model
 training_params = {
