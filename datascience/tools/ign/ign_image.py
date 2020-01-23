@@ -1,4 +1,5 @@
 import math
+import PIL.Image
 import os
 import numpy as np
 import matplotlib.pyplot as plt
@@ -37,7 +38,8 @@ class ExtractionError(Exception):
 # resolutions of the IGN maps // size (m), size (px), resolution (m)
 resolution_details = {
     '5M00': (10000, 2000, 5.0),
-    '0M50': (5000, 10000, 0.5)
+    '0M50': (5000, 10000, 0.5),
+    '0M20': (5000, 25000, 0.2)
 }
 
 # image types and layers
@@ -69,6 +71,12 @@ class Tile(object):
         self.x_max = int(data_value[3]) * 1000
         self.x_min = None
         self.date = str("".join(self.decomposed_name[-3].split("_")[-1].split("-")[0:2]))
+
+        info_image = self.decomposed_name[-2].split("_")
+        self.image_resolution = info_image[2]
+        self.image_type = info_image[1]
+        self.image_encoding = info_image[3]
+        self.image_projection = info_image[4]
 
     def set_x_min(self, x_min):
         self.x_min = x_min
@@ -120,6 +128,7 @@ class IGNImageManager(object):
         
         # get all files in the folder image directory
         files = list_files(self.image_dir)
+        print(files)
         
         # construct tile object for all tile images in the list of files
         self.list_tile, \
@@ -142,6 +151,8 @@ class IGNImageManager(object):
         # size and range of images depends on the ign dataset
         global resolution_details
         self.image_range, self.image_size, self.resolution = resolution_details[self.image_resolution]
+
+        PIL.Image.MAX_IMAGE_PIXELS = self.image_size**2
 
         # configure the spatial area containing all tiles
         self.max_y = self.max_y + self.image_range
@@ -214,6 +225,7 @@ class IGNImageManager(object):
             print_errors("Outside study zone...", do_exit=True)
         return self.map[x, y]
 
+    # TODO: resizing/resampling
     def read_tile(self, pos):
         if pos in self.cache_dic:
             im_tile = self.cache_dic[pos]
@@ -566,11 +578,12 @@ if __name__ == "__main__":
     # im_manager = IGNImageManager("/home/data/5M00/")
     # im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/5M00/")  # "/home/bdeneu/Desktop/IGN/5M00/"
     # im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/0M50/")
-    im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/BDORTHO_2-0_IRC-0M50_JP2-E080_LAMB93_D011_2015-01-01/")
+    #im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/BDORTHO_2-0_IRC-0M50_JP2-E080_LAMB93_D011_2015-01-01/")
+    im_manager = IGNImageManager("/home/bdeneu/data/ign/ORTHOHR_1-0_IRC-0M20_JP2-E080_LAMB93_D034_2018-01-01")
 
     print(im_manager.map)
 
-    lat, long = 43.203517, 2.361891
+    lat, long = 43.611330, 3.869580
 
     im = im_manager.get_image_at_location(lat, long)
     print(im.department, im.date, im.image_name)

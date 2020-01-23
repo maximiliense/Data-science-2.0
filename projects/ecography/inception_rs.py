@@ -1,5 +1,5 @@
 from datascience.ml.metrics.metrics import ValidationAccuracyMultipleBySpecies, ValidationMRRBySpecies
-from datascience.ml.metrics.metrics import ValidationAccuracyRangeBySpecies, ValidationAccuracyForAllSpecies
+from datascience.ml.metrics.metrics import ValidationAccuracyRangeBySpecies, ValidationAccuracyForAllSpecies, JustExportPredictions
 from datascience.ml.neural.models import InceptionEnv
 from datascience.ml.neural.checkpoints import create_model
 from datascience.data.loader import occurrence_loader
@@ -18,7 +18,7 @@ train, val, test = occurrence_loader(EnvironmentalDataset, source='gbif_taxref',
 validation_params = {
     'metrics': (ValidationAccuracyMultipleBySpecies([1, 10, 30]), ValidationMRRBySpecies(),
                 ValidationAccuracyRangeBySpecies(max_top_k=100, final_validation=True),
-                ValidationAccuracyForAllSpecies(train=train, final_validation=True))
+                ValidationAccuracyForAllSpecies(train=train, final_validation=True), JustExportPredictions(save_true_labels=True))
 }
 
 fit(

@@ -22,7 +22,7 @@ def plot_activations_on_map(grid_points, n_rows=3, n_cols=5, selected=tuple(), l
 
 @module
 def plot_species_on_map(grid_points, label_species=None, species=0, log_scale=False,
-                 figsize=5, mean_size=1, softmax=False, alpha=None):
+                 figsize=5, mean_size=1, softmax=False, bad_alpha=1.):
     if softmax:
         acts = np.load(output_path('predictions.npy'))
     else:
@@ -51,7 +51,7 @@ def plot_species_on_map(grid_points, label_species=None, species=0, log_scale=Fa
     # activations has shape nb points x last layer size
 
     plot_on_map(acts, grid_points.ids, n_cols=1, n_rows=1, figsize=figsize, log_scale=log_scale,
-                mean_size=mean_size, selected=(int(use_label),), alpha=alpha,
+                mean_size=mean_size, selected=(int(use_label),), bad_alpha=bad_alpha,
                 legend=(legend,), output="s" + str(species) + "_pred")
 
 
