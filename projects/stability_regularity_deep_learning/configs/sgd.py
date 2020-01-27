@@ -3,7 +3,7 @@
 config = {
     'fit': {
         'training_params': {
-            'batch_size': 5
+            'batch_size': 16
             },
         'optim_params': {
         }

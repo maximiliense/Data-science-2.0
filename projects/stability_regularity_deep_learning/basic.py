@@ -33,7 +33,7 @@ training_params = {
 }
 
 optim_params = {
-    'lr': 0.01,
+    'lr': 0.005,
     'momentum': 0.0
 }
 

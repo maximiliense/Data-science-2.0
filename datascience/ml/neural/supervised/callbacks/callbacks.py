@@ -5,7 +5,7 @@ import numpy as np
 
 from datascience.math import compute_filters
 from datascience.ml.neural.models.cnn import CustomizableCNN
-from datascience.ml.neural.models.fully_connected import FullyConnected
+from datascience.ml.neural.models.fully_connected import FullyConnected, FullyConnectedDeepAnalysis
 from datascience.ml.neural.supervised.callbacks.util import Callback
 from datascience.visu.deep_test_plots import plot_dataset, plot_activation_rate, plot_decision_boundary, \
     plot_gradient_field, compute_neural_directions
@@ -124,7 +124,8 @@ class FilterVarianceCallback(Callback):
 
     def initial_call(self, modulo, nb_calls, dataset, model):
         super().initial_call(modulo, nb_calls, dataset, model)
-        assert (type(self.model) is CustomizableCNN), "VarianceCallback only works with CustomizableCNN."
+        assert (type(self.model) in (CustomizableCNN, FullyConnectedDeepAnalysis)), \
+            "VarianceCallback only works with CustomizableCNN or FullyConnectedDeepAnalysis."
         # assert (len(self.model.conv_layers) == 1), "VarianceCallback only works with 1 convolutional layer networks."
 
     def last_call(self):
@@ -165,9 +166,14 @@ class FilterVarianceCallback(Callback):
         save_fig_direct_call(figure_name=self.fig_name)
 
     def __call__(self, validation_id):
-        self.filters_history.append(
-            torch.flatten(self.model.conv_layers[0][0].weight, start_dim=1).detach().clone().cpu().numpy()
-        )
+        if type(self.model) is CustomizableCNN:
+            self.filters_history.append(
+                torch.flatten(self.model.conv_layers[0][0].weight, start_dim=1).detach().clone().cpu().numpy()
+            )
+        else:
+            self.filters_history.append(
+                self.model.layers[0][0].weight.detach().clone().cpu().numpy()
+            )
 
 
 class ParameterVarianceCallback(Callback):

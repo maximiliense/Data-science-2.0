@@ -4,6 +4,7 @@ from datascience.ml.neural.loss.loss import HebbLoss
 from datascience.ml.neural.supervised import fit
 from datascience.ml.neural.models import FullyConnectedDeepAnalysis
 from datascience.ml.neural.checkpoints import create_model
+from datascience.ml.neural.supervised.callbacks.callbacks import FilterVarianceCallback
 
 from datascience.visu.deep_test_plots import plot_db_partitions_gradients, plot_separator, plot_db_partitions
 from datascience.visu.util.util import save_fig, remove_axis
@@ -13,14 +14,14 @@ train, test = create_dataset(param_train=(250, 250), poly=True)
 
 # creating/loading a model
 model_params = {
-    'architecture': (10, 10, 10),  # play with config GD and SGD + architecture for the first figures
+    'architecture': (64,),  # play with config GD and SGD + architecture for the first figures
     'dropout': 0.0,
 }
 model = create_model(model_class=FullyConnectedDeepAnalysis, model_params=model_params)
 
 # optimization
 training_params = {
-    'iterations': [120],
+    'iterations': [60],
     'log_modulo': -1,
     'val_modulo': 1,
     'loss': HebbLoss()
@@ -28,11 +29,12 @@ training_params = {
 
 optim_params = {
     'momentum': 0.0,
-    'lr': 0.1,
+    'lr': 0.05,
 }
 
 validation_params = {
-    'metrics': (ValidationAccuracy(1),)
+    'metrics': (ValidationAccuracy(1),),
+    'vcallback': (FilterVarianceCallback(averaged=False, window_size=10),)
 }
 
 fit(

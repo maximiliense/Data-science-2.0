@@ -186,7 +186,7 @@ def fit(model_z, train, test, val=None, training_params=None, predict_params=Non
             save_loss(
                 {  # // log_modulo * log_modulo in case log_modulo does not divide epoch_size
                     'train': (loss_logs, log_modulo),
-                    'validation': (loss_val_logs, epoch_size // log_modulo * log_modulo * val_modulo)
+                    # 'validation': (loss_val_logs, epoch_size // log_modulo * log_modulo * val_modulo)
                 },
                 ylabel=str(loss)
             )
