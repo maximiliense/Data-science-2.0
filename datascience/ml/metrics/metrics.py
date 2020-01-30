@@ -97,6 +97,82 @@ class F1Score(ValidationMetric):
     def __str__(self):
         return 'F1 Metric: ' + str(self.metric_score())
 
+class ROCAUC(ValidationMetric):
+    def __init__( self, final_validation=False):
+        super().__init__(final_validation)
+        self.cv_metric = True
+
+    def __call__( self, predictions, labels ):
+
+        n_classes = 3 #predictions.shape[1]
+        for i in range(n_classes):
+            print("Classe: %d - %d - Npos: %d"%(i, np.sum(labels[:, 0, i]), np.sum(labels[:, 1, i])))
+
+        predictions = 1.0 / (1.0 + np.exp(-predictions))
+        # Compute ROC curve and ROC area for each class
+        fpr = dict()
+        tpr = dict()
+        roc_auc = dict()
+        for i in range(n_classes):
+            fpr[i], tpr[i], _ = roc_curve(labels[:, 1, i], labels[:, 0, i] * predictions[:, i])
+            roc_auc[i] = auc(fpr[i], tpr[i])
+
+        # Compute micro-average ROC curve and ROC area
+        fpr["micro"], tpr["micro"], _ = roc_curve(labels[:, 1, :].ravel(), np.ravel(labels[:, 0, :] * predictions))
+        roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
+
+        # First aggregate all false positive rates
+        all_fpr = np.unique(np.concatenate([fpr[i] for i in range(n_classes)]))
+
+        # Then interpolate all ROC curves at this points
+        mean_tpr = np.zeros_like(all_fpr)
+        for i in range(n_classes):
+            mean_tpr += interp(all_fpr, fpr[i], tpr[i])
+
+        # Finally average it and compute AUC
+        mean_tpr /= n_classes
+
+        fpr["macro"] = all_fpr
+        tpr["macro"] = mean_tpr
+        roc_auc["macro"] = auc(fpr["macro"], tpr["macro"])
+
+        # Plot all ROC curves
+        plt.figure()
+        lw = 2
+        plt.plot(fpr["micro"], tpr["micro"],
+                 label='micro-average ROC curve (area = {0:0.2f})'
+                       ''.format(roc_auc["micro"]),
+                 color='deeppink', linestyle=':', linewidth=4)
+
+        plt.plot(fpr["macro"], tpr["macro"],
+                 label='macro-average ROC curve (area = {0:0.2f})'
+                       ''.format(roc_auc["macro"]),
+                 color='navy', linestyle=':', linewidth=4)
+
+        colors = cycle(['aqua', 'darkorange', 'cornflowerblue', 'red', 'yellow'])
+        self.score = 1.0
+        for i, color in zip(range(n_classes), colors):
+            self.score = roc_auc[i] if  roc_auc[i] < self.score else self.score
+            plt.plot(fpr[i], tpr[i], color=color, lw=lw,
+                     label='ROC curve of class {0} (area = {1:0.2f})'
+                           ''.format(i, roc_auc[i]))
+
+        plt.plot([0, 1], [0, 1], 'k--', lw=lw, color="green")
+        plt.xlim([0.0, 1.0])
+        plt.ylim([0.0, 1.05])
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate')
+        plt.title('Some extension of Receiver operating characteristic to multi-class')
+        plt.legend(loc="lower right")
+        plt.savefig("./ROC-AUC.png")
+
+        return self.metric_score(), str(self)
+
+    def is_better( self, score ):
+        return self.metric_score() > score
+
+    def __str__( self ):
+        return 'ROC-AUC Metric: ' + str(self.metric_score())
 
 class ValidationAccuracyMultiple(ValidationMetric):
     def __init__(self, list_top_k=(10,), final_validation=False):
@@ -425,7 +501,7 @@ class ValidationInfoMutBySpecies(ValidationMetric):
         self.h_pred = 0
         self.info_mut = 0
 
-    def __call__(self, predictions, labels):
+    def __call__(self, predictions, labels):s peut être non ?
         n_labels = predictions.shape[1]
         matrix = np.zeros((n_labels, n_labels), dtype=float)
         count = np.zeros(n_labels, dtype=int)
