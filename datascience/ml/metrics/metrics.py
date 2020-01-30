@@ -1,11 +1,17 @@
 from abc import ABC
 import os
 import numpy as np
+import matplotlib.pyplot as plt
+from itertools import cycle
+from scipy import interp
 import math
 
 from engine.path import output_path
 from engine.tensorboard import add_scalar
 from engine.flags import incorrect_io, deprecated
+
+from sklearn.metrics import roc_curve, auc
+
 
 
 class ValidationMetric(ABC):
@@ -86,9 +92,17 @@ class F1Score(ValidationMetric):
                         true_negative += 1
                     else:
                         false_positive += 1
-        precision = float(true_positive) / (true_positive + false_positive)
+        print("true_positive: %d, true_negative: %d, false_positive: %d, false_negative: %d" % (
+        true_positive, true_negative, false_positive, false_negative))
+        positive = true_positive + false_positive
+        precision = float(true_positive) / positive if positive != 0 else 0
         recall = float(true_positive) / (true_positive + false_negative)
-        self.score =  2. * precision * recall / (precision + recall)
+        print("precision: %f, recall: %f" % (precision, recall))
+        beta = 0.5
+        F1_score = (1.0 + beta ** 2) * precision * recall / ((beta ** 2) * precision + recall) if precision != 0 else 0
+
+        self.score = F1_score
+
         return self.metric_score(), str(self)
 
     def is_better(self, score):
@@ -103,23 +117,33 @@ class ROCAUC(ValidationMetric):
         self.cv_metric = True
 
     def __call__( self, predictions, labels ):
-
-        n_classes = 3 #predictions.shape[1]
+        predictions = 1.0 / (1.0 + np.exp(-predictions))
+        n_classes = predictions.shape[1]
+        y = {}
+        p = {}
         for i in range(n_classes):
             print("Classe: %d - %d - Npos: %d"%(i, np.sum(labels[:, 0, i]), np.sum(labels[:, 1, i])))
+            y[i] = []
+            p[i] = []
+            for j, pred in enumerate(predictions):
+                if labels[j, 0, i] != 0:
+                    y[i].append(labels[j, 1, i])
+                    p[i].append(predictions[j, i])
+            print(len(y[i]))
+            print(len(p[i]))
 
-        predictions = 1.0 / (1.0 + np.exp(-predictions))
         # Compute ROC curve and ROC area for each class
         fpr = dict()
         tpr = dict()
+        thr = dict()
         roc_auc = dict()
         for i in range(n_classes):
-            fpr[i], tpr[i], _ = roc_curve(labels[:, 1, i], labels[:, 0, i] * predictions[:, i])
+            fpr[i], tpr[i], thr[i] = roc_curve(y[i], p[i])
+            print("Classe %d: "%i)
+            print(thr[i])
+            print(fpr[i])
+            print(tpr[i])
             roc_auc[i] = auc(fpr[i], tpr[i])
-
-        # Compute micro-average ROC curve and ROC area
-        fpr["micro"], tpr["micro"], _ = roc_curve(labels[:, 1, :].ravel(), np.ravel(labels[:, 0, :] * predictions))
-        roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
 
         # First aggregate all false positive rates
         all_fpr = np.unique(np.concatenate([fpr[i] for i in range(n_classes)]))
@@ -140,11 +164,6 @@ class ROCAUC(ValidationMetric):
         # Plot all ROC curves
         plt.figure()
         lw = 2
-        plt.plot(fpr["micro"], tpr["micro"],
-                 label='micro-average ROC curve (area = {0:0.2f})'
-                       ''.format(roc_auc["micro"]),
-                 color='deeppink', linestyle=':', linewidth=4)
-
         plt.plot(fpr["macro"], tpr["macro"],
                  label='macro-average ROC curve (area = {0:0.2f})'
                        ''.format(roc_auc["macro"]),
@@ -502,7 +521,7 @@ class ValidationInfoMutBySpecies(ValidationMetric):
         self.h_pred = 0
         self.info_mut = 0
 
-    def __call__(self, predictions, labels):s peut être non ?
+    def __call__(self, predictions, labels):
         n_labels = predictions.shape[1]
         matrix = np.zeros((n_labels, n_labels), dtype=float)
         count = np.zeros(n_labels, dtype=int)
