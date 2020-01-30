@@ -136,6 +136,7 @@ class ROCAUC(ValidationMetric):
         tpr["macro"] = mean_tpr
         roc_auc["macro"] = auc(fpr["macro"], tpr["macro"])
 
+
         # Plot all ROC curves
         plt.figure()
         lw = 2
