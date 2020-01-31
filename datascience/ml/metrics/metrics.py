@@ -1,11 +1,17 @@
 from abc import ABC
 import os
 import numpy as np
+import matplotlib.pyplot as plt
+from itertools import cycle
+from scipy import interp
 import math
 
 from engine.path import output_path
 from engine.tensorboard import add_scalar
 from engine.flags import incorrect_io, deprecated
+
+from sklearn.metrics import roc_curve, auc
+
 
 
 class ValidationMetric(ABC):
@@ -32,12 +38,9 @@ class ValidationMetric(ABC):
 class JustExportPredictions(ValidationMetric):
     def __init__(self, save_true_labels=False, final_validation=False):
         super().__init__(final_validation)
-        self.save_true_labels = save_true_labels
 
     def __call__(self, predictions, labels):
         np.save(output_path('predictions.npy'), predictions)
-        if self.save_true_labels:
-            np.save(output_path('true_labels.npy'), labels)
         return self.__str__()
 
     def __str__(self):
@@ -89,9 +92,17 @@ class F1Score(ValidationMetric):
                         true_negative += 1
                     else:
                         false_positive += 1
-        precision = float(true_positive) / (true_positive + false_positive)
+        print("true_positive: %d, true_negative: %d, false_positive: %d, false_negative: %d" % (
+        true_positive, true_negative, false_positive, false_negative))
+        positive = true_positive + false_positive
+        precision = float(true_positive) / positive if positive != 0 else 0
         recall = float(true_positive) / (true_positive + false_negative)
-        self.score =  2. * precision * recall / (precision + recall)
+        print("precision: %f, recall: %f" % (precision, recall))
+        beta = 0.5
+        F1_score = (1.0 + beta ** 2) * precision * recall / ((beta ** 2) * precision + recall) if precision != 0 else 0
+
+        self.score = F1_score
+
         return self.metric_score(), str(self)
 
     def is_better(self, score):
@@ -100,6 +111,88 @@ class F1Score(ValidationMetric):
     def __str__(self):
         return 'F1 Metric: ' + str(self.metric_score())
 
+class ROCAUC(ValidationMetric):
+    def __init__( self, final_validation=False):
+        super().__init__(final_validation)
+        self.cv_metric = True
+
+    def __call__( self, predictions, labels ):
+        predictions = 1.0 / (1.0 + np.exp(-predictions))
+        n_classes = predictions.shape[1]
+        y = {}
+        p = {}
+        for i in range(n_classes):
+            print("Classe: %d - %d - Npos: %d"%(i, np.sum(labels[:, 0, i]), np.sum(labels[:, 1, i])))
+            y[i] = []
+            p[i] = []
+            for j, pred in enumerate(predictions):
+                if labels[j, 0, i] != 0:
+                    y[i].append(labels[j, 1, i])
+                    p[i].append(predictions[j, i])
+            print(len(y[i]))
+            print(len(p[i]))
+
+        # Compute ROC curve and ROC area for each class
+        fpr = dict()
+        tpr = dict()
+        thr = dict()
+        roc_auc = dict()
+        for i in range(n_classes):
+            fpr[i], tpr[i], thr[i] = roc_curve(y[i], p[i])
+            print("Classe %d: "%i)
+            print(thr[i])
+            print(fpr[i])
+            print(tpr[i])
+            roc_auc[i] = auc(fpr[i], tpr[i])
+
+        # First aggregate all false positive rates
+        all_fpr = np.unique(np.concatenate([fpr[i] for i in range(n_classes)]))
+
+        # Then interpolate all ROC curves at this points
+        mean_tpr = np.zeros_like(all_fpr)
+        for i in range(n_classes):
+            mean_tpr += interp(all_fpr, fpr[i], tpr[i])
+
+        # Finally average it and compute AUC
+        mean_tpr /= n_classes
+
+        fpr["macro"] = all_fpr
+        tpr["macro"] = mean_tpr
+        roc_auc["macro"] = auc(fpr["macro"], tpr["macro"])
+
+
+        # Plot all ROC curves
+        plt.figure()
+        lw = 2
+        plt.plot(fpr["macro"], tpr["macro"],
+                 label='macro-average ROC curve (area = {0:0.2f})'
+                       ''.format(roc_auc["macro"]),
+                 color='navy', linestyle=':', linewidth=4)
+
+        colors = cycle(['aqua', 'darkorange', 'cornflowerblue', 'red', 'yellow'])
+        self.score = 1.0
+        for i, color in zip(range(n_classes), colors):
+            self.score = roc_auc[i] if  roc_auc[i] < self.score else self.score
+            plt.plot(fpr[i], tpr[i], color=color, lw=lw,
+                     label='ROC curve of class {0} (area = {1:0.2f})'
+                           ''.format(i, roc_auc[i]))
+
+        plt.plot([0, 1], [0, 1], 'k--', lw=lw, color="green")
+        plt.xlim([0.0, 1.0])
+        plt.ylim([0.0, 1.05])
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate')
+        plt.title('Some extension of Receiver operating characteristic to multi-class')
+        plt.legend(loc="lower right")
+        plt.savefig("./ROC-AUC.png")
+
+        return self.metric_score(), str(self)
+
+    def is_better( self, score ):
+        return self.metric_score() > score
+
+    def __str__( self ):
+        return 'ROC-AUC Metric: ' + str(self.metric_score())
 
 class ValidationAccuracyMultiple(ValidationMetric):
     def __init__(self, list_top_k=(10,), final_validation=False):
