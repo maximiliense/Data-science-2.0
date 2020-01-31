@@ -1,0 +1,6 @@
+{
+  "gpu4": {
+    "tiles": "/home/data/rasters_GLC20/alti/",
+    "patches": "/home/data/alti_1m/"
+  }
+}

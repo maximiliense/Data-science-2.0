@@ -1,6 +1,8 @@
 import os
 import cv2
 import math
+import datetime
+import time as ti
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -142,18 +144,11 @@ class TileManager(object):
                 self.list_tiles.append(tile)
         self.max_lat += 1  # add 1 to max for the last tile dimension
         self.max_lng += 1
-
         self.size_lat = self.max_lat - self.min_lat
         self.size_lng = self.max_lng - self.min_lng
 
         # create spatial matrix to order and place tiles relatively to their spatial position
         self.map = np.empty((self.size_lat, self.size_lng), dtype=object)
-
-        # fill the cartographic matrix with all tiles
-        for tile in self.list_tiles:
-            pos_lat = self.size_lat - (tile.lat - self.min_lat) - 1  # reverse lat (increase from bottom to top)
-            pos_lng = tile.lng - self.min_lng
-            self.map[pos_lat, pos_lng] = tile
 
         self.running_map = np.empty((self.size_lat*RUNNING_TILES_COEF, self.size_lng*RUNNING_TILES_COEF), dtype=object)
         for tile in self.list_tiles:
@@ -191,19 +186,19 @@ class TileManager(object):
         tile_pos_lng = int((lng - self.min_lng) * RUNNING_TILES_COEF)
 
         center_tile = self.running_map[tile_pos_lat, tile_pos_lng]
+        print(tile_pos_lat, tile_pos_lng, lat, lng)
         pixel_lat = round(corrected_data_running_shape[0] - ((lat-center_tile.lat) * corrected_data_running_shape[0] / center_tile.range))
         pixel_lng = round(
             ((lng - center_tile.lng) * corrected_data_running_shape[1] / center_tile.range))
 
         # TODO: take into account odd number size
-        min_lat = pixel_lat - int(size/2)
-        min_lng = pixel_lng - int(size/2)
-        max_lat = pixel_lat + int(size/2)
-        max_lng = pixel_lng + int(size/2)
+        min_lat = int(pixel_lat - int(size/2))
+        min_lng = int(pixel_lng - int(size/2))
+        max_lat = int(pixel_lat + int(size/2))
+        max_lng = int(pixel_lng + int(size/2))
 
         center_image_pos_x, center_image_pos_y = 0, 0
         aggregation_size_x, aggregation_size_y = 1, 1
-
         while min_lat < 0 or max_lat >= corrected_data_running_shape[0] * aggregation_size_x or \
                 min_lng < 0 or max_lng >= corrected_data_running_shape[1] * aggregation_size_y:
             if min_lat < 0:
@@ -238,13 +233,127 @@ class TileManager(object):
         aggregation_im = np.ndarray((corrected_data_running_shape[0] * aggregation_size_x,
                                      corrected_data_running_shape[1] * aggregation_size_y),
                                     dtype=int)
-
         for im_tile in list_im:
             aggregation_im[im_tile[1][0]:im_tile[1][1], im_tile[1][2]:im_tile[1][3]]\
                 = self.read_tile((im_tile[0][0], im_tile[0][1]), corrected_data_running_shape)
         patch = aggregation_im[min_lat:max_lat, min_lng:max_lng]
 
         return patch
+
+    def extract_patches(self, long_lat_df, destination_directory, res, size=256, check_file=True):
+        """
+        The main extraction method for multiple extractions
+        :param long_lat_df:
+        :param destination_directory:
+        :param size:
+        :param step:
+        :param error_extract_folder:
+        :param error_cache_size:
+        :param white_percent_allowed:
+        :param check_file:
+        """
+
+        err_manager = _ErrorManager(destination_directory)
+
+        if not os.path.exists(destination_directory):
+            os.makedirs(destination_directory)
+
+        total = long_lat_df.shape[0]
+        start = datetime.datetime.now()
+        extract_time = 0
+
+        for idx, row in enumerate(long_lat_df.iterrows()):
+            longitude, latitude, occ_id = row[1][0], row[1][1], row[1][2]
+
+            if idx % 10 == 9:
+                _print_details(idx+1, total, start, extract_time, latitude, longitude)
+
+            patch_id = int(row[1][2])
+
+            # constructing path with hierarchical structure
+            path = _write_directory(destination_directory, str(patch_id)[-2:], str(patch_id)[-4:-2])
+
+            patch_path = os.path.join(path, str(patch_id) + ".npy")
+
+            # if file exists pursue extraction
+            if os.path.isfile(patch_path) and check_file:
+                continue
+
+            t1 = ti.time()
+            t2 = 0
+            try:
+                patch = self.extract(latitude, longitude, size, res)
+            except Exception as err:
+                t2 = ti.time()
+                print(err)
+                err_manager.append(latitude, longitude, occ_id)
+            else:
+                t2 = ti.time()
+                np.save(patch_path, patch)
+            finally:
+                delta = t2 - t1
+                extract_time += delta
+
+            err_manager.write_errors()
+
+
+class _ErrorManager(object):
+    def __init__(self, path, cache_size=1000):
+        # setting up the destination file
+        current_datetime = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        error_extract_file = path + current_datetime + '_errors.csv'
+        with open(error_extract_file, "w") as file:
+            file.write(str(current_datetime) + "Occ_id;Latitude;Longitude\n")
+        self.file = error_extract_file
+
+        # setting up the error cache
+        self.error_cache = []
+        self.total_size = 0
+
+        # the maximum number of elements in the cache
+        self.cache_size = cache_size
+
+    def __len__(self):
+        return self.total_size
+
+    def append(self, lat, lng, id):
+        """
+        :param error:
+        :return:
+        """
+
+        self.error_cache.append('{};{};{}'.format(id, lat, lng))
+        self.total_size += 1
+        if len(self.error_cache) >= self.cache_size:
+            self.write_errors()
+
+    def write_errors(self):
+        with open(self.file, "a") as file:
+            for err in self.error_cache:
+                file.write(err + "\n")
+        self.error_cache = []
+
+
+def _write_directory(root, *args):
+    path = root
+    for d in args:
+        path = os.path.join(path, d)
+        if not os.path.exists(path):
+            os.makedirs(path)
+    return path
+
+
+def _print_details(idx, total, start, extract_time, latitude, longitude):
+    time = datetime.datetime.now()
+    print('\n{}/{}'.format(idx, total))
+    p = ((idx - 1) / total) * 100
+    print('%.2f' % p)
+    delta = (time - start).total_seconds()
+    estimation = (delta * total) / idx
+    date_estimation = start + datetime.timedelta(seconds=estimation)
+    print('mean extraction time: {}'.format(extract_time / idx))
+    print('Actual position: {}'.format((latitude, longitude)))
+    print('Time: {}, ETA: {}'.format(datetime.timedelta(seconds=delta), date_estimation))
 
 
 if __name__ == "__main__":
