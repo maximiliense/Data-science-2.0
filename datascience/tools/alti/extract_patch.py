@@ -20,12 +20,12 @@ def extract_patch(source_tiles, source_occs, offset=0, check_file=True):
 
     # extract manager
     # t_manager = TileManager(r['tiles'])
-    t_manager = TileManager("/home/data/rasters_GLC20/alti/")
+    t_manager = TileManager("/home/benjamin/alti/")
     extract_size = 256
     extract_res = 1.0
 
     # loading the occurrence file
-    df = pd.read_csv("/home/data/occurrences_GLC20/occurrences.csv", header='infer', sep=';', low_memory=False)
+    df = pd.read_csv("/home/benjamin/occurrences.csv", header='infer', sep=';', low_memory=False)
 
     # sorting the dataset to optimise the extraction
     df.sort_values('lat', inplace=True)
@@ -37,5 +37,5 @@ def extract_patch(source_tiles, source_occs, offset=0, check_file=True):
 
     t_manager.extract_patches(
         # df[[occs['longitude'], occs['latitude'], occs['id_name']]], r['patches'], extract_res, extract_size, check_file=check_file
-        df[['lon', 'lat', 'id']], "/home/data/alti_1m/", extract_res, extract_size, check_file=check_file
+        df[['lon', 'lat', 'id']], "/home/benjamin/alti_1m/", extract_res, extract_size, check_file=check_file
     )
