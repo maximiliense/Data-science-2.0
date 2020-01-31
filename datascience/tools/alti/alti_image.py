@@ -186,7 +186,6 @@ class TileManager(object):
         tile_pos_lng = int((lng - self.min_lng) * RUNNING_TILES_COEF)
 
         center_tile = self.running_map[tile_pos_lat, tile_pos_lng]
-        print(tile_pos_lat, tile_pos_lng, lat, lng)
         pixel_lat = round(corrected_data_running_shape[0] - ((lat-center_tile.lat) * corrected_data_running_shape[0] / center_tile.range))
         pixel_lng = round(
             ((lng - center_tile.lng) * corrected_data_running_shape[1] / center_tile.range))
@@ -265,7 +264,7 @@ class TileManager(object):
         for idx, row in enumerate(long_lat_df.iterrows()):
             longitude, latitude, occ_id = row[1][0], row[1][1], row[1][2]
 
-            if idx % 10 == 9:
+            if idx % 10000 == 9999:
                 _print_details(idx+1, total, start, extract_time, latitude, longitude)
 
             patch_id = int(row[1][2])
