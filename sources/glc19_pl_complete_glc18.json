@@ -1,8 +1,6 @@
 {
   "nef": {
     "occurrences":"/data/zenith/share/GeoLifeCLEF/occurrences_GLC19/PL_complete_glc18.csv",
-    "rasters": "/data/zenith/share/GeoLifeCLEF/rasters_GLC19/",
-    "id_name": "X_key",
-    "label_name": "glc19SpId"
+    "rasters": "/data/zenith/share/GeoLifeCLEF/rasters_GLC19/"
   }
 }

@@ -8,7 +8,7 @@ from datascience.visu.util import plt, get_figure
 
 
 @module
-def pplot(latitude, longitude, source, size=64, resolution=1., style=special_parameters.plt_style, nb_cols=5, alpha=1.):
+def pplot(latitude, longitude, source, resolution=1., style=special_parameters.plt_style, nb_cols=5, alpha=1.):
     """
     patch plot
     :param style:
@@ -20,7 +20,7 @@ def pplot(latitude, longitude, source, size=64, resolution=1., style=special_par
     """
     r = check_source(source)
     rasters = r['rasters']
-    extractor = PatchExtractor(rasters, size=size, resolution=resolution)
+    extractor = PatchExtractor(rasters, resolution=resolution)
     extractor.add_all()
     extractor.plot(item=(latitude, longitude), return_fig=True, style=style, nb_cols=nb_cols, alpha=alpha)
 
