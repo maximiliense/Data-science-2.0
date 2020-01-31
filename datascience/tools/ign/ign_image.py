@@ -1,6 +1,7 @@
 import math
 import PIL.Image
 import os
+import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import datetime
@@ -14,7 +15,7 @@ import time as ti
 
 class ExtractionError(Exception):
     """
-    Exception raised when any problem during the extraction of a patch
+    Exception raised when any problem occur during the extraction of a patch
     """
     def __init__(self, x, y, error_type=1, identifier=None, message=''):
         """
@@ -77,6 +78,10 @@ class Tile(object):
         self.image_type = info_image[1]
         self.image_encoding = info_image[3]
         self.image_projection = info_image[4]
+
+        # size and range of images depends on the ign dataset
+        global resolution_details
+        self.image_range, self.image_size, self.resolution = resolution_details[self.image_resolution]
 
     def set_x_min(self, x_min):
         self.x_min = x_min
@@ -169,7 +174,10 @@ class IGNImageManager(object):
             tile.set_y_max(tile.y_min+self.image_range)
             tile.set_x_min(tile.x_max-self.image_range)
             pos_x, pos_y = self.position_to_tile_index(tile.x_max, tile.y_min)
-            if type(self.map[pos_x, pos_y]) is not Tile or int(self.map[pos_x, pos_y].date) < int(tile.date):
+            if type(self.map[pos_x, pos_y]) is not Tile \
+                    or self.map[pos_x, pos_y].resolution < tile.resolution \
+                    or (int(self.map[pos_x, pos_y].resolution) <= int(tile.resolution) \
+                    and int(self.map[pos_x, pos_y].date) < int(tile.date)):
                 # if 2 tiles cover the same area we keep the most recent one
                 self.map[pos_x, pos_y] = tile
 
@@ -225,12 +233,14 @@ class IGNImageManager(object):
             print_errors("Outside study zone...", do_exit=True)
         return self.map[x, y]
 
-    # TODO: resizing/resampling
-    def read_tile(self, pos):
+    def read_tile(self, pos, res):
         if pos in self.cache_dic:
             im_tile = self.cache_dic[pos]
         else:
+            tile = self.map[pos[0], pos[1]]
             im_tile = plt.imread(self.map[pos[0], pos[1]].image_name)
+            im_tile = cv2.resize(im_tile, dsize=(int(tile.image_range/res), int(tile.image_range/res)))
+
             if len(self.cache_list) >= self.max_cache:
                 self.cache_dic.pop(self.cache_list[0])
                 self.cache_list.pop(0)
@@ -239,13 +249,14 @@ class IGNImageManager(object):
             else:
                 self.cache_list.append(pos)
                 self.cache_dic[pos] = im_tile
+        print(self.map[pos[0], pos[1]])
         return im_tile
 
-    def extract_patch(self, latitude, longitude, size, step, identifier=-1, white_percent_allowed=20):
+    def extract_patch(self, latitude, longitude, res, size, identifier=-1, white_percent_allowed=20):
         y, x = self.transformer.transform(longitude, latitude)
-        return self.extract_patch_lambert93(x, y, size, step, identifier, white_percent_allowed=white_percent_allowed)
+        return self.extract_patch_lambert93(x, y, res, size, identifier, white_percent_allowed=white_percent_allowed)
 
-    def extract_patch_lambert93(self, x_lamb, y_lamb, size, step, identifier=-1,
+    def extract_patch_lambert93(self, x_lamb, y_lamb, res, size, identifier=-1,
                                 white_percent_allowed=20, verbose=False):
         x, y = self.position_to_tile_index(x_lamb, y_lamb)
 
@@ -254,35 +265,37 @@ class IGNImageManager(object):
 
         # im = self.read_tile((x, y))
 
-        pixel_y = int((y_lamb - self.map[x, y].y_min) * self.image_size / float(self.image_range))
-        pixel_x = int((self.map[x, y].x_max - x_lamb) * self.image_size / float(self.image_range))
+        pixel_y = int((y_lamb - self.map[x, y].y_min) / res)
+        pixel_x = int((self.map[x, y].x_max - x_lamb) / res)
 
         modulo = size % 2
         half_size = int(size / 2)
 
-        x_min = pixel_x - half_size * step
-        x_max = pixel_x + half_size * step + modulo
-        y_min = pixel_y - half_size * step
-        y_max = pixel_y + half_size * step + modulo
+        x_min = pixel_x - half_size
+        x_max = pixel_x + half_size + modulo
+        y_min = pixel_y - half_size
+        y_max = pixel_y + half_size + modulo
 
         center_image_pos_x, center_image_pos_y = 0, 0
         aggregation_size_x, aggregation_size_y = 1, 1
 
-        while x_min < 0 or x_max >= self.image_size*aggregation_size_x or\
-                y_min < 0 or y_max >= self.image_size*aggregation_size_y:
+        image_pixel_size = int(self.image_range * res)
+
+        while x_min < 0 or x_max >= image_pixel_size*aggregation_size_x or\
+                y_min < 0 or y_max >= image_pixel_size*aggregation_size_y:
             if x_min < 0:
-                x_max = x_max + self.image_size
-                x_min = x_min + self.image_size
+                x_max = x_max + image_pixel_size
+                x_min = x_min + image_pixel_size
                 aggregation_size_x += 1
                 center_image_pos_x += 1
             if y_min < 0:
-                y_max = y_max + self.image_size
-                y_min = y_min + self.image_size
+                y_max = y_max + image_pixel_size
+                y_min = y_min + image_pixel_size
                 aggregation_size_y += 1
                 center_image_pos_y += 1
-            if x_max >= self.image_size*aggregation_size_x:
+            if x_max >= image_pixel_size*aggregation_size_x:
                 aggregation_size_x += 1
-            if y_max >= self.image_size*aggregation_size_y:
+            if y_max >= image_pixel_size*aggregation_size_y:
                 aggregation_size_y += 1
 
         if verbose:
@@ -294,24 +307,25 @@ class IGNImageManager(object):
                 relative_x = i - center_image_pos_x
                 relative_y = j - center_image_pos_y
                 if self.is_not_tile(x + relative_x, y + relative_y):
+                    print("error here")
                     raise ExtractionError(x_lamb, y_lamb, error_type=1, identifier=identifier)
                 list_im.append(((x + relative_x, y + relative_y),
-                               (self.image_size*i, self.image_size*(i+1), self.image_size*j, self.image_size*(j+1))))
+                               (image_pixel_size*i, image_pixel_size*(i+1), image_pixel_size*j, image_pixel_size*(j+1))))
 
-        aggregation_im = np.ndarray((self.image_size*aggregation_size_x, self.image_size*aggregation_size_y, 3),
+        aggregation_im = np.ndarray((image_pixel_size*aggregation_size_x, image_pixel_size*aggregation_size_y, 3),
                                     dtype=int)
 
         for im_tile in list_im:
             aggregation_im[im_tile[1][0]:im_tile[1][1], im_tile[1][2]:im_tile[1][3]]\
-                = self.read_tile((im_tile[0][0], im_tile[0][1]))
+                = self.read_tile((im_tile[0][0], im_tile[0][1]), res)
 
-        patch = aggregation_im[x_min:x_max:step, y_min:y_max:step, :]
+        patch = aggregation_im[x_min:x_max, y_min:y_max, :]
 
         if (np.sum(np.all(patch == 255, axis=2))/(patch.shape[0]*patch.shape[1]))*100 > white_percent_allowed:
             raise ExtractionError(x_lamb, y_lamb, error_type=3, identifier=identifier)
         return patch
 
-    def extract_patches(self, long_lat_df, destination_directory, size=64, step=1, error_extract_folder=None,
+    def extract_patches(self, long_lat_df, destination_directory, res, size=64, error_extract_folder=None,
                         error_cache_size=1000, white_percent_allowed=20, check_file=True):
         """
         The main extraction method for multiple extractions
@@ -358,7 +372,7 @@ class IGNImageManager(object):
             t1 = ti.time()
             t2 = 0
             try:
-                patch = self.extract_patch(latitude, longitude, size, step, identifier=int(patch_id),
+                patch = self.extract_patch(latitude, longitude, res, size, identifier=int(patch_id),
                                            white_percent_allowed=white_percent_allowed)
             except ExtractionError as err:
                 t2 = ti.time()
@@ -579,11 +593,12 @@ if __name__ == "__main__":
     # im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/5M00/")  # "/home/bdeneu/Desktop/IGN/5M00/"
     # im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/0M50/")
     #im_manager = IGNImageManager("/home/bdeneu/Desktop/IGN/BDORTHO_2-0_IRC-0M50_JP2-E080_LAMB93_D011_2015-01-01/")
-    im_manager = IGNImageManager("/home/bdeneu/data/ign/ORTHOHR_1-0_IRC-0M20_JP2-E080_LAMB93_D034_2018-01-01")
+    im_manager = IGNImageManager("/home/bdeneu/data/ign/")
 
+    np.set_printoptions(threshold=np.inf)
     print(im_manager.map)
 
-    lat, long = 43.611330, 3.869580
+    lat, long = 43.573620, 2.690617
 
     im = im_manager.get_image_at_location(lat, long)
     print(im.department, im.date, im.image_name)
@@ -592,7 +607,10 @@ if __name__ == "__main__":
 
     print(im_manager.image_type)
 
-    im = im_manager.extract_patch(lat, long, 512, 1)
-    print(im)
+    try:
+        im = im_manager.extract_patch(lat, long, 1.0, 512)
+    except ExtractionError as err:
+        print(err.error_type)
+
     plt.imshow(im)
     plt.show()
