@@ -117,8 +117,7 @@ class InceptionEnv(nn.Module):
         x = self.Mixed_7c(x)
 
         # 2048 x 7 x 7
-        mean_size = x.size()[2]
-        x = F.avg_pool2d(x, kernel_size=mean_size)
+        x = F.avg_pool2d(x, kernel_size=7)
 
         # 1 x 1 x 2048
         x = F.dropout(x, p=self.dropout, training=self.training)  # increased dropout probability

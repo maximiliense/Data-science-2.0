@@ -5,7 +5,6 @@ from datascience.data.loader.occurrence_loader import _occurrence_loader
 from datascience.data.rasters.environmental_raster_glc import PatchExtractor
 from datascience.visu.spatial_map_plots import plot_on_map
 from engine.core import module
-from engine.logging import print_info
 from engine.path import output_path
 
 
@@ -22,7 +21,7 @@ def plot_activations_on_map(grid_points, n_rows=3, n_cols=5, selected=tuple(), l
 
 @module
 def plot_species_on_map(grid_points, label_species=None, species=0, log_scale=False,
-                 figsize=5, mean_size=1, softmax=False, bad_alpha=1.):
+                 figsize=5, mean_size=1, softmax=False, alpha=None):
     if softmax:
         acts = np.load(output_path('predictions.npy'))
     else:
@@ -51,12 +50,12 @@ def plot_species_on_map(grid_points, label_species=None, species=0, log_scale=Fa
     # activations has shape nb points x last layer size
 
     plot_on_map(acts, grid_points.ids, n_cols=1, n_rows=1, figsize=figsize, log_scale=log_scale,
-                mean_size=mean_size, selected=(int(use_label),), bad_alpha=bad_alpha,
+                mean_size=mean_size, selected=(int(use_label),), alpha=alpha,
                 legend=(legend,), output="s" + str(species) + "_pred")
 
 
 @module
-def select_species_by_neuron(grid_points, label_species, neuron, figsize=5, mean_size=1, type='correlation', b_name=True):
+def select_species_by_neuron(grid_points, label_species, neuron, figsize=5, mean_size=1, type='correlation'):
     if type == 'correlation':
         result_path = output_path('correlation_activations.npy')
         matrix = np.load(result_path)
@@ -92,10 +91,7 @@ def select_species_by_neuron(grid_points, label_species, neuron, figsize=5, mean
 
     for label in test:
         true_label = index_dic[str(label)]
-        if b_name:
-            legend.append("_".join(label_name_dic[true_label].split()[0:2]))
-        else:
-            legend.append(label_name_dic[true_label])
+        legend.append(label_name_dic[true_label])
         legend3.append(true_label)
 
     for i in range(len(legend)):
@@ -167,34 +163,6 @@ def select_neurons_by_species(grid_points, label_species, species, figsize=5, me
 
 
 @module
-def get_correlation_csv(label_species):
-    result_path = output_path('correlation_activations.npy')
-    matrix = np.load(result_path)
-
-    index = output_path('index.json')
-
-    with open(index, 'r') as f:
-        s = f.read()
-        index_dic = ast.literal_eval(s)
-
-    with open(label_species, 'r') as f:
-        s = f.read()
-        label_name_dic = ast.literal_eval(s)
-
-    header = "neuron"
-
-    for i in range(matrix.shape[1]):
-        header = header+";"+label_name_dic[index_dic[str(i)]]
-
-    neuron_index = np.arange(matrix.shape[0])
-
-    matrix = np.insert(matrix, 0, neuron_index, axis=1)
-
-    np.savetxt(output_path("correlations_csv.csv"), matrix, delimiter=";", header=header)
-    print_info("csv file saved at "+output_path("correlations_csv.csv"))
-
-
-@module
 def species_train_test_occurrences(label_species, train, val, test, species=4448):
     index = output_path('index.json')
 
@@ -206,9 +174,7 @@ def species_train_test_occurrences(label_species, train, val, test, species=4448
         s = f.read()
         label_name_dic = ast.literal_eval(s)
 
-    print('label_data:', species)
     use_label = list(index_dic.keys())[list(index_dic.values()).index(species)]
-    print('label_model:', use_label)
 
     datasets = [train, val, test]
 

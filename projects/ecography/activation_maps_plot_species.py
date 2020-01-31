@@ -20,4 +20,4 @@ sources = check_source('gbif_taxref')
 
 # get activations
 plot_species_on_map(grid_points, label_species=sources['label_species'], species=species, mean_size=mean_size,
-                    figsize=figsize, log_scale=log_scale, softmax=softmax, bad_alpha=alpha)
+                    figsize=figsize, log_scale=log_scale, softmax=softmax, alpha=alpha)

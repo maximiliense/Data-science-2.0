@@ -84,9 +84,9 @@ def configure(args):
     if args.general_config is not None:
         if not args.general_config.endswith("json"):
             args.general_config = 'configs/' + args.general_config + '.json'
+        if os.path.exists(args.general_config):
+            with open(args.general_config) as f:
+                d = json.load(f)
 
-        with open(args.general_config) as f:
-            d = json.load(f)
-
-        for k, v in d.items():
-            globals()[k] = v
+            for k, v in d.items():
+                globals()[k] = v
