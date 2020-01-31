@@ -106,12 +106,13 @@ def check_general_config(param_list):
     import os
     if param_list.general_config is None:
         list_rood_dir = os.listdir('.')
-        for c in os.listdir('configs'):
-            c_name = c.replace('.json', '')
-            if c_name in list_rood_dir:
+        if os.path.exists('configs'):
+            for c in os.listdir('configs'):
+                c_name = c.replace('.json', '')
+                if c_name in list_rood_dir:
 
-                print_info('[Using config: ' + c_name + ']')
-                param_list.general_config = c_name
+                    print_info('[Using config: ' + c_name + ']')
+                    param_list.general_config = c_name
         return False
     else:
         return True
