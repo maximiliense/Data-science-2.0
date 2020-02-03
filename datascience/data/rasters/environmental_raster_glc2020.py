@@ -1,0 +1,315 @@
+"""
+"
+"   Author: Maximilien Servajean - mservajean
+"   Mail: servajean@lirmm.fr
+"   Date: 04/01/2019
+"
+"   Description: The code to extract environmental tensors and environmental vectors given some environmental rasters.
+"
+"""
+import numpy as np
+import rasterio
+import re
+import os
+import warnings
+import pandas as pd
+
+from datascience.visu.util.util import plt, get_figure
+from engine.logging.logs import print_debug
+from engine.parameters import special_parameters
+
+MIN_ALLOWED_VALUE = -10000
+EPS = 1
+
+# metadata used to setup some rasters
+raster_metadata = {
+    'bdticm': {'min_val': 0, 'max_val': 112467, 'nan': -2147483647},
+}
+
+
+class Raster(object):
+    """
+    Raster is dedicated to a single raster management...
+    """
+    def __init__(self, path, nan=None, normalized=False, transform=None, size=64, one_hot=False,
+                 attrib_column='QUANTI', max_val=255, min_val=0, dtype=None):
+        """
+        Loads a tiff file describing an environmental raster into a numpy array and...
+
+        :param path: the path of the raster (the directory)
+        :param nan: the value to use when NaN number are present. If False, then default values will be used
+        :param normalized: if True the raster will be normalized (minus the mean and divided by std)
+        :param transform: if a function is given, it will be applied on each patch.
+        :param size: the size of a patch (size x size)
+        :param one_hot: if True, each patch will have a one hot encoding representation given the values in the raster.
+        :param attrib_column: the name of the column that contains the correct value to use in the raster
+        :param max_val: the maximum value within the raster (used to reconstruct correct values in the raster)
+        :param min_val: the minimum value within the raster (used to reconstruct correct values in the raster)
+        """
+        self.path = path
+        self.no_data = nan
+        self.normalized = normalized
+        self.transform = transform
+        self.size = size
+        self.one_hot = one_hot
+
+        path = re.sub(r'/\/+/', '/', path)
+
+        self.name = path.split('/')[-1] if path[-1] != '/' else path.split('/')[-2]
+
+        # src.meta
+        # to avoid the annoying corresponding warning, temporary warning disabling...
+        warnings.filterwarnings("ignore")
+        if dtype is not None:
+            src = rasterio.open(path + '/' + self.name + '.tif', nodata=nan, dtype=dtype)
+        else:
+            src = rasterio.open(path + '/' + self.name + '.tif', nodata=nan)
+        warnings.filterwarnings("default")
+
+        if src.meta['crs'] is None:
+
+            with open(path + '/' + 'GeoMetaData.csv') as f:
+                metadata = f.read()
+
+            m_split = metadata.split('\n')[1].split(';')
+
+            # loading file data
+            self.x_min = float(m_split[1])
+            self.y_min = float(m_split[2])
+            self.x_resolution = float(m_split[5])
+            self.y_resolution = float(m_split[6])
+            self.n_rows = int(m_split[3])
+            self.n_cols = int(m_split[4])
+        else:
+            self.x_min = src.bounds.left
+            self.y_min = src.bounds.bottom
+            self.x_resolution = src.res[0]
+            self.y_resolution = src.res[1]
+            self.n_rows = src.height
+            self.n_cols = src.width
+        print(self.x_min, self.y_min, self.x_resolution, self.y_resolution, self.n_rows, self.n_cols)
+        # some tiff do not contain geo data (stored in the file GeoMetaData)
+        # loading the raster
+        self.raster = np.squeeze(src.read())
+        src.close()
+
+        if dtype != rasterio.ubyte:
+            # raster type is float
+            self.raster = self.raster.astype(np.float)
+
+        # value bellow min_value are considered incorrect and therefore no_data
+        self.raster[self.raster < MIN_ALLOWED_VALUE] = nan
+        self.raster[np.isnan(self.raster)] = nan
+        # if the file exists, then it contains the correct values
+        if os.path.isfile(path + '/attrib_' + self.name + '.csv'):
+            if attrib_column is not None:
+
+                df = pd.read_csv(path + '/attrib_' + self.name + '.csv', header='infer', sep=";")
+
+                for line in df.iterrows():
+                    if np.isnan(line[1][attrib_column]):
+                        self.raster[self.raster == line[1]['storage_8bit']] = nan
+                    else:
+                        self.raster[self.raster == line[1]['storage_8bit']] = line[1][attrib_column]
+        # if the file does not exist, then correct values must be reconstructed....
+        #else:
+            #self.raster = min_val + (max_val - min_val)*((self.raster/255) - 0.1) / 0.8
+
+        if normalized and dtype != rasterio.ubyte:
+            # normalizing the whole raster given available data (therefore avoiding no_data)...
+            selected_cell = self.raster != nan
+            self.raster[selected_cell] = (self.raster[selected_cell] - self.raster[selected_cell].mean()) \
+                / self.raster[selected_cell].std()  # TODO all raster with nan or without nan
+
+        if self.one_hot:
+            # unique values for 1 hot encoding
+            self.unique_values = np.unique(self.raster[self.raster != nan])
+
+        # setting the shape of the raster
+        self.shape = self.raster.shape
+
+    def _get_patch(self, item, cancel_one_hot=False):
+        """
+        Avoid using this method directly
+
+        :param item: the GPS position (latitude, longitude)
+        :param cancel_one_hot: if True, one hot encoding will not be used
+        :return: a patch
+        """
+        row_num = int(self.n_rows - (item[0] - self.y_min) / self.y_resolution)
+        col_num = int((item[1] - self.x_min) / self.x_resolution)
+
+        # environmental vector
+        if self.size == 1:
+            patch = self.raster[row_num, col_num].astype(np.float)
+            if self.one_hot and not cancel_one_hot:
+                patch = np.array([(patch == i).astype(float) for i in self.unique_values])
+            else:
+                patch = patch[np.newaxis]
+        # environmental tensor
+        else:
+            half_size = int(self.size/2)
+            patch = self.raster[row_num-half_size:row_num+half_size,
+                    col_num - half_size:col_num+half_size].astype(np.float)
+            if self.one_hot and not cancel_one_hot:
+                patch = np.array([(patch == i).astype(float) for i in self.unique_values])
+            else:
+                patch = patch[np.newaxis]
+
+        return patch
+
+    def __len__(self):
+        """
+        :return: the depth of the tensor/vector...
+        """
+        if self.one_hot:
+            return int(self.unique_values.shape[0])
+        else:
+            return 1
+
+    def __getitem__(self, item, cancel_one_hot=False):
+        """
+        The method to use to retrieve a patch.
+
+        :param item: GPS position (latitude, longitude)
+        :param cancel_one_hot: if true the one hot encoding representation will be disabled
+        :return: the extracted patch with eventually some transformations
+        """
+        # item is a tuple of (latitude, longitude)
+        patch = self._get_patch(item, cancel_one_hot)
+        if self.transform:
+            patch = self.transform(patch)
+
+        return patch
+
+
+class PatchExtractor(object):
+    """
+    PatchExtractor enables the extraction of an environmental tensor from multiple rasters given a GPS
+    position.
+    """
+    def __init__(self, root_path, size=64, verbose=False, resolution=1.):
+        self.root_path = root_path
+        self.size = size
+
+        self.verbose = verbose
+        self.resolution = resolution
+
+        self.rasters_fr = []
+        self.rasters_us = []
+
+    def add_all(self, normalized=False, transform=None):
+        """
+        Add all variables (rasters) available at root_path
+
+        :param normalized: if True, each raster will be normalized
+        :param transform: a function to apply on each patch
+        """
+        for key in sorted(raster_metadata.keys()):
+            if 'ignore' not in raster_metadata[key]:
+                self.append(key, normalized=normalized, transform=transform)
+
+    def append(self, raster_name, **kwargs):
+        """
+        This method append a new raster given its name
+
+        :param raster_name:
+        :param kwargs: nan, normalized, transform
+        """
+        # you may want to add rasters one by one if specific configuration are required on a per raster
+        # basis
+        print_debug('Adding: ' + raster_name, end='')
+        params = {**raster_metadata[raster_name]}
+        for k in kwargs.keys():
+            if kwargs[k] != 'default':
+                params[k] = kwargs[k]
+        try:
+            r = Raster(self.root_path + '/' + raster_name, size=self.size, **params)
+            self.rasters.append(r)
+            print_debug('')
+        except rasterio.errors.RasterioIOError:
+            print_debug(' (not available...)')
+
+    def clean(self):
+        """
+        Remove all rasters from the extractor.
+        """
+
+        print_debug('Removing all rasters...')
+        self.rasters = []
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self):
+        result = ''
+        for r in self.rasters:
+            result += '-' * 50 + '\n'
+            result += 'title: ' + r.name + '\n'
+            result += '\t x_min: ' + str(r.x_min) + '\n'
+            result += '\t y_min: ' + str(r.y_min) + '\n'
+            result += '\t x_resolution: ' + str(r.x_resolution) + '\n'
+            result += '\t y_resolution: ' + str(r.y_resolution) + '\n'
+            result += '\t n_rows: ' + str(r.n_rows) + '\n'
+            result += '\t n_cols: ' + str(r.n_cols) + '\n'
+
+        return result
+
+    def __getitem__(self, item, cancel_one_hot=False):
+        """
+        :param item: the GPS location (latitude, longitude)
+        :return: return the environmental tensor or vector (size>1 or size=1)
+        """
+        return np.concatenate([r.__getitem__(item, cancel_one_hot) for r in self.rasters])
+
+    def __len__(self):
+        """
+        :return: the number of variables (not the size of the tensor when some variables have a one hot encoding
+                 representation)
+        """
+        return len(self.rasters)
+
+    def plot(self, item, cancel_one_hot=True, return_fig=False,
+             style=special_parameters.plt_style, nb_cols=5, alpha=1.):
+        """
+        Plot an environmental tensor (size > 1)...
+
+        :param item: the GPS location (latitude, longitude)
+        :param cancel_one_hot: if False, the variables that have to be display with a one hot encoding approach will
+                               be displayed as such. If True, all variables will have only one dimension.
+        :param return_fig: if True, the matplotlib fig will be returned, if False, it will be displayed
+        :param style: style of the chart
+        """
+
+        if self.size > 1:
+            with plt().style.context(style):
+                metadata = [(r.name,
+                             [item[1] - self.size // 2 * r.x_resolution,
+                              item[1] + self.size // 2 * r.x_resolution,
+                              item[0] - self.size // 2 * r.y_resolution,
+                              item[0] + self.size // 2 * r.y_resolution]
+                             ) for r in self.rasters for _ in range(1 if cancel_one_hot else len(r))]
+                # metadata are the name of the variable and the bounding box in latitude-longitude coordinates
+
+                # retrieve the patch... Eventually disabling the one hot encoding variables
+                patch = self.__getitem__(item, cancel_one_hot)
+
+                # computing number of rows and columns...
+                nb_rows = (patch.shape[0] + (nb_cols-1)) // nb_cols
+
+                plt('patch', figsize=(nb_cols * 6.4 * self.resolution, nb_rows * 4.8 * self.resolution))
+                fig = get_figure('patch')
+                for k, i in zip(metadata, range(patch.shape[0])):
+                    plt('patch').subplot(nb_rows, nb_cols, i + 1)
+                    plt('patch').title(k[0], fontsize=20)
+                    plt('patch').imshow(patch[i], extent=k[1], aspect='auto')
+                    plt('patch').colorbar()
+                fig.tight_layout()
+                fig.patch.set_alpha(alpha)
+            if return_fig:
+                return fig
+            else:
+                fig.show()
+                plt('patch').close(fig)
+        else:
+            raise ValueError('Plot works only for tensors: size must be > 1...')

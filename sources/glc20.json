@@ -1,6 +1,6 @@
 {
   "gpu4": {
-    "rasters": "/home/data/rasters_GLC20/",
+    "rasters": "/home/data/rasters_GLC20/archive/soilgrids",
     "raw_source": "/home/data/occurrences_GLC20/1200000_random_queries_above_0.9.json",
     "occurrences": "/home/data/occurrences_GLC20/occurrences.csv"
   }

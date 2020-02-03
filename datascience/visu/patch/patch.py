@@ -1,4 +1,4 @@
-from datascience.data.rasters.environmental_raster_glc import PatchExtractor
+from datascience.data.rasters.environmental_raster_glc2020 import PatchExtractor
 from datascience.data.util.source_management import check_source
 from engine.core import module
 from engine.logging import print_statistics
@@ -11,6 +11,8 @@ from datascience.visu.util import plt, get_figure
 def pplot(latitude, longitude, source, resolution=1., style=special_parameters.plt_style, nb_cols=5, alpha=1.):
     """
     patch plot
+    :param alpha:
+    :param nb_cols:
     :param style:
     :param latitude:
     :param longitude:
