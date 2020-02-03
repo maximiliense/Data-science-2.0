@@ -37,5 +37,5 @@ def extract_patch(source_tiles, source_occs, offset=0, check_file=True):
 
     t_manager.extract_patches(
         # df[[occs['longitude'], occs['latitude'], occs['id_name']]], r['patches'], extract_res, extract_size, check_file=check_file
-        df[['lon', 'lat', 'id']], "/home/benjamin/alti_1m/", extract_res, extract_size, check_file=check_file
+        df[['lon', 'lat', 'id']], "/home/data/GLC/alti_1m/", extract_res, extract_size, check_file=check_file
     )
