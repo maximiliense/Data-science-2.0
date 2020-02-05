@@ -23,7 +23,9 @@ def pplot(latitude, longitude, source, resolution=1., style=special_parameters.p
     r = check_source(source)
     rasters = r['rasters']
     extractor = PatchExtractor(rasters, resolution=resolution)
-    extractor.add_all()
+    extractor.append('bio_1')
+    extractor.append('bio_2')
+    exit()
     extractor.plot(item=(latitude, longitude), return_fig=True, style=style, nb_cols=nb_cols, alpha=alpha)
 
 
