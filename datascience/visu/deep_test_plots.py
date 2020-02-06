@@ -27,16 +27,17 @@ def plot_db_partitions_gradients(dataset, labels, model):
 
 
 @module
-def plot_db_partitions(dataset, labels, model):
+def plot_db_partitions(dataset, labels, model, colorbar=True):
     """
     Plot the decision boundary, the partitions and the gradients. Works for 2D datasets.
+    :param colorbar:
     :param dataset: the dataset (must be 2D)
     :param labels: the labels
     :param model: the model
     :return:
     """
     ax = plot_dataset.func(dataset, labels)
-    plot_activation_rate.func(dataset, labels, model, ax=ax)
+    plot_activation_rate.func(dataset, labels, model, ax=ax, colorbar=colorbar)
 
     plot_decision_boundary.func(model, ax=ax)
     return ax

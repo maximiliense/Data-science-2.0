@@ -23,12 +23,12 @@ training_params = {
     'iterations': [120],
     'log_modulo': -1,
     'val_modulo': 1,
-    'loss': HebbLoss()
+    # 'loss': HebbLoss()
 }
 
 optim_params = {
     'momentum': 0.0,
-    'lr': 0.1,
+    'lr': 0.5,
 }
 
 validation_params = {
@@ -41,7 +41,7 @@ fit(
 )
 
 # plot results
-ax = plot_db_partitions(train.dataset, train.labels, model)  # plot_db_partitions_gradients
+ax = plot_db_partitions(train.dataset, train.labels, model, colorbar=False)  # plot_db_partitions_gradients
 
 plot_separator(train.separator, ax=ax)
 
