@@ -284,7 +284,6 @@ class TileManager(object):
                 patch = self.extract(latitude, longitude, size, res)
             except Exception as err:
                 t2 = ti.time()
-                print(err)
                 err_manager.append(latitude, longitude, occ_id)
             else:
                 t2 = ti.time()
