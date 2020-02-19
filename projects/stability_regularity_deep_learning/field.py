@@ -43,7 +43,11 @@ def gradient(y_hat, y, X):
     return ((y-y_hat) * X).sum(axis=0)/X.shape[0]
 
 
-def gradient_descent(data, param, nb_iterations=500, batch_size=20, eta=0.1):
+hist_loss_1 = []
+hist_loss_2 = []
+
+
+def gradient_descent(data, param, nb_iterations=500, batch_size=20, eta=0.1, hist_loss=[]):
 
     i = 0
     y = data[:, 2:3]
@@ -61,7 +65,9 @@ def gradient_descent(data, param, nb_iterations=500, batch_size=20, eta=0.1):
         y_hat_complete = sigmoid(np.dot(X, param))
         # print(gradient(y_hat, y_to_use, X_to_use).reshape(param.shape), 'gradient')
         param = param + eta * gradient(y_hat, y_to_use, X_to_use).reshape(param.shape)
-        l += loss(y_hat_complete, y)
+        _l =  loss(y_hat_complete, y)
+        l += _l
+        hist_loss.append(_l)
         # print(i, loss(y_hat_complete, y))
         deb = (deb + batch_size) % X.shape[0]
         end = deb + batch_size
@@ -73,8 +79,8 @@ def gradient_descent(data, param, nb_iterations=500, batch_size=20, eta=0.1):
     return np.array(hist).reshape(len(hist), 2)
 
 
-hist_1 = gradient_descent(dataset, param=beta_gd)
-hist_2 = gradient_descent(dataset, param=beta_sgd, batch_size=1)
+hist_1 = gradient_descent(dataset, param=beta_gd, hist_loss=hist_loss_1)
+hist_2 = gradient_descent(dataset, param=beta_sgd, batch_size=1, hist_loss=hist_loss_2)
 
 def plot():
     y = dataset[:, 2:3]
@@ -100,9 +106,22 @@ def plot():
     cp = ax.contourf(xx, yy, zz)
     ax.plot(hist_2[:, 0], hist_2[:, 1])
     ax.plot(hist_1[:, 0], hist_1[:, 1])
-    plt('energy_landascape').gcf().colorbar(cp)
+    plt('energy_landscape').gcf().colorbar(cp)
     # cset = ax.contour(zz, np.arange(-1, 1.5, 0.2), linewidths=2)
-    save_fig()
 
 
 plot()
+
+ax = plt('loss').gca()
+
+
+def plot_hist(hist_l):
+    h = []
+    for i in range(0, hist_l.shape[0], 10):
+        h.append(hist_l[i:i+5].mean())
+    return h
+
+ax.plot(plot_hist(np.array(hist_loss_1).squeeze()), label='Gradient descent')
+ax.plot(plot_hist(np.array(hist_loss_2).squeeze()), label='Stochastic gradient descent')
+plt('loss').gcf().legend()
+save_fig()

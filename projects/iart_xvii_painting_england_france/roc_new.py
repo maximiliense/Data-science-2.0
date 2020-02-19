@@ -30,7 +30,7 @@ ax.set_ylabel('True Positive Rate')
 ax.set_title('Receiver operating characteristic (AUC: %.3f)' % auc(fpr, tpr))
 
 ax.plot([0, 1], [0, 1], color='red', linestyle='--', label='Random model')
-ax.plot(fpr, tpr, color='yellow', label='IArt')
+ax.plot(fpr, tpr, color='blue', label='IArt')
 ax.plot([0, 0, 1], [0, 1, 1], color='green', linestyle='--', label='Perfect model')
 
 ax.legend(loc="lower right")

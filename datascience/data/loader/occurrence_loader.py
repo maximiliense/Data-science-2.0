@@ -21,7 +21,7 @@ def get_label(r, label_name):
 
 
 def index_init(save_index, label_name):
-    if save_index in ('default', 'auto') and not special_parameters.from_scratch:
+    if save_index in ('default', 'auto') and special_parameters.load_model:
         if label_name is not None and not label_name:
             save_index = 'load_and_save'
         else:
