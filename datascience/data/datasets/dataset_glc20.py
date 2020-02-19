@@ -14,7 +14,7 @@ patch_extractor = None
 
 
 class DatasetGLC20(Dataset):
-    def __init__(self, labels, dataset, ids, rasters, patches, mapping_ces_bio=True):
+    def __init__(self, labels, dataset, ids, rasters, patches, mapping_ces_bio=True, use_rasters=True):
         """
         :param labels:
         :param dataset: (latitude, longitude)
@@ -35,7 +35,7 @@ class DatasetGLC20(Dataset):
 
         self.patches = patches
         global patch_extractor
-        if patch_extractor is None:
+        if patch_extractor is None and rasters is not None and use_rasters:
 
             # 256 is mandatory as images have been extracted in 256 and will be stacked in the __getitem__ method
             patch_extractor = PatchExtractor(rasters, size=256, verbose=True)
@@ -61,7 +61,9 @@ class DatasetGLC20(Dataset):
         path_rgb_ir_lc = path + '_rgb_ir_lc.npy'
 
         # extracting patch from rasters
-        tensor = self.extractor[(latitude, longitude)]
+        tensor = None
+        if self.extractor is not None:
+            tensor = self.extractor[(latitude, longitude)]
 
         # extracting altitude patch
         alti = np.load(path_alti)
@@ -76,6 +78,14 @@ class DatasetGLC20(Dataset):
         lc_one_hot = lc_one_hot.reshape((self.one_hot_size, lc.shape[1], lc.shape[2]))
 
         # concatenating all patches
-        tensor = np.concatenate((tensor, alti.reshape((1, alti.shape[0], alti.shape[1])), rgb_ir_lc[:4], lc_one_hot))
+        if tensor is not None:
+            tensor = np.concatenate((tensor,
+                                     alti.reshape((1, alti.shape[0], alti.shape[1])),
+                                     rgb_ir_lc[:4],
+                                     lc_one_hot))
+        else:
+            tensor = np.concatenate((alti.reshape((1, alti.shape[0], alti.shape[1])),
+                                     rgb_ir_lc[:4],
+                                     lc_one_hot))
 
         return torch.from_numpy(tensor).float(), self.labels[idx]
