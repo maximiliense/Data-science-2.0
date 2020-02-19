@@ -17,7 +17,10 @@ class DatasetGLC20(Dataset):
     def __init__(self, labels, dataset, ids, rasters, patches, mapping_ces_bio=True):
         """
         :param labels:
-        :param dataset: (latitude, longitude, ID)
+        :param dataset: (latitude, longitude)
+        :param ids:
+        :param rasters:
+        :param patches:
         :param mapping_ces_bio:
         """
         self.mapping_ces_bio = mapping_ces_bio
