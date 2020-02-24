@@ -598,7 +598,7 @@ if __name__ == "__main__":
     np.set_printoptions(threshold=np.inf)
     print(im_manager.map)
 
-    lat, long = 43.573620, 2.690617
+    lat, long = 43.5972480773926, 3.88950347900391
 
     im = im_manager.get_image_at_location(lat, long)
     print(im.department, im.date, im.image_name)
@@ -608,9 +608,11 @@ if __name__ == "__main__":
     print(im_manager.image_type)
 
     try:
-        im = im_manager.extract_patch(lat, long, 1.0, 512)
+        im = im_manager.extract_patch(lat, long, 1.0, 256)
     except ExtractionError as err:
         print(err.error_type)
 
-    plt.imshow(im)
+    np.save('/home/bdeneu/data/10068867285_ir.npy', im[:, :, 0])
+
+    plt.imshow(im[:, :, 0])
     plt.show()

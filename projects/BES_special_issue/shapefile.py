@@ -12,6 +12,10 @@ print(shape.schema)
 pol = shape.next()
 print(pol)
 
+with open("/home/bdeneu/metropole.geojson") as geoj:
+    string = geoj.readlines()
+    france = Polygon(ast.literal_eval(string))
+
 open_type = 'w'
 
 inProj = Proj(init='epsg:2154')  # lamb93

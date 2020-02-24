@@ -60,10 +60,10 @@ def linear_regression(arr, k=5):
     res = np.dot(X, reg.coef_) + reg.intercept_
     return res
 
-bt = np.load("/home/bdeneu/results/bt_env_rs_result_top30_for_all_species.npy")
-rf = np.load("/home/bdeneu/results/rf_env_rs_d16_result_top30_for_all_species.npy")
-cnn = np.load("/home/bdeneu/results/inception_rs_normal_do07_4_result_top30_for_all_species.npy")
-dnn = np.load("/home/bdeneu/results/inception_rs_constant_do05_result_top30_for_all_species.npy")
+bt = np.load("/home/bdeneu/old_computer/home/results/bt_env_rs_result_top30_for_all_species.npy")
+rf = np.load("/home/bdeneu/old_computer/home/results/rf_env_rs_d16_result_top30_for_all_species.npy")
+cnn = np.load("/home/bdeneu/old_computer/home/results/inception_rs_normal_do07_4_result_top30_for_all_species.npy")
+dnn = np.load("/home/bdeneu/old_computer/home/results/inception_rs_constant_do05_result_top30_for_all_species.npy")
 
 
 grad_bt = np.arange(bt.shape[0])
@@ -79,6 +79,14 @@ bt_progressive = slide_mean(bt)
 rf_progressive = slide_mean(rf)
 cnn_progressive = slide_mean(cnn)
 dnn_progressive = slide_mean(dnn)
+
+s = ""
+s = s + ";".join([str(i) for i in grad_cnn])
+s = s +"\n" + ";".join([str(i) for i in cnn_progressive])
+s = s +"\n" + ";".join([str(i) for i in dnn_progressive])
+s = s +"\n" + ";".join([str(i) for i in rf_progressive])
+s = s +"\n" + ";".join([str(i) for i in bt_progressive])
+print(s.replace(".", ","))
 
 
 #plt.plot(grad, cnn_top_species, color="green", linestyle='-', label="CNN")

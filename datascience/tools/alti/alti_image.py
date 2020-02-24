@@ -231,7 +231,7 @@ class TileManager(object):
 
         aggregation_im = np.ndarray((corrected_data_running_shape[0] * aggregation_size_x,
                                      corrected_data_running_shape[1] * aggregation_size_y),
-                                    dtype=int)
+                                    dtype="int16")
         for im_tile in list_im:
             aggregation_im[im_tile[1][0]:im_tile[1][1], im_tile[1][2]:im_tile[1][3]]\
                 = self.read_tile((im_tile[0][0], im_tile[0][1]), corrected_data_running_shape)

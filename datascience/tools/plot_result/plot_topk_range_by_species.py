@@ -12,11 +12,14 @@ class ModelPrint(object):
         self.list_curves = []
 
 
-def print_topk_range_plot(list_models, path="/home/bdeneu/results/"):
+def print_topk_range_plot(list_models, path="/home/bdeneu/old_computer/home/results/"):
     grad = np.arange(100)+1
-
+    s = ""
+    s = s + ";".join([str(i) for i in grad])
     for model in list_models:
         plt.plot(grad, np.load(path+model.path), color=model.color, linestyle=model.linestyle, label=model.name)
+        s = s +"\n" + ";".join([str(i) for i in np.load(path+model.path)])
+    print(s.replace(".", ","))
 
     majorLocator = MultipleLocator(5)
     majorFormatter = FormatStrFormatter('%d')
@@ -35,6 +38,8 @@ def print_topk_range_plot(list_models, path="/home/bdeneu/results/"):
     axes.yaxis.set_major_locator(MultipleLocator(0.05))
     axes.yaxis.set_minor_locator(MultipleLocator(0.01))
 
+    axes.patch.set_alpha(1)
+
     plt.grid()
     plt.legend(loc=2)
 
@@ -45,15 +50,15 @@ if __name__ == "__main__":
     list_models = []
     list_models.append(ModelPrint("CNN", "inception_rs_normal_do07_4_result_range_top100_by_species.npy", "g", "-"))
     list_models.append(ModelPrint("DNN", "inception_rs_constant_do05_result_range_top100_by_species.npy", "b", "-"))
-    list_models.append(ModelPrint("Rotations", "inception_rs_rotation_do07_result_range_top100_by_species.npy", "k", "-"))
-    list_models.append(ModelPrint("Permutations", "inception_rs_permutation_do07_result_range_top100_by_species.npy", "y", "-"))
-    list_models.append(ModelPrint("Structure", "inception_rs_structure_do08_result_range_top100_by_species.npy", "r", "-"))
-    list_models.append(ModelPrint("Mean", "inception_rs_mean_do05_result_range_top100_by_species.npy", "m", "-"))
+    #list_models.append(ModelPrint("Rotations", "inception_rs_rotation_do07_result_range_top100_by_species.npy", "k", "-"))
+    #list_models.append(ModelPrint("Permutations", "inception_rs_permutation_do07_result_range_top100_by_species.npy", "y", "-"))
+    #list_models.append(ModelPrint("Structure", "inception_rs_structure_do08_result_range_top100_by_species.npy", "r", "-"))
+    #list_models.append(ModelPrint("Mean", "inception_rs_mean_do05_result_range_top100_by_species.npy", "m", "-"))
 
     # list_models.append(ModelPrint("CNN-structure", "inception_structure_do06_result_range_top100_by_species.npy", "y", "-"))
 
-    #list_models.append(ModelPrint("RF", "rf_env_d16_result_range_top100_by_species.npy", "r", "-"))
-    #list_models.append(ModelPrint("BT", "bt_env_result_range_top100_by_species.npy", "k", "-"))
+    list_models.append(ModelPrint("RF", "rf_env_d16_result_range_top100_by_species.npy", "r", "-"))
+    list_models.append(ModelPrint("BT", "bt_env_result_range_top100_by_species.npy", "k", "-"))
 
     #list_models.append(ModelPrint("CNN_2", "inception_rs_normal_do07_2_result_range_top100_by_species.npy", "b", "-"))
     #list_models.append(ModelPrint("CNN_3", "inception_rs_normal_do07_3_result_range_top100_by_species.npy", "r", "-"))

@@ -4,7 +4,7 @@ import pandas as pd
 # from datascience.data.util.source_management import check_source
 
 
-def extract_patch(source_tiles, source_occs, offset=0, check_file=True):
+def extract_patch(source_tiles, occs_file, offset=0, check_file=True):
     """
     Extract IGN patch from IGN maps.
     :param source:
@@ -25,7 +25,7 @@ def extract_patch(source_tiles, source_occs, offset=0, check_file=True):
     extract_res = 1.0
 
     # loading the occurrence file
-    df = pd.read_csv("/home/benjamin/occurrences.csv", header='infer', sep=';', low_memory=False)
+    df = pd.read_csv(occs_file, header='infer', sep=';', low_memory=False)
 
     # sorting the dataset to optimise the extraction
     df.sort_values('lat', inplace=True)
