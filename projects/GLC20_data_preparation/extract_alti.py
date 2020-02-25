@@ -7,4 +7,4 @@ args = parser.parse_args()
 occs_file = args.occs
 
 
-extract_patch(source_tiles="/home/benjamin/alti/", occs_file=occs_file, dest="/home/data/GLC/alti_1m_us/", check_file=True)
+extract_patch(source_tiles="/home/benjamin/alti_us/", occs_file=occs_file, dest="/home/data/GLC/alti_1m_us/", check_file=True)
