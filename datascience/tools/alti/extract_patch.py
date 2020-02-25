@@ -4,7 +4,7 @@ import pandas as pd
 # from datascience.data.util.source_management import check_source
 
 
-def extract_patch(source_tiles, occs_file, offset=0, check_file=True):
+def extract_patch(source_tiles, occs_file, dest, offset=0, check_file=True):
     """
     Extract IGN patch from IGN maps.
     :param source:
@@ -20,7 +20,7 @@ def extract_patch(source_tiles, occs_file, offset=0, check_file=True):
 
     # extract manager
     # t_manager = TileManager(r['tiles'])
-    t_manager = TileManager("/home/benjamin/alti/")
+    t_manager = TileManager(source_tiles)
     extract_size = 256
     extract_res = 1.0
 
@@ -37,5 +37,5 @@ def extract_patch(source_tiles, occs_file, offset=0, check_file=True):
 
     t_manager.extract_patches(
         # df[[occs['longitude'], occs['latitude'], occs['id_name']]], r['patches'], extract_res, extract_size, check_file=check_file
-        df[['lon', 'lat', 'id']], "/home/data/GLC/alti_1m/", extract_res, extract_size, check_file=check_file
+        df[['lon', 'lat', 'id']], dest, extract_res, extract_size, check_file=check_file
     )
