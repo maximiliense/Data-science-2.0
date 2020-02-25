@@ -293,6 +293,8 @@ class TileManager(object):
                 extract_time += delta
 
             err_manager.write_errors()
+        print("end")
+        _print_details(total, total, start, extract_time, 0.0, 0.0)
 
 
 class _ErrorManager(object):
