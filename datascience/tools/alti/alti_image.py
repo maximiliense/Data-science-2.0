@@ -357,7 +357,7 @@ def _print_details(idx, total, start, extract_time, latitude, longitude):
 
 
 if __name__ == "__main__":
-    dir_name = '/home/bdeneu/data/alti/'
+    dir_name = '/home/bdeneu/alti/'
     t_manager = TileManager(dir_name)
     p = t_manager.extract(45.546314239502, 6.79009008407593, 256, 1.0)
     np.save("10041069744.npy", p)
