@@ -360,8 +360,9 @@ if __name__ == "__main__":
     dir_name = '/home/bdeneu/data/alti/'
     t_manager = TileManager(dir_name)
     p = t_manager.extract(45.546314239502, 6.79009008407593, 256, 1.0)
-    plt.imshow(p)
-    plt.show()
+    np.save("10041069744.npy", p)
+    #plt.imshow(p)
+    #plt.show()
 
 
     """
