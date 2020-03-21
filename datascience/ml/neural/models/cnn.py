@@ -81,7 +81,7 @@ def fc_layer(in_f, out_f, relu=True, bias=True):
 
 class CustomizableCNN(nn.Module):
     def __init__(self, conv_layers=(100, 100), linear_layers=(124,), dim_out=10, im_shape=(3, 32, 32),
-                 relu=True, batchnorm=True, pooling=False, conv_size=5, stride=2):
+                 relu=True, batchnorm=True, pooling=None, conv_size=5, stride=2):
         super(CustomizableCNN, self).__init__()
         rep_size = im_shape[1]
         for _ in range(len(conv_layers)):
@@ -99,7 +99,8 @@ class CustomizableCNN(nn.Module):
         self.conv_layers = nn.Sequential(*layers)
 
         self.pooling = None
-        if type(pooling) is nn.Module:
+
+        if pooling is not None:
             self.pooling = pooling(rep_size, rep_size)
             rep_size = 1
 
@@ -120,6 +121,7 @@ class CustomizableCNN(nn.Module):
     def forward(self, x, layer=sys.maxsize):
         last_relu = layer == sys.maxsize
         i = 0
+
         while i < layer and i < len(self.conv_layers):
             seq = self.conv_layers[i]
             for s in range(len(seq)):

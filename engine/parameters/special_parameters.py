@@ -6,8 +6,6 @@ import os
 import json
 import sys
 
-from engine.flags import deprecated
-
 root_path = None
 project_path = None
 homex = ''

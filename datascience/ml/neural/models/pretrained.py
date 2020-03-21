@@ -72,7 +72,7 @@ def initialize_model(model_name, num_classes, feature_extract, use_pretrained=Tr
         model_ft.AuxLogits.fc = nn.Linear(num_ftrs, num_classes)
         # Handle the primary net
         num_ftrs = model_ft.fc.in_features
-        model_ft.fc = nn.Linear(num_ftrs,num_classes)
+        model_ft.fc = nn.Linear(num_ftrs, num_classes)
         model_ft.input_size = 299
 
     else:
